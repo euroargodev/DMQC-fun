@@ -61,6 +61,7 @@ for I=1:length(float_names)
   % Maybe consider using DIRECTION in the sorting too, so it is
   % always, e.g., DADAAA...
   
+  DENS = sw_dens(SAL,TEMP,PRES);
 
   % Spike tests (RTQC double check):
   % Test value = | V2 – (V3 + V1)/2 | – | (V3 – V1) / 2 |

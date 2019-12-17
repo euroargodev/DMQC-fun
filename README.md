@@ -51,3 +51,38 @@ c.	Flag data (using scoop) to remove spikes-hooks
 
 10.	Set up a github repository for our little group. INGRID
 
+% Here is an overview of the files Even has made for a start. These
+% files are concentrated around the pre-calibration stage. There are
+% more documentation in the scripts themeselves.
+%
+% Note that some of them will need small functions from other toolboxes,
+% in particular EVENMAT which can be downloaded at
+% https://github.com/evenrev1/evenmat .
+%
+% init_dmqc	Name files to load/analyse, and set all paths for the 
+%		DMQC. Download NetCDF file from coriolis server is
+%		done here
+% load referencedata	A script to ingest, quick-check and update
+%		list of reference data for Argo DMQC.
+% load_floats	Build the mat-file for the float, while checking for 
+%		pressure and density, and existing QC-flags. 
+% plot_profiles	Used by load_floats to make plots if any instabilities or
+%		non-monotonic increasing pressure found.
+% plot_diagnostics_ow	This is copied from the OWC toolbox and
+%		modidified here, because we felt it needed some
+%		improvements. It will be used instead of the
+%		original/downloaded one if you run ow_calibration
+%		from this local directory or make sure the path to
+%		our version is first in Matlab's path list. 
+%
+% The following files are files in the OWC toolbox. I just mention these
+% for completeness, as editing them by setting parameters in them are
+% part of the recipe for calibration:
+%
+% ow_config.txt	Set the OWC paths and mapping parameters. Remember to
+%		delete map- and calibration files for the float in
+%		question. 
+% set_calseries	Set the calibration parameters inside this
+%		script. Remember to delete map- and calibration files
+%		for the float in question. 
+% ow_calibration Run the (mapping) and calibration.  
