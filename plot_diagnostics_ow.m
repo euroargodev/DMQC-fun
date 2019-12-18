@@ -668,7 +668,7 @@ plot(SAL,PTMP,'b-');
 x = get(gca,'xlim');
 y = get(gca,'ylim');
 xlabel('PSS-78')
-title(strcat('OW chosen levels - ', pn_float_name),'fontsize',10);
+title(['OW chosen levels - ', pn_float_name],'fontsize',10);
 for i=1:10
   hold on
   plot(x,[tlevels(i) tlevels(i)] ,'g-');
@@ -693,7 +693,7 @@ plot(PTMP,-PRES,'b-');
 x = get(gca,'xlim');
 xlabel('^{\circ}C')
 ylabel('Pressure (dbar)')
-title(strcat('OW chosen levels - ', pn_float_name),'fontsize',10);
+title(['OW chosen levels - ', pn_float_name],'fontsize',10);
 for i=1:10
   hold on
   plot(x,[-plevels(i) -plevels(i)] ,'g-');
@@ -704,7 +704,7 @@ subplot(224)
 plot(SAL,-PRES,'b-');
 x = get(gca,'xlim');
 xlabel('PSS-78')
-title(strcat('OW chosen levels - ', pn_float_name),'fontsize',10);
+title(['OW chosen levels - ', pn_float_name],'fontsize',10);
 for i=1:10
   hold on
   plot(x,[-plevels(i) -plevels(i)] ,'g-');

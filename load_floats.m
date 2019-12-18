@@ -1,28 +1,14 @@
+% This script loads float nc-files from your download folder, checks
+% and prepares float data for ow_calibration.
 
-% The subdirectory /data is organised as follows (in OWC):
-%
-% /data/float_source/
-% contains .mat files with the original data from the floats.
-% /data/float_mapped/
-% contains .mat files with the objective estimates at the float profile locations and observed θ levels.
-% /data/float_calib/
-% contains .mat files with the calibration constants and error estimates.
-% /data/float_plots/
-% contains diagnostic plots from the calibration.
-% /data/constants/
-% contains coastdat.mat, wmo_boxes.mat, and TypicalProfileAroundSAF.mat.
-% /data/climatology/historical_ctd, /historical_bot, /argo_profiles
-% are where you put your reference data. Reference data are saved as .mat files in 10×10 degree WMO boxes. Please refer to README_prepare_refdbase_ow.pdf for their data format.
- 
+clear all
+init_dmqc; % Paths and filenames, and ftp download.
+
 % ----- Download float data manually: ------------------
 % OBSOLETE. This is now done in init_dmqc.
 % cd ~/Downloads/ARGO/
 % lftp ftp.ifremer.fr/ifremer/argo/dac/coriolis/
 % ------------------------------------------------------
-
-clear all
-init_dmqc; % Paths and filenames, and ftp download.
-
 
 for I=1:length(float_names)
   
@@ -63,27 +49,33 @@ for I=1:length(float_names)
   
   DENS = sw_dens(SAL,TEMP,PRES);
 
-  % Spike tests (RTQC double check):
+  % Spike tests (RTQC double check and stricter DMQC check for some):
   % Test value = | V2 – (V3 + V1)/2 | – | (V3 – V1) / 2 |
   % according to EuroGOOS,  where V2 is the measurement being tested
   % as a spike, and V1 and V3 are the values above and below. 
   testvalue = [zeros(1,n); abs(SAL(2:end-1,:)-(SAL(3:end,:)+SAL(1:end-2,:))/2) - abs((SAL(3:end,:)-SAL(1:end-2,:))/2) ; zeros(1,n)];
-  [PRES<500 & testvalue>0.9 |  PRES>=500 & testvalue>0.3];
+  %[PRES<500 & testvalue>0.9 |  PRES>=500 & testvalue>0.3]; % The RTQC9 limits 
+  [PRES<500 & testvalue>0.9 |  PRES>=500 & testvalue>0.02]; % By experience clear spikes in the Nordic Seas
   if any(ans,'all')
-    SAL(ans)=NaN; % REMEMBER TO ALSO FLAG IT
     jnb=find(any(ans)); nb=ans; nbt='Salinity spike(s)';
-    warning(['Salinity spike(s) in profile(s): ',int2str(jnb),' !']);
+   find(nb)
+    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(jnb),' ! (removed)']);
+    plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_S-spike_warning.eps'])
+    SAL(nb)=NaN; % REMEMBER TO ALSO FLAG IT
   else
     clear nb
+    system(['rm -f ',outfiles{I}(1:end-4),'_S-spike_warning.eps']);
   end
   testvalue = [zeros(1,n); abs(TEMP(2:end-1,:)-(TEMP(3:end,:)+TEMP(1:end-2,:))/2) - abs((TEMP(3:end,:)-TEMP(1:end-2,:))/2) ; zeros(1,n)];
   [PRES<500 & testvalue>6 |  PRES>=500 & testvalue>2];
   if any(ans,'all')
-    TEMP(ans)=NaN; % REMEMBER TO ALSO FLAG IT
     jnb=find(any(ans)); nb=ans; nbt='Temperature spike(s)';
-    warning(['Temperature spike(s) in profile(s): ',int2str(jnb),' !']);
+    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(jnb),' ! (removed)']);
+    plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_T-spike_warning.eps']);
+    TEMP(nb)=NaN; % REMEMBER TO ALSO FLAG IT
   else
     clear nb
+    system(['rm -f ',outfiles{I}(1:end-4),'_T-spike_warning.eps']);
   end
 
   DENS = sw_dens(SAL,TEMP,PRES);
@@ -94,7 +86,7 @@ for I=1:length(float_names)
   if any(ans,'all')
     %PRES(ans)=NaN; SAL(ans)=NaN; TEMP(ans)=NaN;
     jnb=find(any(ans)); nb=ans; nbt='Non monotonic pressure';
-    warning(['Non-monotonic pressure in profile(s): ',int2str(jnb),' !']);	% Only warning
+    warning(['Non-monotonic pressure in float ',float_names{I},' profile(s): ',int2str(jnb),' !']);	% Only warning
     plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_pressure_warning.eps'])
   else
     system(['rm -f ',outfiles{I}(1:end-4),'_pressure_warning.eps']);
@@ -106,7 +98,7 @@ for I=1:length(float_names)
   if any(ans,'all')
     %PRES(ans)=NaN; SAL(ans)=NaN; TEMP(ans)=NaN; 
     jnb=find(any(ans)); nb=ans; nbt='Inversions';
-    warning(['Density inversions in profile(s): ',int2str(jnb),' !']);	% Only warning
+    warning(['Density inversions in float ',float_names{I},' profile(s): ',int2str(jnb),' !']);	% Only warning
     plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_inversion_warning.eps'])
   else
     system(['rm -f ',outfiles{I}(1:end-4),'_inversion_warning.eps']);

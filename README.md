@@ -4,6 +4,8 @@ Extra scripts and functions to perform Argo Floats DMQC
 Why?
 Between 2nd and 6th of December Even (Norway) and Gosia (Poland) visit Birgit and Ingrid in BSH (Germany) to learn the DMQC procedures. During the visit, we came up with a "wish list", where we listed the functionalities that we would like to add to the main OWC toolbox or that we need for the preparation of the D-files.
 
+See the matlab DMQC-fun.m documentation for matlab (help DMQC-fun) for a list of functions and more guidelines for installment and use. The scripts themselves (should) have the most updated instructions in for of good coomenting.
+
 The List
 
 1.	Script to write the D files (skeleton with annotation was send by Birgit to all of us)
@@ -50,6 +52,7 @@ c.	Flag data (using scoop) to remove spikes-hooks
 9.	Write a function to put only the reference data you need for your region into the OWC climatology folders, including some checks and plots on it, as well as automatic update of your WMO box table in wmo_boxes-mat.
 
 10.	Set up a github repository for our little group. INGRID
+
 
 % Here is an overview of the files Even has made for a start. These
 % files are concentrated around the pre-calibration stage. There are
