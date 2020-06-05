@@ -13,7 +13,8 @@ init_dmqc; % Paths and filenames, and ftp download.
 for I=1:length(float_names)
   
   % Reading and some massage:
-  LONG=ncread(infiles{I},'LONGITUDE')'; LONG<0; LONG(ans)=LONG(ans)+360;
+  LONG=ncread(infiles{I},'LONGITUDE')'; 
+  LONG<0; LONG(ans)=LONG(ans)+360; % Add 360 to match the reference data.
   LAT=ncread(infiles{I},'LATITUDE')';
   JULD=ncread(infiles{I},'JULD'); REFERENCE_DATE_TIME=ncread(infiles{I},'REFERENCE_DATE_TIME');
   REFERENCE_DATE_TIME'; DATES=dyear(datenum([ans(1:8),'T',ans(9:14)],'yyyymmddTHHMMSS')+JULD');
@@ -40,75 +41,123 @@ for I=1:length(float_names)
   [ans,IA]=sort(CYCLE_NUMBER); % C = A(IA);
   if ~all(ans==CYCLE_NUMBER)
     LONG=LONG(IA); LAT=LAT(IA); DATES=DATES(IA); CYCLE_NUMBER=CYCLE_NUMBER(IA); PRES=PRES(:,IA); SAL=SAL(:,IA); TEMP=TEMP(:,IA);
-    CYCLE_NUMBER=ans;
+    warning('Cycle numbers not in succession! (sorted)');
+    %CYCLE_NUMBER=ans;
   end
   [m,n]=size(PRES);
   PROFILE_NO=1:n;
   % Maybe consider using DIRECTION in the sorting too, so it is
   % always, e.g., DADAAA...
   
-  DENS = sw_dens(SAL,TEMP,PRES);
+  DENS = sw_dens(SAL,TEMP,PRES); % For the plotting of warning plots.
+  zerow=zeros(1,n);			% Row of zeros
 
+  % Pressure increasing test / monotonically increasing pressure test:
+  logical([zerow;diff(PRES,1,1)<=0]); 
+  ans(PRES<=MAP_P_EXCLUDE)=logical(0); % Do not be concerned with monotonicity above.
+  if any(ans,'all')
+    jnb=find(any(ans)); pnb=ans; nbt='Non-monotonic pressure';
+    warning([nbt,'in float ',float_names{I},' profile(s): ',int2str(PROFILE_NO(jnb)),' !']);	% Only warning
+    plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_pressure_warning.eps'])
+    % Action: If there is a region of constant pressure, all but the
+    % first of the consecutive levels of constant pressure should be
+    % flagged as bad data (‘4’).
+    % If there is a region where pressure reverses, all of the
+    % pressures in the reversed part of the profile should be flagged
+    % as bad data. 
+    % All pressures flagged as bad data and all of the associated
+    % temperatures and salinities should be removed.
+    % NO ACTION. IMPLEMENT WHEN IT HAPPENS.
+    clear pnb jnb nbt
+  else
+    system(['rm -f ',outfiles{I}(1:end-4),'_pressure_warning.eps']);
+  end
+
+  
   % Spike tests (RTQC double check and stricter DMQC check for some):
   % Test value = | V2 – (V3 + V1)/2 | – | (V3 – V1) / 2 |
   % according to EuroGOOS,  where V2 is the measurement being tested
   % as a spike, and V1 and V3 are the values above and below. 
-  testvalue = [zeros(1,n); abs(SAL(2:end-1,:)-(SAL(3:end,:)+SAL(1:end-2,:))/2) - abs((SAL(3:end,:)-SAL(1:end-2,:))/2) ; zeros(1,n)];
+  testvalue = [zerow; abs(SAL(2:end-1,:)-(SAL(3:end,:)+SAL(1:end-2,:))/2) - abs((SAL(3:end,:)-SAL(1:end-2,:))/2) ; zerow];
   %[PRES<500 & testvalue>0.9 |  PRES>=500 & testvalue>0.3]; % The RTQC9 limits 
   [PRES<500 & testvalue>0.9 |  PRES>=500 & testvalue>0.02]; % By experience clear spikes in the Nordic Seas
   if any(ans,'all')
-    jnb=find(any(ans)); nb=ans; nbt='Salinity spike(s)';
-   find(nb)
-    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(jnb),' ! (removed)']);
-    plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_S-spike_warning.eps'])
-    SAL(nb)=NaN; % REMEMBER TO ALSO FLAG IT
+    jnb=find(any(ans)); snb=ans; nbt='Salinity spike(s)';
+    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(PROFILE_NO(jnb)),' ! (removed)']);
+    plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_S-spike_warning.eps']);
+    SAL(snb)=NaN; % REMEMBER TO ALSO FLAG IT
+    clear snb jnb nbt
   else
-    clear nb
     system(['rm -f ',outfiles{I}(1:end-4),'_S-spike_warning.eps']);
   end
-  testvalue = [zeros(1,n); abs(TEMP(2:end-1,:)-(TEMP(3:end,:)+TEMP(1:end-2,:))/2) - abs((TEMP(3:end,:)-TEMP(1:end-2,:))/2) ; zeros(1,n)];
+  testvalue = [zerow; abs(TEMP(2:end-1,:)-(TEMP(3:end,:)+TEMP(1:end-2,:))/2) - abs((TEMP(3:end,:)-TEMP(1:end-2,:))/2) ; zerow];
   [PRES<500 & testvalue>6 |  PRES>=500 & testvalue>2];
   if any(ans,'all')
-    jnb=find(any(ans)); nb=ans; nbt='Temperature spike(s)';
-    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(jnb),' ! (removed)']);
+    jnb=find(any(ans)); tnb=ans; nbt='Temperature spike(s)';
+    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(PROFILE_NO(jnb)),' ! (removed)']);
     plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_T-spike_warning.eps']);
-    TEMP(nb)=NaN; % REMEMBER TO ALSO FLAG IT
+    TEMP(tnb)=NaN; % REMEMBER TO ALSO FLAG IT
+    clear tnb jnb nbt
   else
-    clear nb
     system(['rm -f ',outfiles{I}(1:end-4),'_T-spike_warning.eps']);
   end
 
-  DENS = sw_dens(SAL,TEMP,PRES);
 
-  % Monotonically increasing pressure only:
-  [logical(zeros(1,n));diff(PRES,1,1)<=0]; 
-  ans(PRES<=MAP_P_EXCLUDE)=logical(0); % Do not be concerned with monotonicity above.
-  if any(ans,'all')
-    %PRES(ans)=NaN; SAL(ans)=NaN; TEMP(ans)=NaN;
-    jnb=find(any(ans)); nb=ans; nbt='Non monotonic pressure';
-    warning(['Non-monotonic pressure in float ',float_names{I},' profile(s): ',int2str(jnb),' !']);	% Only warning
-    plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_pressure_warning.eps'])
+  % Gradient test
+  % Test value = | V2 − (V3 + V1)/2 |
+  % where V2 is the measurement being tested, and V1 and V3 are the values above and below.
+  testvalue = [zerow ; abs(SAL(2:end-1,:)-(SAL(3:end,:)+SAL(1:end-2,:))/2) ; zerow];
+  [PRES<500 & testvalue>1.5 |  PRES>=500 & testvalue>0.5]; % The RTQC9 limits 
+  %[PRES<500 & testvalue>1.5 |  PRES>=500 & testvalue>0.5]; % By experience in the Nordic Seas  
+    if any(ans,'all')
+    jnb=find(any(ans));  snb=ans; nbt='Salinity gradient(s)';
+    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(PROFILE_NO(jnb)),' ! (removed)']);
+    plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_S-gradient_warning.eps']);
+    SAL(snb)=NaN; % REMEMBER TO ALSO FLAG IT
+    clear snb jnb nbt
   else
-    system(['rm -f ',outfiles{I}(1:end-4),'_pressure_warning.eps']);
+    system(['rm -f ',outfiles{I}(1:end-4),'_S-gradient_warning.eps']);
   end
-  
-  % Check for density inversions:
-  [logical(zeros(1,n));diff(DENS,1,1)<=0]; 
-  ans(PRES<=MAP_P_EXCLUDE)=logical(0); % Do not be concerned with inversions above.
+  testvalue = [zerow ; abs(TEMP(2:end-1,:)-(TEMP(3:end,:)+TEMP(1:end-2,:))/2) ; zerow];
+  [PRES<500 & testvalue>9 |  PRES>=500 & testvalue>3]; % The RTQC9 limits 
   if any(ans,'all')
-    %PRES(ans)=NaN; SAL(ans)=NaN; TEMP(ans)=NaN; 
-    jnb=find(any(ans)); nb=ans; nbt='Inversions';
-    warning(['Density inversions in float ',float_names{I},' profile(s): ',int2str(jnb),' !']);	% Only warning
+    jnb=find(any(ans)); tnb=ans; nbt='Temperature gradient(s)';
+    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(PROFILE_NO(jnb)),' ! (removed)']);
+    plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_T-gradient_warning.eps']);
+    TEMP(tnb)=NaN; % REMEMBER TO ALSO FLAG IT
+    clear tnb jnb nbt 
+  else
+    system(['rm -f ',outfiles{I}(1:end-4),'_T-gradient_warning.eps']);
+  end
+
+  % Density inversion test:
+  pres=PRES; pres(isnan(SAL)|isnan(TEMP))=NaN;
+  PR = pres - [zerow; nandiff(pres)/2];	% Reference pressure
+  DENS = sw_pden(SAL,TEMP,pres,PR);	% Potential density
+  downw=nandiff(DENS)<-0.03;		% Downward test
+  pres([downw;logical(zerow)])=NaN;	% Remove found
+  PR = pres - [zerow; nandiff(pres)/2];	% Reference pressure again
+  dens = sw_pden(SAL,TEMP,pres,PR);	% Potential density again
+  upw=nandiff(dens)<-0.03;			% Upward test
+  logical([downw;zerow]+[zerow;upw]);	% Logical for bad data
+  if any(ans,'all')
+    jnb=find(any(ans)); inb=ans; nbt='Density inversions';
+    warning([nbt,' in float ',float_names{I},' profile(s): ',int2str(PROFILE_NO(jnb)),' !']);	% Only warning
     plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'_inversion_warning.eps'])
+    SAL(inb)=NaN; TEMP(inb)=NaN; DENS(inb)=NaN;  % REMEMBER TO ALSO FLAG S&T
+    clear inb jnb nbt
   else
     system(['rm -f ',outfiles{I}(1:end-4),'_inversion_warning.eps']);
   end
-  % Upwards and downwards?
 
+  % Finally plot the clean plot.
+  plot_profiles; print(gcf,'-depsc',[outfiles{I}(1:end-4),'.eps']);
+
+  
   % Create this new variable:
   PTMP = sw_ptmp(SAL,TEMP,PRES,0);
   
-  whos LAT LONG DATES PRES SAL TEMP PTMP PROFILE_NO CYCLE_NUMBER
+  whos LAT LONG DATES PRES SAL TEMP PTMP PROFILE_NO CYCLE_NUMBER 
   save(outfiles{I}','LAT','LONG','DATES','PRES','SAL','TEMP','PTMP','PROFILE_NO','CYCLE_NUMBER');
 end
 
