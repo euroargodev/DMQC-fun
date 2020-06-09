@@ -157,7 +157,7 @@ for I=1:length(float_names)
   % Create this new variable:
   PTMP = sw_ptmp(SAL,TEMP,PRES,0);
   
-  whos LAT LONG DATES PRES SAL TEMP PTMP PROFILE_NO CYCLE_NUMBER 
+  %whos LAT LONG DATES PRES SAL TEMP PTMP PROFILE_NO CYCLE_NUMBER 
   save(outfiles{I}','LAT','LONG','DATES','PRES','SAL','TEMP','PTMP','PROFILE_NO','CYCLE_NUMBER');
 end
 
