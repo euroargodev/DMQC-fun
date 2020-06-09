@@ -26,7 +26,7 @@ end
 %[lo,la]=erect(lim,'t'); hw=m_line(lo,la,'color','b');
 IA=1:length(lon); %[ans,IA]=sort(LAT);
 hp=m_scatter(lon,LAT,5,jet(n));set(hp,'marker','*');
-ht=m_text(lon(10:10:end),LAT(10:10:end),int2str(CYCLE_NUMBER(10:10:end)'));
+ht=m_text(lon(10:10:end),LAT(10:10:end),int2str(PROFILE_NO(10:10:end)'));
 if exist('jnb'), hpnb=m_line(lon(jnb),LAT(jnb)); set(hpnb,'marker','o','color','k','linestyle','none'); end
 %hl=legend([hw hp(1)],'WMO-square','Reference data','location','northwestoutside');
 hcb=colorbar('southoutside');colormap(jet(n));caxis([0 n]);
@@ -36,34 +36,41 @@ xlabel(hcb,['Profile number (',datestr(datenum(DATES(1),0,0),12),'-',datestr(dat
 subplot 232
 tsdiagrm(mima(SAL),mima(TEMP),0);
 hTS=line(SAL,TEMP,'marker','.','linestyle','none');
-if exist('nb'), hTSnb=line(SAL(nb),TEMP(nb)); end %,'marker','o','linestyle','none','color','k');
+if exist('snb'), hTSnb=line(SAL(snb),TEMP(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('tnb'), hTSnb=line(SAL(tnb),TEMP(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('inb'), hTSnb=line(SAL(inb),TEMP(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
 set(hTS,{'color'},num2cell(jet(size(PRES,2)),2));
 
 % Profiles:
 subplot 234
 hT=line(PRES,TEMP); 
-if exist('nb'), hTnb=line(PRES(nb),TEMP(nb)); end
+if exist('tnb'), hTnb=line(PRES(tnb),TEMP(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('inb'), hTnb=line(PRES(inb),TEMP(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
 view([90 90]);grid;set(gca,'yaxislocation','right');
 set(hT,{'color'},num2cell(jet(size(PRES,2)),2));
 xlabel Pressure; ylabel Temperature
 
 subplot 235
 hS=line(PRES,SAL); 
-if exist('nb'), hSnb=line(PRES(nb),SAL(nb)); end
+if exist('snb'), hSnb=line(PRES(snb),SAL(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('inb'), hSnb=line(PRES(inb),SAL(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
 view([90 90]);grid;set(gca,'yaxislocation','right');
 set(hS,{'color'},num2cell(jet(size(PRES,2)),2));
 xlabel Pressure; ylabel Salinity
 
 subplot 236
 hD=line(PRES,DENS); 
-if exist('nb'), hDnb=line(PRES(nb),DENS(nb)); end
+if exist('snb'), hDnb=line(PRES(snb),DENS(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('tnb'), hDnb=line(PRES(tnb),DENS(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('pnb'), hDnb=line(PRES(pnb),DENS(pnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('inb'), hDnb=line(PRES(inb),DENS(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
 view([90 90]);grid;set(gca,'yaxislocation','right');
 set(hD,{'color'},num2cell(jet(size(PRES,2)),2));
 xlabel Pressure; ylabel Density
 
-try 
-  set([hTSnb,hTnb,hSnb,hDnb],'color','k','linewidth',2,'linestyle','none','marker','o')
-end
+%try 
+%  set([hTSnb,hTnb,hSnb,hDnb],'color','k','linewidth',2,'linestyle','none','marker','o')
+%end
 
 %delete([hTSnb,hTnb,hSnb,hpnb]); % For a clean plot
 
