@@ -14,7 +14,7 @@ subplot 231;
 if exist('nbt'), title([nbt,' at float number ',float_names{I}]); end
 lim=[mima(lon) mima(LAT)];
 m_proj('Albers','lon',lim(1:2)+[-4 4],'lat',lim(3:4)+[-1 1])
-m_grid; m_coast('color','k'); m_elev('contour','color',[.7 .7 .7]);
+m_grid; m_coast('color','k'); m_elev('contour',[-5000:250:0],'color',[.7 .7 .7]);
 wmos=unique(findwmo(lon,LAT));wmos=wmos(~isnan(wmos));
 for ii=1:length(wmos)
   wmolim=wmosquare(wmos(ii)); [lo,la]=erect(wmolim,'t'); m_line(lo,la);
