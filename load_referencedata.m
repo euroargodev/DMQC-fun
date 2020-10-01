@@ -37,7 +37,7 @@ for i=1:length(A)
   [lo,la]=erect(wmolim(i,:),'t'); m_line(lo,la);
   sort([wmolim(i,1:2)+[-4 4],wmolim(i,1:2)]);lom=ans(2:3);
   sort([wmolim(i,3:4)+[-1 1],wmolim(i,3:4)]);lam=ans(2:3);
-  htx=m_text(mean(lom),mean(lam),int2str(A(i)));
+  htx=m_text(mean(lom),mean(lam),int2str(A(i))); 
   set(htx,'verticalalignment','middle','horizontalalignment','center','color','b');
 end
 % map will be printed after the content check below.
