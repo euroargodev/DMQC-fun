@@ -7,8 +7,9 @@
 
 clear all; close all;
 
+init_dmqc;	% Get some necessary paths.
+
 % Enter names of directories to ingest from:
-sourcedir='~/Downloads/DMQC';
 refdir={'CTD_for_DMQC_2019V01_1','CTD_for_DMQC_2019V01_7','ARGO_for_DMQC_2019V03'};
 refdir={'CTD_for_DMQC_2019V01_1','CTD_for_DMQC_2019V01_7','ARGO_for_DMQC_2020V01'};%May2020
 
@@ -18,11 +19,11 @@ A=[1803 1804 1805	                         7802 7801 7800 1800 1801 1802 ...
    1603 1604 1605	     7606 7605 7604 7603 7602 7601 7600 1600 1601 1602 ...
 			     7506 7505 7504 7503 7502 7501 7500 1500 1501 1502 ...
 			     7406 7405 7404 7403 7402 7401 7400  ];
-% Target directories:
-dadir = '~/Arkiv/data/matlab_owc/';
-tardir={[dadir,'climatology/historical_ctd'], ... 
-	[dadir,'climatology/historical_bot'], ...
-	[dadir,'climatology/argo_profiles']};
+
+% Target directories (names of these subdirectories are given by OWC-toolbox):
+tardir={[owc_data_dir,'climatology/historical_ctd'], ... 
+	[owc_data_dir,'climatology/historical_bot'], ...
+	[owc_data_dir,'climatology/argo_profiles']};
 tartyp={'ctd_','bot_','argo_'};
 
 
@@ -47,13 +48,13 @@ end
 for j=1:length(refdir) % Loop reference-data directories
   if any(findstr('CTD',refdir{j}))
     for i=1:length(A)
-      %['cp ',sourcedir,filesep,refdir{j},filesep,'ctd_',int2str(A(i)),'.mat ',tardir{1},filesep]
-      msg=system(['cp ',sourcedir,filesep,refdir{j},filesep,'ctd_',int2str(A(i)),'.mat ',tardir{1},filesep]);
+      %['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(A(i)),'.mat ',tardir{1},filesep]
+      msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(A(i)),'.mat ',tardir{1},filesep]);
     end
   elseif any(findstr('ARGO',refdir{j}))
     for i=1:length(A)
-      %['cp ',sourcedir,filesep,refdir{j},filesep,'argo_',int2str(A(i)),'.mat ',tardir{3},filesep]
-      msg=system(['cp ',sourcedir,filesep,refdir{j},filesep,'argo_',int2str(A(i)),'.mat ',tardir{3},filesep]);
+      %['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(A(i)),'.mat ',tardir{3},filesep]
+      msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(A(i)),'.mat ',tardir{3},filesep]);
     end
   end
 end
@@ -68,7 +69,7 @@ end
 % Argo data. 0 = no data, or do not use. 1 = data exist, and use
 % them. Edit the 2nd, 3rd and 4th columns after you have added the
 % reference data.
-load([dadir,filesep,'constants',filesep,'wmo_boxes']);
+load([owc_data_dir,filesep,'constants',filesep,'wmo_boxes']);
 N=size(la_wmo_boxes,1);
 % Search all target directories and update the 'flags':
 la_wmo_boxes(:,2:4)=0;					% Reset
@@ -85,8 +86,8 @@ for j=1:length(tartyp)	% Loop the three data types
     end
   end
 end
-print(gcf,'-depsc',[dadir,filesep,'constants',filesep,'selected_wmos_map.eps']);
-save([dadir,filesep,'constants',filesep,'wmo_boxes'],'la_wmo_boxes');
+print(gcf,'-depsc',[owc_data_dir,filesep,'constants',filesep,'selected_wmos_map.eps']);
+save([owc_data_dir,filesep,'constants',filesep,'wmo_boxes'],'la_wmo_boxes');
 
 
 % ----- Check the reference data (make a lot of figures): -----
