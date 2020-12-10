@@ -1,14 +1,22 @@
 % This script loads float nc-files from your download folder, checks
-% and prepares float data for ow_calibration.
+% and prepares float data for ow_calibration. Downloading from server
+% can also be done here.
 
 clear all
 init_dmqc; % Paths and filenames, and ftp download.
 
-% ----- Download float data manually: ------------------
-% OBSOLETE. This is now done in init_dmqc.
-% cd ~/Downloads/ARGO/
-% lftp ftp.ifremer.fr/ifremer/argo/dac/coriolis/
-% ------------------------------------------------------
+if logical(0) % ----- SWITCH ON IN ORDER TO DOWNLOAD NEW FLOAT FILES AND R-FILES ------
+  for I=1:length(download_dir)
+    mkdir(download_dir{I}); 
+    system(['lftp -e ''lcd ',download_dir{I},' ; get ',float_names{I},'_prof.nc ; bye'' ftp.ifremer.fr/ifremer/argo/dac/coriolis/',float_names{I},'/']);
+    mkdir(rootdirin{I}); 
+    system(['lftp -e ''lcd ',rootdirin{I},' ; mget R',float_names{I},'_*.nc ; bye'' ftp.ifremer.fr/ifremer/argo/dac/coriolis/',float_names{I},'/profiles/']);
+  end
+end % --------------------------------------------------------------------------------
+% R-files must be downloaded at the same time, or else there might be
+% mismatch between number of cal parameters and R-files.
+
+% INGEST FLOAT FILES INTO THE OWC SYSTEM:
 
 for I=1:length(float_names)
   
