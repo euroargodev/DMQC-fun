@@ -1,17 +1,13 @@
 % A SCRIPT TO INGEST, QUICK-CHECK AND UPDATE LIST OF REFERENCE DATA
 % FOR Argo DMQC.
 %
-% First, in a shell, download and unpack DMQC reference data:
+% First, in a shell, find, download and unpack DMQC reference data:
 % cd ~/Downloads/DMQC/
 % lftp -u <user,password> ftp.ifremer.fr/coriolis/
 
 clear all; close all;
 
 init_dmqc;	% Get some necessary paths.
-
-% Enter names of directories to ingest from:
-refdir={'CTD_for_DMQC_2019V01_1','CTD_for_DMQC_2019V01_7','ARGO_for_DMQC_2019V03'};
-refdir={'CTD_for_DMQC_2019V01_1','CTD_for_DMQC_2019V01_7','ARGO_for_DMQC_2020V01'};%May2020
 
 % WMO-squares of chosen area to populate (fixed):
 A=[1803 1804 1805	                         7802 7801 7800 1800 1801 1802 ...
@@ -25,7 +21,6 @@ tardir={[owc_data_dir,'climatology/historical_ctd'], ...
 	[owc_data_dir,'climatology/historical_bot'], ...
 	[owc_data_dir,'climatology/argo_profiles']};
 tartyp={'ctd_','bot_','argo_'};
-
 
 % ----- Make an overview map of selected and ingested WMO-squares -----
 figure(1); clf; set(gcf,'OuterPosition',get(0,'ScreenSize'));
