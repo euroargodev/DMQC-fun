@@ -1,4 +1,7 @@
 # DMQC-fun
+
+NOTE: There is a possible major revision going on. Please hold ... -Even
+
 Extra scripts and functions to perform Argo Floats DMQC  
 
 Why?
