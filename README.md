@@ -1,4 +1,4 @@
- DMQC-fun v0.9.1 
+# DMQC-fun v0.9.1 
  by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
 
  DMQC-fun is a comprehensive toolbox for performing DMQC on and
