@@ -1,7 +1,7 @@
 % INIT_DMQC.M is init-file and setup instructions.  
-% DMQC-fun v0.9.1; See DMQC-FUN.m for file overview; WORK_LOG.txt for workflow description.
-
+% DMQC-fun v0.9.1; See Contents.m for file overview; work_log.txt for workflow description.
 %%%%%%%%%% Read further down below for instructions on how to set up your system! %%%%%%%%%%%%%%%%  
+%%%%%%%%%% The first part is where you control everything! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % ------------ LIST ALL YOUR FLOATS HERE: ----------------------------
 TCL=complex(0,1); % Do not touch!
@@ -9,7 +9,7 @@ TCL=complex(0,1); % Do not touch!
 % index =     1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        16        17        18*       19*       20        21        22        23        24        25
 float_names={'6903549','6903550','6903551','6903574','6903552','6903553','6903554','6903555','6903567','6903568','6903569','6903570','6903559','6903560','6903561','6903562','6903563','6903564','6903565','6903566','6903556','6903557','6903558','6903571','6903573'};
 cal_action ={ [0]     , [0]     , [1]     , [1]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0 1]   , [0 1 4] , [1]     , [0]     , [0]     , [0]     ,  [0]    , [0]     , [0]     , [0]     , [0]      }; 
-checked    ={ 174       147       124       80        41        113       152       70        60        89        115       82        85        86        86        85        86        156       101       51      , 30        67        66        31        20      };
+checked    ={ 177       147       124       80        41        113       152       70        60        89        115       82        85        86        86        85        86        156       101       51      , 30        67        66        31        20      };
 Nclu       ={ 2       2           2         2         2         2         2         2         2         2         2         2         2         2         3*TCL     2*TCL     1*TCL     2         2         2         2         2         2         2         2       };
 
 % ------------ FLOAT SELECTION: ----------------------------------------
@@ -60,28 +60,32 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 %	MATLABOW directories, according to your installation of OWC toolbox;
 %	Download directories for float data (your choice);
 %	Reference data directories (your choice);
-%	Your other relevant Argo directories (your choice);
 %	List of WMO-squares for yor area of interest (your choice);
+%	Your other relevant Argo directories (your choice);
+%	Putting paths in order (fixed);
 %	Auxillary TOOLBOXES included with DMQC-fun (fixed);
 %	File names for PREPARE_PROFILES (fixed);
 %	Directories for WRITE_D (fixed);
-% - The first build of your working directories, a part of the script
-%   that copies the necessary files into separate folders for each of
-%   your floats (see next section). 
+% - Finally, the first build of your working directories, a part of
+%   the script that copies the necessary files into separate folders
+%   for each of your floats (see next section).
 
 
 % ------------- FIRST-TIME SETUP AND PREPARATIONS: -------------------
 
-% 1) Install the following toolboxes:
+% 1) Install the following toolboxes in a designated directory for your
+% Argo related toolboxes (e.g., /Users/a21627/matlab/toolbox/Argo/):
 % 
 %	DMQC-fun - https://github.com/imab4bsh/DMQC-fun.git
 %	matlab_owc -  https://github.com/ArgoDMQC/matlabow.git
 %	evenmat - https://github.com/evenrev1/evenmat.git
 %
-% When you add the paths to the toolboxes, make sure DMQC-fun comes
-% above these other toolboxes in the path list (i.e., addpath it last),
-% so that our altered versions of some files (e.g., plot_diagnostics_ow)
-% are used instead of the owc-version.
+% When adding the paths to the toolboxes, good practice is to make
+% sure DMQC-fun comes above these other toolboxes in the path list
+% (i.e., addpath it last), so that our altered versions of some files
+% (e.g., plot_diagnostics_ow) are used instead of the matlab_owc
+% version. However, there is a fail-safe mechanism buildt into INIT_DMQC
+% that adds and orders these paths upon first time use.
 % 
 % LaTeX: DMQC-fun includes a LaTeX report template and the Matlab
 % scripts produce snippets of content linked into that template. You
@@ -92,11 +96,14 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 
 % 2) You need to copy some files from the toolboxes manually, as you do
 % not want updating of toolboxes to erase your own settings. From
-% DMQC-fun toolbox move the following files to your working directory
+% DMQC-fun toolbox copy the following files to your working directory
 % for Argo DMQC (my_working_dir):
 %
 %	init_dmqc.m (this file) 
 %	work_log.txt
+%
+% A path to your working directory will be added to make sure this
+% local INIT_DMQC is the one that will be used. 
 %
 % In the working directory, make a subdirectory bak/matlab_owc/ and move
 % the following files from the matlab_owc installation to there:
@@ -104,10 +111,10 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 %	ow_config.txt
 %	set_calseries.m
 %
-% These two latter files are now your own generic setup files for OWC,
-% and you will edit them in (4-5), and then copies of them will be
-% distributed into directories for each float (see 6) for more tailored
-% settings as you analyse the float.
+% These two files are now your own generic setup files for OWC, and you
+% will edit them in (4-5). Then copies of them will be distributed into
+% directories for each float (see 6) for more tailored settings as you
+% analyse the float.
 
 % 3) In your init_dmqc.m, edit your float list on top, as well as the
 % information and paths below. Do not change the names of the objects,
@@ -230,12 +237,6 @@ tardir={[owc_data_dir,'climatology/historical_ctd'], ...
 	[owc_data_dir,'climatology/historical_bot'], ...
 	[owc_data_dir,'climatology/argo_profiles']};		% Automatic. 
 
-% Your other relevant Argo directories:
-my_argo_toolbox_dir = '/Users/a21627/matlab/toolbox/Argo/'; % Where you put all the Argo relevant toolboxes.	EDIT THIS!
-my_working_dir      = '/Users/a21627/arbeid/obs/NorARGO/';  % Where you want to work with your Argo DMQC.	EDIT THIS!
-my_backup_dir       = [my_working_dir,'bak/matlab_owc/'];   % Where you put your copies of ow_config_txt and 
-							    % set_calseries.m.					EDIT THIS IF NECESSARY! 
-
 % REFERENCE DATA selection by WMO-squares:
 % WMO-squares of chosen area to populate for DMQC-FUN and MATLAB_OWC.
 % North Atlantic - Arctic sector:										EDIT THIS FOR YOUR REGION
@@ -246,9 +247,18 @@ my_WMOs = [1803 1804 1805	                         7802 7801 7800 1800 1801 1802
 			             7406 7405 7404 7403 7402 7401 7400  ];
 % After running LOAD_REFERENCEDATA you can check the map in matlab_owc's 'constants' directory.
 
+% Your other relevant Argo directories:
+my_argo_toolbox_dir = '/Users/a21627/matlab/toolbox/Argo/'; % Where you put all the Argo relevant toolboxes
+							    % (i.e. DMQC-fun and MATLAB_OWC).			EDIT THIS!
+my_working_dir      = '/Users/a21627/arbeid/obs/NorARGO/';  % Where you want to work with your Argo DMQC.	EDIT THIS!
+my_backup_dir       = [my_working_dir,'bak/matlab_owc/'];   % Where you put your copies of ow_config_txt and 
+							    % set_calseries.m.					EDIT THIS IF NECESSARY! 
 
-% Auxillary TOOLBOXES included with DMQC-fun (automatic, do not edit):
-addpath([my_argo_toolbox_dir,'DMQC-fun/padconcatenation']);
+% Make and (re)order paths in the necessary order (automatic, do not edit):
+addpath([my_argo_toolbox_dir,'matlab_owc']);		% The OWC-toolbox' location
+addpath([my_argo_toolbox_dir,'DMQC-fun/padconcatenation']);% Auxillary toolbox included with DMQC-fun
+addpath([my_argo_toolbox_dir,'DMQC-fun']);		% This toolbox' location
+addpath(my_working_dir);				% In order for your local version of INIT_DMQC to be used. 
 
 % File names for PREPARE_FLOATS (automatic, do not edit):
 infiles   = strcat(download_dir,filesep,float_names,{'_prof.nc'}); 
