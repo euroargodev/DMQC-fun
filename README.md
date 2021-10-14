@@ -24,57 +24,57 @@
 
  The files in this toolbox are as follows:
 
- Contents	This Matlab help text for the toolbox.
+**Contents**	This Matlab help text for the toolbox.
 
- README.md	This file's twin on Github.
+**README.md**	This file's twin on Github.
 
- init_dmqc	Both init-file and setup. Contains all installation
+**init_dmqc**	Both init-file and setup. Contains all installation
 		and setup instructions, as well as list of your
 		floats and parameters that all functions use. Read
 		that first! 
 
- work_log.txt	Explains the whole workflow of DMQC and the use of this
+**work_log.txt**	Explains the whole workflow of DMQC and the use of this
 		toolbox, and a good place to log your overall
 		progress. Understand more there! 
 
- load_referencedata	
+**load_referencedata**	
 		A script to ingest, quick-check and update the list
 		of reference data for Argo DMQC. 
 
- download_floats	
+**download_floats**	
 		This script downloads float Argo NetCDF-files from
 		the Coriolis server, as well as the altimetry
 		comparison and current greylist. 
 
- prepare_floats	
+**prepare_floats**	
 		Does general DMQC, and builds the mat-files for OWC. 
 
- plot_profiles	Used by PREPARE_FLOATS to make plots if any instabilities or
+**plot_profiles**	Used by PREPARE_FLOATS to make plots if any instabilities or
 		non-monotonic increasing pressure is found.
 
- inpolygon_referencedata	
+**inpolygon_referencedata**	
 		A function used by PREPARE_FLOATS to find reference
 		data inside a lon/lat polygon.
 
- run_ow_calibration	
+**run_ow_calibration**	
 		Runs OWC on all selected floats.
 
- write_D	Produces the D-files to deliver.
+**write_D**	Produces the D-files to deliver.
 
- plot_diagnostics_ow	
+**plot_diagnostics_ow**	
 		This function is copied from the OWC toolbox and
 		modified here because we felt it needed some
 		improvements. It will be used instead of the original
 		if you make sure the path to our version is first in 
 		Matlab's path list.
 
- ./tex/	The LaTeX part of the toolbox. You can ignore this
+**./tex/**	The LaTeX part of the toolbox. You can ignore this
 		directory. It will be automaticly distributed when
 		you do your initial setup (see INIT_DMQC).
 
- ./old/	Ignore this directory.
+**./old/**	Ignore this directory.
  
- ./padconcatenation/	
+**./padconcatenation/**	
 		A copy of a useful auxillary toolbox (add to path list).
 
  The following files are only examples of how you can edit the two
@@ -82,10 +82,10 @@
  directory. But you can safely ignore this directory, and DO NOT add
  the path to it! See instructions in INIT_DMQC.
 
- ./bak/ow_config.txt	
+**./bak/ow_config.txt**	
 		Set the OWC paths and mapping parameters. 
 
- ./bak/set_calseries.m	
+**./bak/set_calseries.m**	
 		Set the OWC calibration parameters inside this
 		script.
 
