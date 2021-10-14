@@ -1,5 +1,5 @@
-% DMQC-fun v0.9.1; 
-% By J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% DMQC-fun v0.9.1 
+% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
 %
 % DMQC-fun is a comprehensive toolbox for performing DMQC on and
 % salinity calibration of core data from Argo floats. The toolbox
@@ -9,22 +9,22 @@
 % metadata and information from these stages are automaticly integrated
 % into reports for each float.
 %
-% The necessary toolbaoxes are:
+% The necessary toolboxes are:
 % 
 %	DMQC-fun - https://github.com/imab4bsh/DMQC-fun.git
 %	matlab_owc -  https://github.com/ArgoDMQC/matlabow.git
 %	evenmat - https://github.com/evenrev1/evenmat.git
 %
-% LaTeX: DMQC-fun includes a LaTeX report template and the Matlab
+% DMQC-fun also includes a LaTeX report template and the functions and
 % scripts produce snippets of content linked into that template. You
-% will need a working version of LaTeX, and for instance dvipdfm to make
-% PDF. However, this is not necessary for DMQC-fun to be useful. (You
-% may even be able to link the produced figures and text parts into some
-% other word processor of choice.)
+% will need a working version of LaTeX, and for instance dviPDFm to make
+% PDF reports. However, this is not necessary for DMQC-fun to be
+% useful. (You may even be able to link the produced figures and text
+% parts into some other word processor of choice.)
 %
 % The files in this toolbox are as follows:
 %
-% DMQC-fun	This Matlab help text for the toolbox.
+% Contents	This Matlab help text for the toolbox.
 %
 % README.md	This file's twin on Github.
 %
@@ -52,16 +52,16 @@
 % plot_profiles	Used by PREPARE_FLOATS to make plots if any instabilities or
 %		non-monotonic increasing pressure is found.
 %
-% inpolygon_referencedata
+% inpolygon_referencedata	
 %		A function used by PREPARE_FLOATS to find reference
 %		data inside a lon/lat polygon.
 %
-% run_ow_calibration 
+% run_ow_calibration	
 %		Runs OWC on all selected floats.
 %
 % write_D	Produces the D-files to deliver.
 %
-% plot_diagnostics_ow
+% plot_diagnostics_ow	
 %		This function is copied from the OWC toolbox and
 %		modified here because we felt it needed some
 %		improvements. It will be used instead of the original
@@ -74,7 +74,7 @@
 %
 % ./old/	Ignore this directory.
 % 
-% ./padconcatenation/
+% ./padconcatenation/	
 %		A copy of a useful auxillary toolbox (add to path list).
 %
 % The following files are only examples of how you can edit the two
@@ -89,4 +89,3 @@
 %		Set the OWC calibration parameters inside this
 %		script.
 %
-% - eof -

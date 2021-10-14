@@ -1,5 +1,5 @@
 WORK_LOG.TXT describes the workflow for core DMQC and salinity calibration, and progress log in the same file.
-DMQC-fun v0.9.1; See DMQC-FUN.m for file overview; INIT_DMQC.M for init-file and setup instructions.
+DMQC-fun v0.9.1; See Contents.m for file overview; init_dmqc.m for init-file and setup instructions.
 
 0) For SETUP and FIRST TIME USE, go carefully through the instructions in INIT_DMQC.
    INIT_DMQC contains constants, paths and settings for, and will be called by, all scripts in DMQC-fun. 
@@ -51,4 +51,3 @@ DMQC-fun v0.9.1; See DMQC-FUN.m for file overview; INIT_DMQC.M for init-file and
    Use the report to check your conclusions. Run (4), (5), and/or (6) again as necessary, i.e., iterate (4-7).
    YYYY.MM.DD: <Here you can put date stamped notes about which floats you have reported.>
 
-- eof -
