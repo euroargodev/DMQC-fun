@@ -1,0 +1,106 @@
+
+
+
+% ===============================
+%
+%    Climatology Data Input Paths
+%
+
+HISTORICAL_DIRECTORY=~/Arkiv/data/matlab_owc/climatology
+HISTORICAL_CTD_PREFIX=/historical_ctd/ctd_
+HISTORICAL_BOTTLE_PREFIX=/historical_bot/bot_
+HISTORICAL_ARGO_PREFIX=/argo_profiles/argo_
+
+% ===============================
+%
+%    Float Input Path
+%
+
+FLOAT_SOURCE_DIRECTORY=~/Arkiv/data/matlab_owc/float_source/
+FLOAT_SOURCE_POSTFIX=.mat
+
+% ===============================
+%
+%    Mapping Output Path
+%
+
+FLOAT_MAPPED_DIRECTORY=~/Arkiv/data/matlab_owc/float_mapped/
+FLOAT_MAPPED_PREFIX=map_
+FLOAT_MAPPED_POSTFIX=.mat
+
+% ===============================
+%
+%    Calibration Output Path
+%
+
+FLOAT_CALIB_DIRECTORY=~/Arkiv/data/matlab_owc/float_calib/
+FLOAT_CALIB_PREFIX=cal_
+FLOAT_CALSERIES_PREFIX=calseries_
+FLOAT_CALIB_POSTFIX=.mat
+
+% ===============================
+%
+%    Diagnostic Plots Output Path
+%
+
+FLOAT_PLOTS_DIRECTORY=~/Arkiv/data/matlab_owc/float_plots/
+
+% ===============================
+%
+%    Constants File Path
+%
+
+CONFIG_DIRECTORY=~/Arkiv/data/matlab_owc/constants/
+CONFIG_COASTLINES=coastdat.mat
+CONFIG_WMO_BOXES=wmo_boxes.mat
+CONFIG_SAF=TypicalProfileAroundSAF.mat
+
+% ===============================
+%
+%    Objective Mapping Parameters
+%
+
+% max number of historical casts used in objective mapping
+CONFIG_MAX_CASTS=250
+
+% 1=use PV constraint, 0=don't use PV constraint, in objective mapping (1) (KAM 0)
+MAP_USE_PV=1
+
+% 1=use SAF separation criteria, 0=don't use SAF separation criteria, in objective mapping
+% OW: southern ocean
+MAP_USE_SAF=0
+
+% In the subpolar North Atlantic, it is recommended to use scales of:
+% MAPSCALE_LONGITUDE_LARGE=3.2 MAPSCALE_LONGITUDE_SMALL=2,
+% MAPSCALE_LATITUDE_LARGE=2 MAPSCALE_LATITUDE_SMALL=1, 
+% MAPSCALE_PHI_LARGE=0.1   MAPSCALE_PHI_SMALL=0.02  (MAP_USE_PV=1)
+% MAPSCALE_AGE_LARGE=2 and MAPSCALE_AGE_SMALL=0.69
+
+
+% spatial decorrelation scales, in degrees (SMALL 3.2 0.8 2 0.5; KAM 8.0 4.0 4.0 2.0; Too large: 8 2.7 4 1.3; Lofoten Basin 1.6 0.4 1 0.3)
+% OW: The large scales (×3) are also used to specify the ellipse used in selecting historical data. I suggest you start at a maximum scale of 8° and experiment on decreasing it to see what scales suit your region. 
+MAPSCALE_LONGITUDE_LARGE=1.6
+MAPSCALE_LONGITUDE_SMALL=0.4
+MAPSCALE_LATITUDE_LARGE=1
+MAPSCALE_LATITUDE_SMALL=0.3
+
+% cross-isobath scales, dimensionless, see BS(2005) 0.5 0.1 (0.1 0.02 ?) (KAM 0.5 0.1) (LARGE 1 0.2)
+MAPSCALE_PHI_LARGE=0.5
+MAPSCALE_PHI_SMALL=0.1
+
+% temporal decorrelation scale, in years (SHORT 0.69, 2) (KAM 5 10) (LONG 7 20)
+% OW: This temporal decorrelation scale is related to processes that occur at the spatial scales defined by MAPSCALE_LONGITUDE_SMALL, MAPSCALE_LATITUDE_SMALL. For example, if you assume that these processes are related to the ventilation of the main thermocline and that most water masses in the main thermocline undergo decadal changes, you can specify MAPSCALE_AGE = 10. For example, in the subpolar North Atlantic, water masses change almost annually, so you may need to set MAPSCALE_AGE < 1 there.
+JEON: So this one (not _LARGE) can be largest? Counterintuitive.
+MAPSCALE_AGE_SMALL=5
+% OW: This temporal decorrelation scale is related to processes that occur at the spatial scales defined by MAPSCALE_LONGITUDE_LARGE, MAPSCALE_LATITUDE_LARGE. To take into account for large interannual to decadal variability of the large scale salinity field observed.
+MAPSCALE_AGE_LARGE=10
+
+% exclude the top xxx dbar of the water column (KAM 400)
+% OW: To exclude the shallow layers of the water column that are too variable for the mapping routine to produce reliable objective estimates; that is, the seasonal mixed layer!
+% JEON: That would mean 1400 in the Lofoten Basin, but this can be set in SET_CALSERIES, right?
+MAP_P_EXCLUDE=400
+
+% only use historical data that are within +/- yyy dbar from float data (50)
+MAP_P_DELTA=100
+
+

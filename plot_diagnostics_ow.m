@@ -66,7 +66,7 @@ use_pres_lt = lo_float_calseries.use_pres_lt;
 use_percent_gt = lo_float_calseries.use_percent_gt;
 
 % load the station by station fits
-load(fullfile( po_system_configuration.FLOAT_CALIB_DIRECTORY, pn_float_dir,...
+load(fullfile( po_system_configuration.FLOAT_CALIB_DIRECTORY, pn_float_dir,... 
    strcat( po_system_configuration.FLOAT_CALIB_PREFIX, pn_float_name, po_system_configuration.FLOAT_CALIB_POSTFIX ) ),'-regexp','^sta')
 
 
@@ -80,7 +80,7 @@ figure
 set(gcf,'defaultaxeslinewidth',2)
 set(gcf,'defaultlinelinewidth',2)
 set(gcf,'defaultaxesfontsize',16)
-set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
+%set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
 
 colormap(jet(n));
 c=colormap;
@@ -123,10 +123,14 @@ plot(coastdata_x,coastdata_y,'k.-');
 for i=1:n
   h=plot(LONG(i),LAT(i),'+');
   set(h,'color',c(i,:));
-  j=text(LONG(i),LAT(i),int2str(PROFILE_NO(i)));
-  set(j,'color',c(i,:),'fontsize',12,'hor','cen');
+  if any(intersect(i,10:10:1000))
+    j=text(LONG(i),LAT(i),int2str(PROFILE_NO(i)));
+    %set(j,'color',c(i,:),'fontsize',12,'hor','cen');
+    set(j,'color','k','fontsize',12,'hor','cen');
+  end
 end
 axis([min(LONG)-30, max(LONG)+30, min(LAT)-20, max(LAT)+20])
+axis([min(LONG)-10, max(LONG)+10, min(LAT)-5, max(LAT)+5])
 set(gca,'FontSize',12)
 xlabel('Longitude');
 ylabel('Latitude');
@@ -155,9 +159,9 @@ legend([hfl,hhi(1)],'float','historical points','Location','Best');  % Even's ad
 % after it is made and even when you have specified object
 % handles. (Yes, it's stupid.) Hence legend has to be made after all plotting.
 
-drawnow
-set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
-print('-depsc ', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_1.eps'));
+%drawnow
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_1.eps'));
 
 
 
@@ -168,7 +172,9 @@ figure;
 set(gcf,'defaultaxeslinewidth',2)
 set(gcf,'defaultlinelinewidth',2)
 set(gcf,'defaultaxesfontsize',14)
-set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
+%set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
+set(gcf,'OuterPosition',get(0,'ScreenSize').*[1 1 .7 1]); % Even's addition
+%set(gcf,'OuterPosition',get(0,'ScreenSize').*[1 1 .7 1],'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl'); % Even's addition
 
 jj=[1:ceil(n/30):n]; % the legend can only fit 30 profiles
 ok = [];
@@ -196,6 +202,7 @@ end
 
 [tlevels, plevels, index, var_s_Thetalevels, Thetalevels] = find_10thetas( SAL, PTMP, PRES, la_ptmp, use_theta_gt, use_theta_lt, use_pres_gt, use_pres_lt, use_percent_gt);
 
+[inSmax,inSmin,inTmax,inTmin]=deal(NaN);
 for i=1:n
   b = find( isnan(index(:,i))==0 );
   a = index(b,i);
@@ -203,6 +210,9 @@ for i=1:n
     %h = errorbar( la_ptmp(a,i), mapped_sal(a,i), mapsalerrors(a,i), 'o', 'color', c(i,:) );
     %h = errorbar( la_ptmp(a,i), mapped_sal(a,i), mapsalerrors(a,i), 'horizontal', 'o', 'color', c(i,:) );
     h(i) = errorbar( mapped_sal(a,i),  la_ptmp(a,i), mapsalerrors(a,i), 'horizontal','.', 'color', c(i,:) );	 % Even's addition
+    inSmax=max(inSmax,max(mapped_sal(a,i)+mapsalerrors(a,i),[],'all')); inTmax=max(inTmax,max(la_ptmp(a,i),[],'all'));
+    inSmin=min(inSmin,min(mapped_sal(a,i)-mapsalerrors(a,i),[],'all')); inTmin=min(inTmin,min(la_ptmp(a,i),[],'all'));
+    %sbarlim(i)=[min(mapsalerrors()) max()],	 % Even's addition
   end
 end
 
@@ -226,10 +236,23 @@ legend([qq1;h(end)],[cellstr(int2str([PROFILE_NO(jj)]'));{'Mapped salinities'}],
 % after it is made and even when you have specified object
 % handles. (Yes, it's stupid.) Hence legend has to be made after all plotting.
 
-drawnow
+% Inlay zoomed in on the used temperature surfaces and objective errors (Even's addition):
+pos=get(gca,'position');
+%set(gca,'position',pos+[0 0 -.05 0]);
+%set(gca,'position',pos+[0 0 0 -.3]);
+set(gca,'position',pos+[0 0.35 0 -.35]);
+inlay=copyobj(gca,gcf);
+%set(inlay,'position',[pos(1) pos(2)+pos(4)+.05-.3 .3 .3],...
+set(inlay,'position',[pos(1) pos(2) pos(3) .3],...
+	  'xlim',[inSmin-.005 inSmax+.005],... % [34.88 34.92],...
+	  'ylim',[inTmin-.05 inTmax+.05],... % [-.8 -.3],...
+	  'xgrid','on');
+delete(get(inlay,'title'));
+
+%drawnow
 title( strcat( title_floatname, ' uncalibrated float data (-) and mapped salinity (o) with objective errors' ),'fontsize',10);  % Even's addition
-set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
-print('-depsc ', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_2.eps'));
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_2.eps'));
 
 
 
@@ -318,9 +341,9 @@ legend('2 x cal error','1 x cal error','1-1 profile fit', 'Location', 'Best');  
 % handles. (Yes, it's stupid.) Hence legend has to be made after all plotting.
 
 
-drawnow
-set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
-print('-depsc ', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_3.eps'));
+%drawnow
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_3.eps'));
 
 
 % plot the calibrated theta-S curves from the float (figure 4) --------------------------
@@ -329,7 +352,9 @@ figure;
 set(gcf,'defaultaxeslinewidth',2)
 set(gcf,'defaultlinelinewidth',2)
 set(gcf,'defaultaxesfontsize',14)
-set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
+%set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
+set(gcf,'OuterPosition',get(0,'ScreenSize').*[1 1 .7 1]); % Even's addition
+%set(gcf,'OuterPosition',get(0,'ScreenSize').*[1 1 .7 1],'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl'); % Even's addition
 
 jj=[1:ceil(n/30):n]; % the legend can only fit 30 profiles
 ok = [];% check to make sure we have choosen profiles with good data
@@ -386,10 +411,23 @@ legend([qq1;h(end)],[cellstr(int2str([PROFILE_NO(jj)]'));{'Mapped salinities'}],
 % after it is made and even when you have specified object
 % handles. (Yes, it's stupid.) Hence legend has to be made after all plotting.
 
-drawnow
+% Inlay zoomed in on the used temperature surfaces and objective errors (Even's addition):
+pos=get(gca,'position');
+%set(gca,'position',pos+[0 0 -.05 0]);
+%set(gca,'position',pos+[0 0 0 -.3]);
+set(gca,'position',pos+[0 0.35 0 -.35]);
+inlay=copyobj(gca,gcf);
+%set(inlay,'position',[pos(1) pos(2)+pos(4)+.05-.3 .3 .3],...
+set(inlay,'position',[pos(1) pos(2) pos(3) .3],...
+	  'xlim',[inSmin-.005 inSmax+.005],... % [34.88 34.92],...
+	  'ylim',[inTmin-.05 inTmax+.05],... % [-.8 -.3],...
+	  'xgrid','on');
+delete(get(inlay,'title'));
+
+%drawnow
 title( strcat(title_floatname, ' calibrated float data (-) and mapped salinity (o) with objective errors' ) ,'fontsize',10);
-set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
-print('-depsc ', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_4.eps'));
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_4.eps'));
 
 
 % Brian King's plot: salinity anomaly time series on theta levels (figure 5) ------------
@@ -416,9 +454,9 @@ fl = anom(d,fl); % Brian King's routine
 subplot('position',[.1 .45 .8 .35])
 title(['       Salinity anom on theta.    ' title_floatname],'fontsize',10)
 
-drawnow
-set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.5,8,10]);
-print('-depsc ', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_5.eps'));
+%drawnow
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.5,8,10]);
+print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_5.eps'));
 
 
 % plot salinity time series on theta levels with the smallest S variance (figure 6) ------------
@@ -620,9 +658,9 @@ end
 legend('uncal float','mapped salinity','cal float w/1xerr.', 'Location', 'Best');
 xlabel('float profile number');
 
-drawnow
-set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
-print('-depsc ', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_6.eps'));
+%drawnow
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_6.eps'));
 
 
 % Brian King's plot: salinity anomaly time series on theta levels (figure 7) ------------
@@ -649,9 +687,9 @@ fl = anom(d,fl); % Brian King's routine
 subplot('position',[.1 .45 .8 .35])
 title(['Calibrated salinity anom on theta. ' title_floatname],'fontsize',10)
 
-drawnow
-set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.5,8,10]);
-print('-depsc ', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_7.eps'));
+%drawnow
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.5,8,10]);
+print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_7.eps'));
 
 
 % Paul Robbins' analyse variance plot (figure 8) ------------
@@ -711,9 +749,9 @@ for i=1:10
 end
 
 
-drawnow
-set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.5,.25,8,10.25]);
-print('-depsc ', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_8.eps'));
+%drawnow
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.5,.25,8,10.25]);
+print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_8.eps'));
 
 
 end %if(isempty(find(isnan(cal_SAL)==0))==0) ---------------

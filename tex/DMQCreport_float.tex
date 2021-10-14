@@ -1,0 +1,506 @@
+\documentclass{article}
+\usepackage{graphicx, wrapfig, subcaption, setspace,booktabs,verbatim,hyperref, textcomp, siunitx}
+\usepackage{float,placeins}
+\usepackage{multirow}
+\usepackage{epstopdf}
+\usepackage[margin=0.7in]{geometry}
+
+%%%%% Set all your parameters and paths in INIT_DMQC.M (not here) %%%%%%%%%%%%%%%%%%%%%%%
+%\newcommand{\WMOnum}{6903550} %% FILL WITH WMONUM
+\input{wmonumdef} % Defines \WMOnum.
+% Full paths from root are likely necessary here:
+\input{floatsourcedef} % Defines \floatsource.
+%\newcommand{\floatsource}{/Users/a21627/Arkiv/data/matlab_owc/float_source/project_NorARGO/} 
+\input{floatplotsdef} % Defines \floatplots.
+%\newcommand{\floatplots}{/Users/a21627/Arkiv/data/matlab_owc/float_plots/project_NorARGO/} 
+\input{downloaddirdef} % Defines \downloaddir.
+%\newcommand{\downloaddir}{/Users/a21627/Downloads/ARGO/\WMOnum /} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\begin{document}
+
+\title{Delayed Mode Quality Control of Argo float~\WMOnum}%\hspace{0.5mm}}
+\author{\input{dmqc_operator_name}\\ %Jan Even {\O}ie Nilsen\\   %% Name of DMQC operator
+ORCID: \input{dmqc_operator_orcid}\\[5mm] %0000-0003-2516-6106\\[1cm]
+\input{dmqc_operator_institution}\\ %Institute of Marine Research (IMR)\\
+\input{dmqc_operator_address} } %Strandgaten 196, Bergen, Norway} %% Name of Organisation and address
+
+\date{\today} %% Date of DMQC if you produce report on same day as DMQC.
+%\date{yyyy.mm.dd} %% Insert actual date of DMQC if you produce report later.
+\maketitle
+
+%\vspace{2cm}
+\begin{center}
+  \textbf{DMQC summary}
+\end{center} 
+\input{discussion}
+%\input{summary}
+
+%\begin{flushleft}% text alignment to left
+% In this section, write a brief description of all decisions made in DMQC
+% analysis. You may include information about sea surface pressure
+% corrections with applied QC flags and errors (if applicable), cell thermal
+% mass corrections (if applicable), a decision made on salinity data
+% including QC flags and corrections applied to salinity data (if needed).
+% \vspace{0.5cm}
+
+% For Example: "The sea surface pressure in Apex float was adjusted in
+% d-mode. For cycles 1-155, the QC=1 and error 2.4 dbar was assigned to
+% pressure data. Cell thermal mass correction was applied.  For cycles
+% 1-155, the salty offset was detected. Correction of -0.0125 offset was
+% applied, QC=1, error=0.005."
+
+\tableofcontents
+
+\newpage
+\section{Introduction}
+ 
+%Briefly write any necessary information about the float parameters,
+%location, any steps performed before the DMQC analysis, version and type
+%of the reference data, DMQC software and if there any CTD data from
+%deployment was used as a reference data and any additional information
+%about the deployment issues.     
+%\vspace{0.5cm}
+
+This report concerns the delayed mode analysis performed for Argo-float
+number~\WMOnum. For more information about this float use, for instance,
+the following link:
+\begin{center}
+\href{url}{http://www.ifremer.fr/argoMonitoring/float/\WMOnum}.  
+\end{center}
+Before the analysis, real-time QC flags were visually inspected and
+modified if necessary.  In addition, a few stricter tests necessary before
+the salinity calibration were applied (and flags modified if necessary).
+%
+Then, the satellite altimeter comparison plot between the sea surface
+height and dynamic height anomaly, constructed for this float by Ifremer,
+was analysed.
+%
+Part of this analysis are plots of temperature and salinity time
+series, and surface pressure. % \textbf{(if available)}.
+%and plots of temperature, salinity and density plotted against the nearby
+%historical CTD and Argo profiles.
+                                %
+%The additional plots supporting the DMQC analysis are included in the ...
+
+% \textbf{Float~\WMOnum\ is the Apex float, where the pressure sensor is not
+%   auto-corrected to zero while at the sea surface, hence the pressure data
+%   was corrected during processing in delayed mode.  The procedures of
+%   correction sea surface pressure are described in Argo Quality Control
+%   Manual for CTD and Trajectory Data (Wong et al., 2020).}
+
+% \textbf{The cell thermal mass corrections were applied. For SBE-41 CTDs
+%   the estimated alpha was 0.0267 and tau was 18.6 s, for the estimated
+%   alpha was 0.141 and tau was 6.68 s (Johnson et al., 2006).}
+
+The salinity calibration has been performed using the configuration and objective
+mapping parameters included in Section~\ref{Configuration1}.
+                                %and ~\ref{Configuration2}.
+The Argo float data were compared to nearby CTD and Argo profiles from the
+following reference databases: \texttt{\verbatiminput{refdir}} Reference
+data are distributed by Ifremer.  A simple visual check on the reference
+data is done prior to analysis (see Appendix~B).
+
+The OWC toolbox version~3.0.0 % Version number needs to be manually updated here
+(\href{url}{https://github.com/ArgoDMQC/matlab\_owc}) was run to estimate
+a salinity offset and a salinity drift (Cabanes et al., 2016).
+
+Note that only ascending profiles are included in this DMQC.
+
+Technical info on the float is given in Table~\ref{tab:techinfo} and an
+overview of the float trajectory and T\&S data is shown in
+Figure~\ref{fig:float-info}.
+%
+\begin{table}[!ht]%\footnotesize
+\caption{Technical information about float~\WMOnum.}
+\label{tab:techinfo}
+        \centering
+\begin{tabular}{|r|m{10cm}|}
+        \hline 
+        {WMO float-number} &  {\WMOnum} \\ \hline
+        {DAC} & {\input{DAC}} \\ \hline 
+        {Float SNR} & {\input{float-serial-no}} \\ \hline  % from file
+        {Platform type} & {\input{platform-type}} \\ \hline  % from file
+        {Transmission system} & {\input{transmission-system}} \\ \hline 
+        {CTD Sensor model} & {\input{ctdmodel}} \\ \hline 
+        {CTD Sensor SNR} & {\input{ctdsensorsnr}} \\ \hline 
+        {Other sensors} & {\input{othersensors}} \\ \hline 
+        {Other sensor models} & {\input{othersensormodels}} \\ \hline 
+        {Other sensors SNR} & {\input{othersensorsnr}} \\ \hline 
+        {Deployment} & {\input{depdate}} \\ \hline % from file, first profile 
+        {Dep. Lat} & {\input{deplat}} \\ \hline  % from file, first profile 
+        {Dep. Lon} & {\input{deplon}} \\ \hline  % from file, first profile 
+        {Park Depth} & {\input{park-depth}} \\ \hline 
+        {Profile depth} & {\input{profile-depth}} \\ \hline 
+        {Cycle time} & {\input{cycle-time}} \\ \hline 
+        {Ship} & {\input{ship}} \\ \hline
+        {PI} & {\input{PI}} \\ \hline 
+        {Float Status} & {\input{float-status}} \\ \hline 
+        {Age} & {\input{age}} \\ \hline 
+        {Last Cycle} & {\input{last-cycle}} \\ \hline 
+        {Grey list} & {\input{grey-list}} \\ \hline
+\end{tabular}
+\end{table}
+        
+\begin{figure}[H]
+  %\centering    
+  \centerline{\includegraphics[width=1.2\textwidth]{\floatsource\WMOnum}}
+  \caption{Float \WMOnum. Map shows the locations of float profiles (numbers in
+    black are every 10th profile number and numbers in blue with
+    corresponding squares/lines show WMO-squares). The grey contours in
+    map indicate bathymetry. The following plots are TS-diagram,
+    temperature profiles, salinity profiles, and density profiles for all
+    profiles. The profiles shown have undergone pre-OWC analysis DMQC (as
+    described in Section~\protect\ref{DMQCpreOWC}).  Colour shading in all  
+    panels indicate profile number (see colorbar under map).}
+  \label{fig:float-info}
+\end{figure} 
+ 
+        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Quality Check of Argo Float Data}\label{DMQCpreOWC}
+%
+The DMQC prior to OWC is performed in four phases, after each the found
+erroneous data are removed before the following phase:
+\begin{enumerate}
+\item Delayed-mode procedures for coordinates
+\item Correction of pressure dependent conductivity bias (deep ARVOR only)
+\item Visual verification of Real-time mode QC flags
+\item Selected automated tests necessary for OWC
+\item Visual DMQC of the variables
+\end{enumerate}
+The tests are described in the following subsections and all results are shown in Table~\ref{tab:rtqc}. 
+\input{comments}
+%
+\begin{table}[!ht]
+  \caption{Results for Float~\WMOnum\ in terms of number of flags for each variable, from both RTQC and DMQC.}
+  \label{tab:rtqc}
+  \centering
+  \input{flagtable}
+\end{table}     
+
+
+\subsection{Delayed-mode procedures for coordinates}\label{sec:DM-coordinates}
+First the coordinates JULD, LATITUDE, LONGITUDE were checked as prescribed
+in Section~3.2 of Wong et al.~(2021).
+%
+Chronology of JULD was tested by a simple automated test and any missing
+or erroneous values replaced by linear interpolation.
+%
+Position outliers were checked for visually in a map such as in
+Figure~\ref{fig:float-info} but based on original data, and any positions
+replaced by 2D linear interpolation.
+
+\newpage
+\subsection{Visual verification of Real-time mode QC flags}
+In the case of RTQC flags in a profile, such profiles are compared to
+temporally close profiles from same float, as well as surrounding
+reference data. Each individual plot is inspected interactively in detail
+and flags are removed or new flags assigned when judged necessary (to both
+RTQC flagged data as well as any new findings).
+%
+\input{RTQCcheck} % This part is automated in LOAD_FLOATS. 
+ 
+
+\subsection{Selected automated tests necessary for OWC}
+In addition to RTQC, the following automated tests are necessary before 
+OWC as double checks using same critera as RTQC (see Wong et al., 2021)
+and in some aspects stricter based on experience in the region:
+\begin{itemize}
+\item Pressure increasing test / monotonically increasing pressure test in
+  waters deeper than \input{MAP_P_EXCLUDE}m.
+\item Double-pointed spike tests on PSAL and TEMP (see Section~\ref{sec:double-pointed-spike-test}).
+\item Spike tests on PSAL and TEMP (with 0.02~PSU criterion for pressures
+  greater than or equal to 500~dbar, and 0.01~PSU deeper than 1000~dbar;
+  and the addition of temperature criterion 1$^\circ$C deeper than 1000~dbar).
+\item Gradient test on TEMP and PSAL (declared obsolete from RTQC in 2019,
+  but implemented here nevertheless).
+\item Density inversion test.
+\end{itemize}
+
+\subsubsection{The double-pointed spike test}\label{sec:double-pointed-spike-test}
+The double-pointed spike tests the deviation of subsequent pairs of values
+instead of single points, from the neighbouring values in a profile, as
+this is not an uncommon form of spikes. The test values are formed
+according to 
+\begin{equation}
+  \label{eq:1}
+  TV = \left|\frac{V_{i} + V_{i+1}}{2} – \frac{V_{i-1} + V_{i+2}}{2}\right|  – \left|\frac{V_{i+2} – V_{i-1}}{2}\right| ,
+\end{equation}
+where $TV$ is the test value and $V_i$ are the subsequent points in a
+profile. As the test values are assigned to the $i$-th point in the
+profile (i.e., the upper point of the pair forming the spike), any testvalues
+exceeding the criteria results in flagging of both $V_i$ and $V_{i+1}$.
+%
+The double-pointed spike test uses the same criteria as the single-point spike test.
+It is applied before the single-point spike test, since the latter may remove
+one of the values in a double-point spike and render the double-pointed spike
+test useless.
+
+\newpage
+\subsection{Visual DMQC of the variables}
+As prescribed in Section~3.3--3.5 of Wong et al.~(2021), PRES, TEMP, and
+PSAL were checked visually by comparing to other cycles from the float
+(using versions of Figures~\ref{fig:float-info} and \ref{hovmoller} from
+this stage), as well as in relation to reference data in the vicinity of
+the float (Figure~\ref{fig:refcomp}).  Trends in salinity in the same
+reference data are also compared to float data
+(Figure~\ref{fig:trendcheck}) in order to aid interpretation of the
+calibration results in Section~\ref{results_CTDArgo}.
+%
+\begin{figure}[H] 
+  \input{refcomp}  % This part is automated in PREPARE_FLOATS.
+\end{figure}
+%
+\begin{figure}[H] 
+  \input{trendcheck}  % This part is automated in PREPARE_FLOATS. 
+\end{figure}
+
+ 
+
+\newpage
+\subsection{Satellite Altimeter Report}
+Figure~\ref{Altim} shows the comparison with altimetry.
+%
+\begin{figure}[H]
+  \centering    
+  \includegraphics[width=\textwidth,natwidth=810,natheight=650]{\downloaddir\WMOnum .png}
+  \caption{Float \WMOnum. The comparison between the sea level anomaly
+    (SLA) from the satellite altimeter and dynamic height anomaly (DHA)
+    extracted from the Argo float temperature and salinity. The figure is
+    created by the CLS/Coriolis, distributed by Ifremer
+    (ftp://ftp.ifremer.fr/ifremer/argo/etc/argo-ast9-item13-AltimeterComparison/figures/).
+    If graphics are missing, an altimetry report is not available (yet).}
+  \label{Altim}
+\end{figure}
+
+      
+\newpage
+\subsection{Time Series of Argo Float Temperature and Salinity}
+%
+Figure~\ref{hovmoller} shows Hov-M{\"o}ller plots of temperature and
+salinty, respectively, disregarding flags but with flagged data marked.
+% after the pre-OWC DMQC (Section~\ref{DMQCpreOWC}).
+\begin{figure}[H]
+  \centering
+  \begin{tabular}{lr}
+  a) & \\
+  &\includegraphics[width=\textwidth,natwidth=1500,natheight=740]{\floatsource\WMOnum_HMtemp.png}\\
+  b)& \\
+  &\includegraphics[width=\textwidth,natwidth=1500,natheight=740]{\floatsource\WMOnum_HMsal.png}
+  \end{tabular}
+  \caption{Float \WMOnum. Time series of Argo float potential temperature
+    (a; \textdegree C) and salinity (b; PSS-78). Any white squares and
+  circles indicate data that has been flagged '4' by RTQC and DMQC,
+  respectively. A point inside a square indicates the rare occurence of
+  reversal of an RTQC flag to '1'. Pressure flags are marked with the same
+  symbols, in grey.}
+\label{hovmoller}
+\end{figure}
+
+
+\newpage
+\subsection{Sea Surface Pressure Adjustment}
+\input{pressure-adjustment} % Generated by LOAD_FLOATS.
+
+% % NEI, men plot tid mot overflatetrykk, sensortrykk.
+% Sea Surface Pressure Calibrations are not done for
+% \input{platform-type}-floats (Wong et al., 2021).  Figure~\ref{surf_press}
+% shows the surface pressure from the top of each profile, confirming
+% variations less than 5 dbar.
+% \begin{figure}[H]
+%   \centering    
+%   \includegraphics[width=\textwidth,natwidth=1500,natheight=750]{\floatsource\WMOnum_PRES0.png}
+%   \caption{Float \WMOnum. Sea surface pressure data. Blue circles indicate
+%   pressure value in the real-time.}
+% %    \includegraphics[width=\textwidth]{Example_float/surf_pres_\WMOnum}
+% %    \caption{Float \WMOnum. Sea surface pressure data. The red crosses indicate the raw pressure before float descent, recorded after sending data to GDAC. Blue circle indicate pressure value in the real-time. Green rotated cross shows the pressure correction applied from the previous float cycle. Top plot- data constrained between -2.4 and 2.4 dbar, middle plot- data constrained between -20 and +20 dbar, bottom plot- data with a max range of data.}
+%     \label{surf_press}
+% \end{figure}
+
+
+
+\newpage
+\section{Correction of Salinity Data}
+
+% Deep ARVOR FLOATS PRESSURE DEPENDENT CONDUCTIVITY BIAS 
+\input{prescondbias} % Full subsection or empty file
+
+%\subsection{Comparison between Argo Float and CTD Climatlogy}
+\subsection{Comparison between Argo Float and CTD and Argo Climatology} 
+%
+The OWC-toolbox uses reference data in order to investigate potential
+salinity drift and calculate calibration offsets. Figure~\ref{trajectory}
+shows the positions of reference data actually used in mapping. In 
+Appendix~B profile plots of reference data from the WMO squares
+(\input{wmosquares}) traversed by the float, can be found.
+
+\subsubsection{Configuration}\label{Configuration1}
+% The following is a trascript of the \texttt{ow\_config.txt} file of the
+% OWC toolbox with the parameters set for the final correction, as well as
+% comments added by the operator.
+% \verbatiminput{ow_config.txt} 
+The following are the mapping configuration parameters set in
+\texttt{ow\_config.txt} file of the OWC toolbox with the parameters set
+for the final correction:  \verbatiminput{ow_config}
+The scaling parameters are typical for use in the Lofoten Basin. % (LBmap, KAMage, KAMphi)
+
+The calseries parameters are set in \texttt{set\_calseries.m} file as
+follows: \verbatiminput{cal_par}
+
+
+\subsubsection{Results}\label{results_CTDArgo}
+Figures \ref{trajectory} through \ref{Salinity_OWlevels} show the results
+of the comparison and correction of the salinity data.
+%
+Notes made about this float during the different rounds of DMQC, can be
+found in Appendix~A.
+
+
+\begin{figure}[ph]
+  \centering    
+  \includegraphics[width=\textwidth,natwidth=450,natheight=330]{\floatplots\WMOnum_1.eps}
+  \caption{Float \WMOnum. Location of the float profiles (red line with
+  black numbers) and the reference data selected for mapping (blue
+  dots).}
+  \label{trajectory}
+\end{figure}
+\begin{figure}[ph]
+    \centering    
+    \includegraphics[width=\textwidth,natwidth=1400,natheight=820]{\floatplots\WMOnum_3}
+    \caption{Float \WMOnum. Evolution of the suggested adjustment with
+    time. The top panel plots the potential conductivity multiplicative
+    adjustment. The bottom panel plots the equivalent salinity additive
+    adjustment. The red line denotes one-to-one profile fit that uses the
+    vertically weighted mean of each profile. The red line can be used to
+    check for anomalous profiles relative to the optimal fit.} 
+    \label{SalWithErrors}
+\end{figure}
+\begin{figure}[p]
+    \centering    
+    \includegraphics[width=\textwidth,natwidth=1000,natheight=900]{\floatplots\WMOnum_2}
+    \caption{Float \WMOnum. The original float salinity and the
+      objectively estimated reference salinity at the 10 float theta
+      levels that are used in calibration as errorbars. Lower panel is a
+      zoom to the latter.}
+    \label{uncalibVsSalinity}
+\end{figure}
+\begin{figure}[p]
+    \centering    
+    \includegraphics[width=\textwidth,natwidth=1000,natheight=900]{\floatplots\WMOnum_4}
+    \caption{Float \WMOnum. Plots of calibrated float salinity and the
+      objectively estimated reference salinity at the 10 float theta
+      levels that are used in calibration as errorbars. Lower panel is a
+      zoom to the latter.}
+    \label{CalibVsSalinity}
+\end{figure}
+\begin{figure}[p]
+    \centering     
+    \includegraphics[width=0.8\textwidth,natwidth=500,natheight=700]{\floatplots\WMOnum_5}
+    \caption{Float \WMOnum. Salinity anomaly on theta levels.}
+    \label{SalAnomOnTheta}
+\end{figure}
+\begin{figure}[p]
+    \centering    
+    \includegraphics[width=0.8\textwidth,natwidth=500,natheight=700]{\floatplots\WMOnum_7}
+    \caption{Float \WMOnum.  Calibrated salinity anomaly on theta levels.}
+    \label{CalibSalAnomOnTheta}
+\end{figure}
+\begin{figure}[p]
+    \centering    
+    \includegraphics[width=\textwidth,natwidth=1350,natheight=820]{\floatplots\WMOnum_6}
+    \caption{Float \WMOnum. Plots of the evolution of salinity with time
+    along with selected theta levels with minimum salinity variance.} 
+    \label{SalErrOnTheta}
+\end{figure}
+\begin{figure}[p]
+  \centerline{\includegraphics[width=1.2\textwidth,natwidth=1700,natheight=1000]{\floatplots\WMOnum_8}}
+  \caption{Float \WMOnum. Plots include the theta levels chosen for
+    calibration: Top left: Salinity variance at theta levels. Top right:
+    T/S diagram of all profiles of Argo float. Bottom left: potential
+    temperature plotted against pressure. Bottom right: salinity plotted
+    against pressure.} 
+  \label{Salinity_OWlevels}
+\end{figure}
+
+\FloatBarrier
+\newpage
+\section{Discussion and conclusions}  
+\input{discussion}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%\newpage
+\section*{Acknowledgments}
+This report is based on the template given in the DM-REPORT-TEMPLATE
+Matlab/LaTeX toolbox provided at
+\href{url}{https://github.com/euroargodev/dm-report-template.git} and
+adapted to own needs (this version is provided in
+\href{url}{https://github.com/imab4bsh/DMQC-fun.git}).  
+%
+Calibration of conductivity sensor drift was done using the Matlab OWC
+toolbox provided at \href{url}{https://github.com/ArgoDMQC/matlab\_owc}.
+%
+The map in Figure~\ref{fig:float-info} was made using the M\_MAP toolbox
+(Pawlowicz, 2020; \url{http://www.eoas.ubc.ca/~rich/map.html}).
+%
+Supporting functions can be found in the author's own distribution at
+\href{url}{https://github.com/evenrev1/evenmat.git}.
+
+
+
+\section*{References}
+\begin{list}{}{}
+\item Cabanes, C., Thierry, V., \& Lagadec, C. (2016). Improvement of bias
+  detection in Argo float conductivity sensors and its application in the
+  North Atlantic. Deep-Sea Research Part I: Oceanographic Research Papers,
+  114, 128–136. \href{url}{https://doi.org/10.1016/j.dsr.2016.05.007}.
+\item Johnson, G. C., Toole, J. M., \& Larson, N. G. (2007). Sensor
+  corrections for Sea-Bird SBE-41CP and SBE-41 CTDs. Journal of
+  Atmospheric and Oceanic Technology, 24(6), 1117–1130.
+  \href{url}{https://doi.org/10.1175/JTECH2016.1}.
+\item Pawlowicz, R., 2020. "M\_Map: A mapping package for MATLAB", version
+  1.4m, [Computer software], available online at
+  \url{http://www.eoas.ubc.ca/~rich/map.html}.
+\item Wong,~A., Keeley,~R., Carval,~T., and the Argo Data Management Team
+  (2021).  Argo Quality Control Manual for CTD and Trajectory Data.
+  \href{url}{http://dx.doi.org/10.13155/33951}.
+\end{list}
+
+%%\end{flushleft}
+
+%\end{document}
+% ADD FILENAMES MANUALLY BELOW!!
+
+\newpage
+\section{Appendix A: File information and notes}\label{sec:appendix-notes}
+%
+\subsection*{Scientific calibration information}
+The scientific calibration information written to the D-files are
+summarized in Table~\ref{tab:scientific_calib}.
+%
+\begin{table}[!h]
+  \caption{Information filled in the SCIENTIFIC\_CALIB section for the variables, in the D-files.} \label{tab:scientific_calib} 
+  \input{scientific_calib_tabular}
+\end{table}
+
+\subsection*{Operator's notes}
+The following notes have been made about this float:
+\verbatiminput{notes}
+
+
+\section{Appendix B: Reference data}\label{sec:appendix-refdata}
+Here follows overview plots of the reference data in the WMO-squares
+traversed by Float~\WMOnum.
+\input{appendix}
+
+\input{supplementary} % If anything extra is made, it is done in this
+                      % file. Otherwise file will be empty made in PREPARE_FLOATS.
+
+
+\end{document}
+ 

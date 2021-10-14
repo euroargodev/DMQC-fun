@@ -1,59 +1,62 @@
-% A SCRIPT TO INGEST, QUICK-CHECK AND UPDATE LIST OF REFERENCE DATA
-% FOR Argo DMQC.
+% A script to ingest, quick-check and update list of reference data
+% for Argo DMQC. 
 %
+% - Ingests downloaded reference data into MATLAB_OWC's climatology/ directory.
+% - Produces map overview of the chosen WMO squares and contents in constants/)
+% - Produces maps and TS, T, and S graphs of all profiles for each
+%   ingested WMO-square alongside their mat-files. 
+
+%%%%%%%%%%%% INITIAL STEPS: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % First, in a shell, find, download and unpack DMQC reference data:
-% cd ~/Downloads/DMQC/
-% lftp -u <user,password> ftp.ifremer.fr/coriolis/
+%	cd ~/Downloads/DMQC   (i.e., your download_ref_data_dir)
+%	lftp -u <user,password> ftp.ifremer.fr/coriolis/
+% Check for new datasets, get the tarbals if any.
+% Close lftp session and unpack the tarballs inside your download_ref_data_dir.
+%
+% IMPORTANT: INIT_DMQC will build the object refdir according to the
+% subdirectories present in the download_ref_data_dir, so make sure to
+% delete old datasets and keep only the three to be used!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% After running LOAD_REFERENCEDATA you can check the map in
+% matlab_owc's 'constants' directory.
 
 clear all; close all;
-
-init_dmqc;	% Get some necessary paths.
-
-% WMO-squares of chosen area to populate (fixed):
-A=[1803 1804 1805	                         7802 7801 7800 1800 1801 1802 ...
-   1703 1704 1705	7707 7706 7705           7702 7701 7700 1700 1701 1702 ...
-   1603 1604 1605	     7606 7605 7604 7603 7602 7601 7600 1600 1601 1602 ...
-			     7506 7505 7504 7503 7502 7501 7500 1500 1501 1502 ...
-			     7406 7405 7404 7403 7402 7401 7400  ];
-
-% Target directories (names of these subdirectories are given by OWC-toolbox):
-tardir={[owc_data_dir,'climatology/historical_ctd'], ... 
-	[owc_data_dir,'climatology/historical_bot'], ...
-	[owc_data_dir,'climatology/argo_profiles']};
-tartyp={'ctd_','bot_','argo_'};
+init_dmqc;	% Get the necessary paths etc. as well as your
+                % choice of WMO-squares.
+tartyp={'ctd_','bot_','argo_'}; % The types of referencdata in matlab_owc
 
 % ----- Make an overview map of selected and ingested WMO-squares -----
 figure(1); clf; set(gcf,'OuterPosition',get(0,'ScreenSize'));
-wmolim=[]; for i=1:length(A), wmolim(i,:)=wmosquare(A(i)); end
+wmolim=[]; for i=1:length(my_WMOs), wmolim(i,:)=wmosquare(my_WMOs(i)); end
 mima(wmolim(:,3:4))+[-2 2];ans(2)=min(ans(2),89);
 m_proj('Albers','lon',mima(wmolim(:,1:2))+[-2 2],'lat',ans);
 m_grid; m_coast('color','k'); m_elev('contour','color',[.7 .7 .7]);
-for i=1:length(A)
+for i=1:length(my_WMOs)
   [lo,la]=erect(wmolim(i,:),'t'); m_line(lo,la);
   sort([wmolim(i,1:2)+[-4 4],wmolim(i,1:2)]);lom=ans(2:3);
   sort([wmolim(i,3:4)+[-1 1],wmolim(i,3:4)]);lam=ans(2:3);
-  htx=m_text(mean(lom),mean(lam),int2str(A(i))); 
+  htx=m_text(mean(lom),mean(lam),int2str(my_WMOs(i))); 
   set(htx,'verticalalignment','middle','horizontalalignment','center','color','b');
 end
 % map will be printed after the content check below.
 
 
-
 % ----- Transfer the reference data to the apropriate directories: -----
 for j=1:length(refdir) % Loop reference-data directories
   if any(findstr('CTD',refdir{j}))
-    for i=1:length(A)
-      %['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(A(i)),'.mat ',tardir{1},filesep]
-      msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(A(i)),'.mat ',tardir{1},filesep]);
+    for i=1:length(my_WMOs)
+      %['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(my_WMOs(i)),'.mat ',tardir{1},filesep]
+      msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(my_WMOs(i)),'.mat ',tardir{1},filesep]);
     end
   elseif any(findstr('ARGO',refdir{j}))
-    for i=1:length(A)
-      %['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(A(i)),'.mat ',tardir{3},filesep]
-      msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(A(i)),'.mat ',tardir{3},filesep]);
+    for i=1:length(my_WMOs)
+      %['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(my_WMOs(i)),'.mat ',tardir{3},filesep]
+      msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(my_WMOs(i)),'.mat ',tardir{3},filesep]);
     end
   end
 end
-
 
 
 % ----- Update the wmo_boxes.mat based on actual contents of target directories: -----
@@ -85,11 +88,13 @@ print(gcf,'-depsc',[owc_data_dir,filesep,'constants',filesep,'selected_wmos_map.
 save([owc_data_dir,filesep,'constants',filesep,'wmo_boxes'],'la_wmo_boxes');
 
 
-% ----- Check the reference data (make a lot of figures): -----
+% ----- Check the reference data (i.e., make a lot of figures): -----
 if logical(1) 
   %figure(2);set(gcf,'OuterPosition',[1 385 1026 960]);
   %figure(2);set(gcf,'OuterPosition',[1 385 1426 960]);
   figure(2);set(gcf,'OuterPosition',get(0,'ScreenSize'));
+  shape=get(gcf,'innerposition');
+  set(gcf,'units','points','innerposition',shape,'paperunits','points','paperposition',shape,'PaperSize',shape(3:4),'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl');
   for j=1:length(tartyp)	% Loop the three data types
     d=edir(tardir{j},'mat',0,0); %filer=cellstr(char(d.name));	% List of files
     for i=1:length(d)	% Loop all mat-files
@@ -120,7 +125,7 @@ if logical(1)
       figure(2);clf;
 
       % Map with colors for time:
-      subplot 231; 
+      a_map1=subplot('position',[0.1 0.5 0.35 0.4]); 
       %title([upper(tartyp{j}(1:end-1)),'-reference data in WMO-square ',int2str(wmosq)]);
       title(['Time span ',datestr(datenum(min(dates)/1e10,0,0),12),'-',datestr(datenum(max(dates)/1e10,0,0),12)]);
       lim=wmosquare(wmosq);
@@ -133,7 +138,7 @@ if logical(1)
       hl=legend([hw hp(1)],'WMO-square','Reference data (by time)','location','northwestoutside');
 
       % Map with colors for latitude (as for the rest):
-      subplot 232; 
+      a_map2=subplot('position',[0.55 0.5 0.35 0.4]); 
       title([upper(tartyp{j}(1:end-1)),'-reference data in WMO-square ',int2str(wmosq)]);
       lim=wmosquare(wmosq);
       %m_proj('Albers','lon',lim(1:2)+[-4 4],'lat',[lim(3)-1 min([90 lim(4)+1])]);
@@ -174,6 +179,3 @@ if logical(1)
   end
 end
 
-
-%set([hTS,hT,hS],'',
-      
