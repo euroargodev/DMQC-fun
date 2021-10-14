@@ -13,7 +13,7 @@
 % 
 %	- DMQC-fun - https://github.com/imab4bsh/DMQC-fun.git
 %	- matlab_owc -  https://github.com/ArgoDMQC/matlabow.git
-%	- evenmat - https://github.com/evenrev1/evenmat.git
+%	- evenmat - https://github.com/evenrev1/evenmat.git 
 %
 % DMQC-fun also includes a LaTeX report template and the functions and
 % scripts produce snippets of content linked into that template. You
@@ -89,4 +89,3 @@
 %		Set the OWC calibration parameters inside this
 %		script.
 %
-% DMQC-fun - https://github.com/imab4bsh/DMQC-fun.git
