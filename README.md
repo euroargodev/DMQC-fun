@@ -40,7 +40,7 @@
 
 **load_referencedata**	
 		A script to ingest, quick-check and update the list
-		of reference data for Argo DMQC. 
+		of reference data for Argo DMQC and OWC. 
 
 **download_floats**	
 		This script downloads float Argo NetCDF-files from
@@ -71,7 +71,8 @@
 
 **./tex/**	The LaTeX part of the toolbox. You can ignore this
 		directory. It will be automaticly distributed when
-		you do your initial setup (see INIT_DMQC).
+		you do your initial setup (see INIT_DMQC). And
+		there's a sample-DMQC-report.pdf here.
 
 **./old/**	Ignore this directory.
  
@@ -84,9 +85,9 @@
  the path to it! See instructions in INIT_DMQC.
 
 **./bak/ow_config.txt**	
-		Set the OWC paths and mapping parameters. 
+		Example of how to set the OWC paths and mapping
+		parameters.  
 
 **./bak/set_calseries.m**	
-		Set the OWC calibration parameters inside this
-		script.
+		Example of how to set the OWC calibration parameters.
 
