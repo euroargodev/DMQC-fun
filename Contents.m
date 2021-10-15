@@ -79,7 +79,7 @@
 % ./lib/	The good old oceans and seawater toolboxes are
 %		provided here since they are not easily found
 %		anymore. Some other necessary tools are here as
-%		well. 
+%		well. Unzip and add paths as needed.
 % 
 % ./old/	Ignore this directory.
 %
