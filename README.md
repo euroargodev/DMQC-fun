@@ -1,5 +1,6 @@
-# DMQC-fun v0.9.1 
+# DMQC-fun 
  by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+ v0.9.1 
 
  DMQC-fun is a comprehensive toolbox for performing DMQC on and
  salinity calibration of core data from Argo floats. The toolbox
@@ -9,12 +10,13 @@
  metadata and information from these stages are automaticly integrated
  into reports for each float.
 
- The necessary toolboxes are:
+ The toolboxes to install are:
  
  - DMQC-fun - [https://github.com/imab4bsh/DMQC-fun.git](https://github.com/imab4bsh/DMQC-fun.git)
  - matlab_owc -  [https://github.com/ArgoDMQC/matlabow.git](https://github.com/ArgoDMQC/matlabow.git)
  - evenmat - [https://github.com/evenrev1/evenmat.git](https://github.com/evenrev1/evenmat.git) 
  - m_map - [https://www.eoas.ubc.ca/~rich/map.html](https://www.eoas.ubc.ca/~rich/map.html)
+ - GSW - http://www.teos-10.org/pubs/gsw/html/gsw_front_page.html
 
  DMQC-fun also includes a LaTeX report template and the functions and
  scripts produce snippets of content linked into that template. You
@@ -74,10 +76,12 @@
 		you do your initial setup (see INIT_DMQC). And
 		there's a sample-DMQC-report.pdf here.
 
-**./old/**	Ignore this directory.
+**./lib/**	The good old oceans and seawater toolboxes are
+		provided here since they are not easily found
+		anymore. Some other necessary tools are here as
+		well. 
  
-**./padconcatenation/**	
-		A copy of a useful auxillary toolbox (add to path list).
+**./old/**	Ignore this directory.
 
  The following files are only examples of how you can edit the two
  files from the OWC toolbox that you will copy to your working
@@ -91,3 +95,4 @@
 **./bak/set_calseries.m**	
 		Example of how to set the OWC calibration parameters.
 
+ Feedback is most welcome at jan.even.oeie.nilsen@hi.no.

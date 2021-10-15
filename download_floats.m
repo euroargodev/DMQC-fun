@@ -1,4 +1,4 @@
-% This script downloads float Argo NetCDF-files from the Corilolis
+% This script downloads float Argo NetCDF-files from the Coriolis
 % server, as well as the altimetry comparison and current greylist.
 % 
 % Set which floats to operate on in INIT_DMQC!

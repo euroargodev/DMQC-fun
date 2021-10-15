@@ -78,7 +78,15 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % 
 %	DMQC-fun - https://github.com/imab4bsh/DMQC-fun.git
 %	matlab_owc -  https://github.com/ArgoDMQC/matlabow.git
+% 
+% Also install 
+%
 %	evenmat - https://github.com/evenrev1/evenmat.git
+%	m_map - https://www.eoas.ubc.ca/~rich/map.html
+%
+% The oceans, seawater, and some other necessary toolboxes are provided
+% herein. Unzip and add their paths if you don't have them installed
+% already.
 %
 % When adding the paths to the toolboxes, good practice is to make
 % sure DMQC-fun comes above these other toolboxes in the path list
@@ -255,10 +263,9 @@ my_backup_dir       = [my_working_dir,'bak/matlab_owc/'];   % Where you put your
 							    % set_calseries.m.					EDIT THIS IF NECESSARY! 
 
 % Make and (re)order paths in the necessary order (automatic, do not edit):
-addpath([my_argo_toolbox_dir,'matlab_owc']);		% The OWC-toolbox' location
-addpath([my_argo_toolbox_dir,'DMQC-fun/padconcatenation']);% Auxillary toolbox included with DMQC-fun
-addpath([my_argo_toolbox_dir,'DMQC-fun']);		% This toolbox' location
-addpath(my_working_dir);				% In order for your local version of INIT_DMQC to be used. 
+addpath([my_argo_toolbox_dir,'matlab_owc']);			% The OWC-toolbox' location
+addpath([my_argo_toolbox_dir,'DMQC-fun']);			% This toolbox' location
+addpath(my_working_dir);					% In order for your local version of INIT_DMQC to be used. 
 
 % File names for PREPARE_FLOATS (automatic, do not edit):
 infiles   = strcat(download_dir,filesep,float_names,{'_prof.nc'}); 
