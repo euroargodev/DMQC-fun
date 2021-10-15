@@ -1,5 +1,5 @@
 % INIT_DMQC.M is init-file and setup instructions.  
-% DMQC-fun v0.9.1; See Contents.m for file overview; work_log.txt for workflow description.
+% DMQC-fun v0.9.1; See Contents.m for overview; work_log.txt for workflow description.
 %%%%%%%%%% Read further down below for instructions on how to set up your system! %%%%%%%%%%%%%%%%  
 %%%%%%%%%% The first part is where you control everything! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -83,6 +83,7 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 %
 %	evenmat - https://github.com/evenrev1/evenmat.git
 %	m_map - https://www.eoas.ubc.ca/~rich/map.html
+%	GSW - http://www.teos-10.org/pubs/gsw/html/
 %
 % The oceans, seawater, and some other necessary toolboxes are provided
 % herein. Unzip and add their paths if you don't have them installed
@@ -121,7 +122,7 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 %
 % These two files are now your own generic setup files for OWC, and you
 % will edit them in (4-5). Then copies of them will be distributed into
-% directories for each float (see 6) for more tailored settings as you
+% directories for each float (6) for more tailored settings as you
 % analyse the float.
 
 % 3) In your init_dmqc.m, edit your float list on top, as well as the
@@ -150,8 +151,8 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % 4) Edit the paths in your generic ow_config.txt. HISTORICAL_DIRECTORY,
 % FLOAT_SOURCE_DIRECTORY, FLOAT_MAPPED_DIRECTORY, FLOAT_CALIB_DIRECTORY,
 % FLOAT_PLOTS_DIRECTORY, CONFIG_DIRECTORY must be matched to
-% owc_data_dir here in init_dmqc.m. Also, MAP_P_EXCLUDE should be the same
-% in both files.
+% owc_data_dir here in init_dmqc.m. Also, MAP_P_EXCLUDE should be the
+% same in both files.
 
 % 5) Edit the mapping and calibration parameters in your generic
 % ow_config.txt and set_calseries.m. As far as possible and based on
@@ -176,8 +177,8 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % once you have your float directories in place.
 
 % 7) You are now ready to start doing core DMQC and salinity calibration
-% on your floats. Head over to your copy of WORK_LOG for a
-% description of the work flow.
+% on your floats. Head over to your copy of WORK_LOG for a description
+% of the work flow.
 
 % Finally some words about dependencies and files. The files you moved
 % from the toolboxes could have been copied if you made absolutely sure
@@ -193,9 +194,10 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % from the version of matlab_owc you have downloaded instead of here, to
 % ensure compatibility.
 
+% Now go carefully through the next sections and tailor to yourself.
 
 
-% ------------- OPERATOR DATA ETC. (for report and D-files) ---------------
+% ------------- OPERATOR DATA ETC. (for report and D-files) ---------------					EDIT THIS!
 dmqc_operator.name		= 'Jan Even Øie Nilsen'; 
 dmqc_operator.parameter		= 'PRIMARY'; % I.e., CORE
 dmqc_operator.orcid		= '0000-0003-2516-6106';
@@ -260,7 +262,7 @@ my_argo_toolbox_dir = '/Users/a21627/matlab/toolbox/Argo/'; % Where you put all 
 							    % (i.e. DMQC-fun and MATLAB_OWC).			EDIT THIS!
 my_working_dir      = '/Users/a21627/arbeid/obs/NorARGO/';  % Where you want to work with your Argo DMQC.	EDIT THIS!
 my_backup_dir       = [my_working_dir,'bak/matlab_owc/'];   % Where you put your copies of ow_config_txt and 
-							    % set_calseries.m.					EDIT THIS IF NECESSARY! 
+							    % set_calseries.m.					EDIT THIS IF NECESSARY. 
 
 % Make and (re)order paths in the necessary order (automatic, do not edit):
 addpath([my_argo_toolbox_dir,'matlab_owc']);			% The OWC-toolbox' location

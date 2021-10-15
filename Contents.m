@@ -16,7 +16,7 @@
 %	- matlab_owc -  https://github.com/ArgoDMQC/matlabow.git
 %	- evenmat - https://github.com/evenrev1/evenmat.git 
 %	- m_map - https://www.eoas.ubc.ca/~rich/map.html
-%	- GSW - http://www.teos-10.org/pubs/gsw/html/gsw_front_page.html
+%	- GSW - http://www.teos-10.org/pubs/gsw/html/
 %
 % DMQC-fun also includes a LaTeX report template and the functions and
 % scripts produce snippets of content linked into that template. You
