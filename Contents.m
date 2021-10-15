@@ -6,9 +6,9 @@
 % salinity calibration of core data from Argo floats. The toolbox
 % provides a system for semi-automated work-flow through the stages of
 % downloading reference and float data, general DMQC and preparation of
-% float data for MATLAB_OWC, and production of updated D-files. Graphs,
-% metadata and information from these stages are automaticly integrated
-% into reports for each float.
+% float data for MATLAB_OWC, running of MATLAB_WC, and production of
+% updated D-files. Graphs, metadata and information from these stages
+% are automaticly integrated into reports for each float.
 %
 % The toolboxes to install are:
 % 
@@ -25,7 +25,7 @@
 % useful. (You may even be able to link the produced figures and text
 % parts into some other word processor of choice.)
 %
-% The files in this toolbox are as follows:
+% The files and directories in this toolbox are as follows:
 %
 % Contents	This Matlab help text for the toolbox.
 %
@@ -95,4 +95,4 @@
 % ./bak/set_calseries.m	
 %		Example of how to set the OWC calibration parameters.
 %
-% Feedback is most welcome at jan.even.oeie.nilsen@hi.no.
+% Feedback is most welcome to jan.even.oeie.nilsen@hi.no.
