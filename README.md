@@ -14,6 +14,7 @@
  - DMQC-fun - [https://github.com/imab4bsh/DMQC-fun.git](https://github.com/imab4bsh/DMQC-fun.git)
  - matlab_owc -  [https://github.com/ArgoDMQC/matlabow.git](https://github.com/ArgoDMQC/matlabow.git)
  - evenmat - [https://github.com/evenrev1/evenmat.git](https://github.com/evenrev1/evenmat.git) 
+ - m_map - [https://www.eoas.ubc.ca/~rich/map.html](https://www.eoas.ubc.ca/~rich/map.html)
 
  DMQC-fun also includes a LaTeX report template and the functions and
  scripts produce snippets of content linked into that template. You
