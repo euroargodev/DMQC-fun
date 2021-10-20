@@ -138,7 +138,8 @@ for I=1:length(float_names)
   % PROFILE_PSAL_QC(ans>=50)='C', PROFILE_PSAL_QC(ans>=75)='B', PROFILE_PSAL_QC(ans==100)='A'
   
   REFERENCE_DATE_TIME=ncread(Rfiles{1},'REFERENCE_DATE_TIME'); % For datenum
-  % [] I am only reading first column of each file! Is that OK?
+  % I am only reading first column of each file! Other profiles are
+  % not part of DMQC.
 
   % figure(2); plotyy(PRES(:,1),SAL(:,1),PRES(:,1),TEMP(:,1));
   % whos LONG LAT JULD PRES SAL TEMP CYCLE_NUMBER DIRECTION REFERENCE* HISTORY*; 
