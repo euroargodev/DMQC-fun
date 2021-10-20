@@ -291,7 +291,7 @@ for I=1:length(download_dir)	% Loop floats
     
     % A history record should be appended to the HISTORY section of the netcdf file:
     hi=ncreadatt(Dfiles{i},'/','history');				% Read
-    hi=[hi,'; ',datestr2(now,108),'Z ',history_update]; % Add to string
+    hi=[hi,'; ',datestr2(now,111),'Z ',history_update]; % Add to string
     ncwriteatt(Dfiles{i},'/','history',hi);				% Write back 
     
     % Update the user-manual version:
