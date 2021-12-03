@@ -3,6 +3,7 @@
 \usepackage{float,placeins}
 \usepackage{multirow}
 \usepackage{epstopdf}
+%\usepackage{multicol}
 \usepackage[margin=0.7in]{geometry}
 
 %%%%% Set all your parameters and paths in INIT_DMQC.M (not here) %%%%%%%%%%%%%%%%%%%%%%%
@@ -21,10 +22,9 @@
 
 \title{Delayed Mode Quality Control of Argo float~\WMOnum}%\hspace{0.5mm}}
 \author{\input{dmqc_operator_name}\\ %Jan Even {\O}ie Nilsen\\   %% Name of DMQC operator
-ORCID: \input{dmqc_operator_orcid}\\[5mm] %0000-0003-2516-6106\\[1cm]
+ORCID: \input{dmqc_operator_orcid}\\ %0000-0003-2516-6106\\[1cm]
 \input{dmqc_operator_institution}\\ %Institute of Marine Research (IMR)\\
 \input{dmqc_operator_address} } %Strandgaten 196, Bergen, Norway} %% Name of Organisation and address
-
 \date{\today} %% Date of DMQC if you produce report on same day as DMQC.
 %\date{yyyy.mm.dd} %% Insert actual date of DMQC if you produce report later.
 \maketitle
@@ -105,7 +105,11 @@ The OWC toolbox version~3.0.0 % Version number needs to be manually updated here
 (\href{url}{https://github.com/ArgoDMQC/matlab\_owc}) was run to estimate
 a salinity offset and a salinity drift (Cabanes et al., 2016).
 
-Note that only ascending profiles are included in this DMQC.
+Note that only ascending profiles are included in this DMQC. Note also
+that the concepts ``cycle number'' and ``profile number'' are not the
+same, as there might be missing cycles, while only existing profiles are
+input to OWC. ``Cycle number'' refers to the actual cycle number
+parameter and file naming of R/D-files.
 
 Technical info on the float is given in Table~\ref{tab:techinfo} and an
 overview of the float trajectory and T\&S data is shown in
@@ -138,6 +142,7 @@ Figure~\ref{fig:float-info}.
         {Float Status} & {\input{float-status}} \\ \hline 
         {Age} & {\input{age}} \\ \hline 
         {Last Cycle} & {\input{last-cycle}} \\ \hline 
+        {Missing Cycles} & {\input{missing-cycles}} \\ \hline 
         {Grey list} & {\input{grey-list}} \\ \hline
 \end{tabular}
 \end{table}
@@ -146,13 +151,14 @@ Figure~\ref{fig:float-info}.
   %\centering    
   \centerline{\includegraphics[width=1.2\textwidth]{\floatsource\WMOnum}}
   \caption{Float \WMOnum. Map shows the locations of float profiles (numbers in
-    black are every 10th profile number and numbers in blue with
-    corresponding squares/lines show WMO-squares). The grey contours in
-    map indicate bathymetry. The following plots are TS-diagram,
-    temperature profiles, salinity profiles, and density profiles for all
-    profiles. The profiles shown have undergone pre-OWC analysis DMQC (as
-    described in Section~\protect\ref{DMQCpreOWC}).  Colour shading in all  
-    panels indicate profile number (see colorbar under map).}
+    black show the first, every 10th, and the last cycle number in the data
+    set; numbers in blue with corresponding squares/lines show
+    WMO-squares). The grey contours in map indicate bathymetry. The
+    following plots are TS-diagram, temperature profiles, salinity
+    profiles, and density profiles for all profiles. The profiles shown
+    have undergone pre-OWC analysis DMQC (as described in
+    Section~\protect\ref{DMQCpreOWC}).  Colour shading in all panels
+    indicate cycle number (see colorbar under map).}
   \label{fig:float-info}
 \end{figure} 
  
@@ -165,7 +171,7 @@ The DMQC prior to OWC is performed in four phases, after each the found
 erroneous data are removed before the following phase:
 \begin{enumerate}
 \item Delayed-mode procedures for coordinates
-\item Correction of pressure dependent conductivity bias (deep ARVOR only)
+\item Sea Surface Pressure Adjustment (for APEX floats only)
 \item Visual verification of Real-time mode QC flags
 \item Selected automated tests necessary for OWC
 \item Visual DMQC of the variables
@@ -173,8 +179,15 @@ erroneous data are removed before the following phase:
 The tests are described in the following subsections and all results are shown in Table~\ref{tab:rtqc}. 
 \input{comments}
 %
+Note that the flagging summarised and shown in this section, does not
+include any flags resulting from OWC analysis (Section~\ref{sec:OWC}). See
+the discussion and conclusions (Section~\ref{sec:discussion}) about any
+extra flagging based on the OWC analysis.
+%
 \begin{table}[!ht]
-  \caption{Results for Float~\WMOnum\ in terms of number of flags for each variable, from both RTQC and DMQC.}
+  \caption{Overview and results for Float~\WMOnum\ in terms of number of
+    flags for each variable, from both RTQC and DMQC. 
+    Flags based on OWC findings are not shown here.}
   \label{tab:rtqc}
   \centering
   \input{flagtable}
@@ -191,6 +204,28 @@ or erroneous values replaced by linear interpolation.
 Position outliers were checked for visually in a map such as in
 Figure~\ref{fig:float-info} but based on original data, and any positions
 replaced by 2D linear interpolation.
+
+\newpage
+\subsection{Sea Surface Pressure Adjustment}
+\input{pressure-adjustment} % Generated by PREPARE_FLOATS.
+
+% % NEI, men plot tid mot overflatetrykk, sensortrykk.
+% Sea Surface Pressure Calibrations are not done for
+% \input{platform-type}-floats (Wong et al., 2021).  Figure~\ref{surf_press}
+% shows the surface pressure from the top of each profile, confirming
+% variations less than 5 dbar.
+% \begin{figure}[H]
+%   \centering    
+%   \includegraphics[width=\textwidth,natwidth=1500,natheight=750]{\floatsource\WMOnum_PRES.png}
+%   \caption{Float \WMOnum. Sea surface pressure data. Blue circles indicate
+%   pressure value in the real-time.}
+% %    \includegraphics[width=\textwidth]{Example_float/surf_pres_\WMOnum}
+% %    \caption{Float \WMOnum. Sea surface pressure data. The red crosses indicate the raw pressure before float descent, recorded after sending data to GDAC. Blue circle indicate pressure value in the real-time. Green rotated cross shows the pressure correction applied from the previous float cycle. Top plot- data constrained between -2.4 and 2.4 dbar, middle plot- data constrained between -20 and +20 dbar, bottom plot- data with a max range of data.}
+%     \label{surf_press}
+% \end{figure}
+
+
+
 
 \newpage
 \subsection{Visual verification of Real-time mode QC flags}
@@ -244,7 +279,9 @@ As prescribed in Section~3.3--3.5 of Wong et al.~(2021), PRES, TEMP, and
 PSAL were checked visually by comparing to other cycles from the float
 (using versions of Figures~\ref{fig:float-info} and \ref{hovmoller} from
 this stage), as well as in relation to reference data in the vicinity of
-the float (Figure~\ref{fig:refcomp}).  Trends in salinity in the same
+the float (Figure~\ref{fig:refcomp}). Pressure consistency is also checked
+using Figure~\ref{fig:pres}.
+Trends in salinity in the same
 reference data are also compared to float data
 (Figure~\ref{fig:trendcheck}) in order to aid interpretation of the
 calibration results in Section~\ref{results_CTDArgo}.
@@ -292,38 +329,19 @@ salinty, respectively, disregarding flags but with flagged data marked.
   \end{tabular}
   \caption{Float \WMOnum. Time series of Argo float potential temperature
     (a; \textdegree C) and salinity (b; PSS-78). Any white squares and
-  circles indicate data that has been flagged '4' by RTQC and DMQC,
-  respectively. A point inside a square indicates the rare occurence of
-  reversal of an RTQC flag to '1'. Pressure flags are marked with the same
-  symbols, in grey.}
+  circles indicate data that has been flagged '4' by RTQC and DMQC, respectively. 
+  A diamond indicates the rare occurence of DMQC reversal of an RTQC flag to '1'.
+  White points indicate RTQC flags of '2' or '3'. 
+  Flags based on OWC findings are not shown here (see Section~\ref{sec:discussion} about any extra flags).}
+%   Pressure flags are marked with the same symbols, in grey.
 \label{hovmoller}
 \end{figure}
 
 
-\newpage
-\subsection{Sea Surface Pressure Adjustment}
-\input{pressure-adjustment} % Generated by LOAD_FLOATS.
-
-% % NEI, men plot tid mot overflatetrykk, sensortrykk.
-% Sea Surface Pressure Calibrations are not done for
-% \input{platform-type}-floats (Wong et al., 2021).  Figure~\ref{surf_press}
-% shows the surface pressure from the top of each profile, confirming
-% variations less than 5 dbar.
-% \begin{figure}[H]
-%   \centering    
-%   \includegraphics[width=\textwidth,natwidth=1500,natheight=750]{\floatsource\WMOnum_PRES0.png}
-%   \caption{Float \WMOnum. Sea surface pressure data. Blue circles indicate
-%   pressure value in the real-time.}
-% %    \includegraphics[width=\textwidth]{Example_float/surf_pres_\WMOnum}
-% %    \caption{Float \WMOnum. Sea surface pressure data. The red crosses indicate the raw pressure before float descent, recorded after sending data to GDAC. Blue circle indicate pressure value in the real-time. Green rotated cross shows the pressure correction applied from the previous float cycle. Top plot- data constrained between -2.4 and 2.4 dbar, middle plot- data constrained between -20 and +20 dbar, bottom plot- data with a max range of data.}
-%     \label{surf_press}
-% \end{figure}
-
-
 
 \newpage
-\section{Correction of Salinity Data}
-
+\section{Correction of Salinity Data}\label{sec:OWC}
+%
 % Deep ARVOR FLOATS PRESSURE DEPENDENT CONDUCTIVITY BIAS 
 \input{prescondbias} % Full subsection or empty file
 
@@ -362,19 +380,23 @@ found in Appendix~A.
   \centering    
   \includegraphics[width=\textwidth,natwidth=450,natheight=330]{\floatplots\WMOnum_1.eps}
   \caption{Float \WMOnum. Location of the float profiles (red line with
-  black numbers) and the reference data selected for mapping (blue
-  dots).}
+    black numbers) and the reference data selected for mapping (blue
+    dots).
+    Note that missing cycles are not included into OWC, so profile numbers do
+    not match cycle numbers.}
   \label{trajectory}
 \end{figure}
 \begin{figure}[ph]
     \centering    
     \includegraphics[width=\textwidth,natwidth=1400,natheight=820]{\floatplots\WMOnum_3}
     \caption{Float \WMOnum. Evolution of the suggested adjustment with
-    time. The top panel plots the potential conductivity multiplicative
-    adjustment. The bottom panel plots the equivalent salinity additive
-    adjustment. The red line denotes one-to-one profile fit that uses the
-    vertically weighted mean of each profile. The red line can be used to
-    check for anomalous profiles relative to the optimal fit.} 
+      time. The top panel plots the potential conductivity multiplicative
+      adjustment. The bottom panel plots the equivalent salinity additive
+      adjustment. The red line denotes one-to-one profile fit that uses the
+      vertically weighted mean of each profile. The red line can be used to
+      check for anomalous profiles relative to the optimal fit.
+      Note that missing cycles are not included into OWC, so profile numbers do
+      not necessarily match cycle numbers.} 
     \label{SalWithErrors}
 \end{figure}
 \begin{figure}[p]
@@ -383,7 +405,9 @@ found in Appendix~A.
     \caption{Float \WMOnum. The original float salinity and the
       objectively estimated reference salinity at the 10 float theta
       levels that are used in calibration as errorbars. Lower panel is a
-      zoom to the latter.}
+      zoom to the latter.
+      Note that missing cycles are not included into OWC, so profile
+      numbers in legend do not necessarily match cycle numbers.}
     \label{uncalibVsSalinity}
 \end{figure}
 \begin{figure}[p]
@@ -392,26 +416,34 @@ found in Appendix~A.
     \caption{Float \WMOnum. Plots of calibrated float salinity and the
       objectively estimated reference salinity at the 10 float theta
       levels that are used in calibration as errorbars. Lower panel is a
-      zoom to the latter.}
+      zoom to the latter.
+      Note that missing cycles are not included into OWC, so profile
+      numbers in legend do not necessarily match cycle numbers.}
     \label{CalibVsSalinity}
 \end{figure}
 \begin{figure}[p]
     \centering     
     \includegraphics[width=0.8\textwidth,natwidth=500,natheight=700]{\floatplots\WMOnum_5}
-    \caption{Float \WMOnum. Salinity anomaly on theta levels.}
+    \caption{Float \WMOnum. Salinity anomaly on theta levels.
+      Note that missing cycles are not included into OWC, so profile numbers do
+      not necessarily match cycle numbers.}
     \label{SalAnomOnTheta}
 \end{figure}
 \begin{figure}[p]
     \centering    
     \includegraphics[width=0.8\textwidth,natwidth=500,natheight=700]{\floatplots\WMOnum_7}
-    \caption{Float \WMOnum.  Calibrated salinity anomaly on theta levels.}
+    \caption{Float \WMOnum.  C alibrated salinity anomaly on theta levels.
+      Note that missing cycles are not included into OWC, so profile numbers do
+      not necessarily match cycle numbers.}
     \label{CalibSalAnomOnTheta}
 \end{figure}
 \begin{figure}[p]
     \centering    
     \includegraphics[width=\textwidth,natwidth=1350,natheight=820]{\floatplots\WMOnum_6}
     \caption{Float \WMOnum. Plots of the evolution of salinity with time
-    along with selected theta levels with minimum salinity variance.} 
+      along with selected theta levels with minimum salinity variance.
+      Note that missing cycles are not included into OWC, so profile numbers do
+      not necessarily match cycle numbers.} 
     \label{SalErrOnTheta}
 \end{figure}
 \begin{figure}[p]
@@ -424,9 +456,13 @@ found in Appendix~A.
   \label{Salinity_OWlevels}
 \end{figure}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \FloatBarrier
 \newpage
-\section{Discussion and conclusions}  
+\section{Discussion and conclusions}\label{sec:discussion}
 \input{discussion}
 
 
@@ -479,20 +515,17 @@ Supporting functions can be found in the author's own distribution at
 \newpage
 \section{Appendix A: File information and notes}\label{sec:appendix-notes}
 %
-\subsection*{Scientific calibration information}
-The scientific calibration information written to the D-files are
-summarized in Table~\ref{tab:scientific_calib}.
-%
-\begin{table}[!h]
-  \caption{Information filled in the SCIENTIFIC\_CALIB section for the variables, in the D-files.} \label{tab:scientific_calib} 
-  \input{scientific_calib_tabular}
-\end{table}
-
 \subsection*{Operator's notes}
 The following notes have been made about this float:
 \verbatiminput{notes}
 
+\subsection*{Scientific calibration information}
+The scientific calibration information written to the D-files are
+summarized in Table~\ref{tab:scientific_calib}.
+%
+\input{scientific_calib_tabular}
 
+\FloatBarrier
 \section{Appendix B: Reference data}\label{sec:appendix-refdata}
 Here follows overview plots of the reference data in the WMO-squares
 traversed by Float~\WMOnum.

@@ -30,11 +30,13 @@ try
 catch
     breaks = [];
     max_breaks = 3;   % 0 for linear trend and -1 for offset only! ("Start with 3, Annie Wong sais.)
+    % max_breaks = [-1 0 1];   % For each part
     calseries = [ones(1,n)];
     %calseries(1:50)=1; 
     %calseries(51:n)=0; 
     % calseries = [ones(1,33) 2*ones(1,n-33)];    % example: split the time series at profile 33
     % calseries = [ones(1,33) 0  ones(1,n-33-1)]; % example: ignore profile 34
+    % calseries = [ones(1,46) 2*ones(1,8) 3*ones(1,n-54)]; % ignore 1-46 OK; linear correction for 47:54; ignore the BAD rest 
     calib_profile_no = PROFILE_NO;
     use_theta_lt = [];
 %    use_theta_lt = -0.5; 

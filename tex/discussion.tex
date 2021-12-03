@@ -4,11 +4,11 @@
 %
 Float number \WMOnum\ was deployed on \input{depdate}
 % centrally in the Norwegian Basin (NB) and has only moved slightly southwestwards, but is still in the deep parts of the basin.
-% Hydrography is relatively stable below 1000~m in the profiles.
+% Hydrography is relatively invariable below 1000~m in the profiles.
 
-% Visual verification of in total 232 RTQC flags in 7 profiles was done, of which two had large groups of deviating salinity readings. 
-% The DMQC tests resulted in 2 further flags, all minor individual spikes.
-% No RTQC flags where present, nor was any new flags necessary in DMQC. 
+% Visual verification of in total 232 RTQC '4' flags in 7 profiles was done, of which two had large groups of deviating salinity readings. 
+% The DMQC tests resulted in 2 further bad flags, all minor individual spikes.
+% No RTQC '4' flags where present, nor was any new bad flags necessary in DMQC. 
 % The initial comparison between Argo float data and reference data, shows that temperature and salinity data are within normal values, somewhat on the warm and fresh side.
 % The comparison with satellite altimeter data shows the same trends, but the float derived DHA has very little of the variability seen in altimetry data.
 % The comparison with satellite altimeter data suggested no notable discrepancies.
@@ -17,10 +17,7 @@ Float number \WMOnum\ was deployed on \input{depdate}
 % The OWC analysis showed no noteworthy indications of drift or offset. Hence, no correction is done.
 % The OWC analysis showed a strong negative salinity offset, and float salinity has been corrected with a $\Delta S \approx +0.01$.
 % The offset is also evident in long term variability seen in the reference data (Figure~\protect\ref{fig:trendcheck}) and more recent CTD profiles near deployment (Figure~\protect\ref{fig:supplementary}).
+% The OWC analysis showed no indications of drift before cycle~47, thereafter a drift started and crossed the 0.02 threshold after cycle~54 and developed into an extreme, unrealistic saline drift. This calibration was split into parts with cycles \input{calseries}\unskip . No correction is done to the first part, a linear correction is applied to the middle part, while profiles 55 and henceforth are marked as bad (qc='4').
+%\textbf{Hence, this float's salinity should be greylisted.}
 
 \input{monitoring} % DO NOT TOUCH!
-
-%%% Local Variables: 
-%%% mode: plain-tex
-%%% TeX-master: "DMQCreport_float"
-%%% End: 

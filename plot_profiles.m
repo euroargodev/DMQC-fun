@@ -30,11 +30,12 @@ end
 IA=1:length(lon); %[ans,IA]=sort(LAT);
 hp=m_scatter(lon,LAT,5,jet(n));
 set(hp,'marker','*');
-ht=m_text(lon(10:10:end),LAT(10:10:end),int2str(PROFILE_NO(10:10:end)'));
+%ht=m_text(lon(10:10:end),LAT(10:10:end),int2str(PROFILE_NO(10:10:end)'));
+[1 10:10:n n]; ht=m_text(lon(ans),LAT(ans),int2str(CYCLE_NUMBER(ans)'));
 if exist('jnb'), hpnb=m_line(lon(jnb),LAT(jnb)); set(hpnb,'marker','o','color','k','linestyle','none'); end
 %hl=legend([hw hp(1)],'WMO-square','Reference data','location','northwestoutside');
-hcb=colorbar('southoutside');colormap(jet(n));caxis([0 n]);
-xlabel(hcb,['Profile number (',datestr(datenum(DATES(1),0,0),12),'-',datestr(datenum(DATES(end),0,0),12),')']);
+hcb=colorbar('southoutside');colormap(jet(n));caxis(mima(CYCLE_NUMBER));%caxis([0 n]);
+xlabel(hcb,['Cycle number (',datestr(datenum(DATES(1),0,0),12),'-',datestr(datenum(DATES(end),0,0),12),')']);
 
 % TS-diagram:
 a_TS=subplot(2,3,2);

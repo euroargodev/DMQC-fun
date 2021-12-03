@@ -26,6 +26,13 @@ DMQC-fun v0.9.1; See Contents.m for file overview; init_dmqc.m for init-file and
    Figures, text snippets of metadata, as well as whole sections for the report are also made in this process.
    YYYY.MM.DD: <Here you can put date stamped notes about which floats you have prepared.>
 
+4b) First time doing DMQC of a Deep Arvor float, use OPERATOR_CPCOR_NEW to decide on
+    a better CPcor_new to correct for pressure dependent conductivity bias.
+    Needs CTD data put in a 'CTD' directory of the float's DMQC directory.
+    Results and figures are put in 'CPcor' directory of the float's DMQC directory.
+    Re-run PREPARE FLOATS (esp. finally)!
+    YYYY.MM.DD: <Here you can put date stamped notes about which floats you have processed.>
+
 5) RUN_OW_CALIBRATION runs on all selected floats operating inside each float's working directory (see INIT_DMQC).
    First you will have to set OW-parameters in the ow_config.txt and set_calseries.m in each float directory.
    Previous calseries_*.mat output from OWC will be deleted automatically.

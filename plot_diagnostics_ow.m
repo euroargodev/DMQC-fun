@@ -4,6 +4,7 @@ function plot_diagnostics_ow( pn_float_dir, pn_float_name, po_system_configurati
 %
 % Annie Wong, 14 June 2011
 % Breck Owens, October 2006
+% Jan Even Oeie Nilsen, 2021
 %--------------------------------------------------------------------------
 
 %pn_float_dir='uw/';

@@ -59,6 +59,15 @@
 %		A function used by PREPARE_FLOATS to find reference
 %		data inside a lon/lat polygon.
 %
+% operator_CPcor_new	
+%		A tool for finding operator CPcor to correct for
+%		pressure dependent conductivity bias, using near
+%		float deployment ship CTD data.
+%
+% argo_sbe_CPcor	
+%		A function used by OPERATOR_CPCOR_NEW to recaclulate
+%		salinity with new CPcor.
+%
 % run_ow_calibration	
 %		Runs OWC on all selected floats.
 %
