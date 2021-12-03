@@ -1,32 +1,49 @@
 % INIT_DMQC.M is init-file and setup instructions.  
-% DMQC-fun v0.9.1; See Contents.m for overview; work_log.txt for workflow description.
+% DMQC-fun v0.9.3; See Contents.m for overview; work_log.txt for workflow description.
 %%%%%%%%%% Read further down below for instructions on how to set up your system! %%%%%%%%%%%%%%%%  
 %%%%%%%%%% The first part is where you control everything! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % ------------ LIST ALL YOUR FLOATS HERE: ----------------------------
 TCL=complex(0,1); % Do not touch!
 
-% index =     1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        16        17        18*       19*       20        21        22        23        24        25
-float_names={'6903549','6903550','6903551','6903574','6903552','6903553','6903554','6903555','6903567','6903568','6903569','6903570','6903559','6903560','6903561','6903562','6903563','6903564','6903565','6903566','6903556','6903557','6903558','6903571','6903573'};
-cal_action ={ [0]     , [0]     , [1]     , [1]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0 1]   , [0 1 4] , [1]     , [0]     , [0]     , [0]     ,  [0]    , [0]     , [0]     , [0]     , [0]      }; 
-checked    ={ 177       147       124       80        41        113       152       70        60        89        115       82        85        86        86        85        86        156       101       51      , 30        67        66        31        20      };
-Nclu       ={ 2       2           2         2         2         2         2         2         2         2         2         2         2         2         3*TCL     2*TCL     1*TCL     2         2         2         2         2         2         2         2       };
-
+% index =     1         2         3         4         5         6         7         8         9         10      
+float_names={'6903549','6903550','6903551','6903574','6903552','6903553','6903554','6903555','6903567','6903568',... % 0
+	     '6903569','6903570','6903559','6903560','6903561','6903562','6903563','6903564','6903565','6903566',... % 10
+	     '6903556','6903557','6903558','6903571','6903573','6903575','6903577','6903578','6903579','6903580',... % 20
+	     '6903581','6903582','6903583','6903584','6903585','6903586','6903587','6903572'			};   % 30
+cal_action ={ [0]     , [0]     , [1]     , [1]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     ,...
+	      [0]     , [0]     , [0]     , [0]     , [0 1]   , [0 1 4] , [1]     , [0]     , [0]     , [0]     ,...
+	      [0 1 4] , [0 1 4] , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     ,...
+	      [0]     , [0]     , [0]     , [1]     , [1]     , [1]     , [0]     , [0]				}; 
+checked    ={ 177       147       124       80        41        113       152       70        60        89      ,...
+	      115       82        85        86        86        85        86        156       101       51      ,...
+	      57        93        88        57        46        43        39        41        43        23      ,...
+	      73        20        28        21        21        21        21        47				};
+Nclu       ={ 2         2         2         2         2         2         2         2         2         2       ,...
+	      2         2         2         2         3*TCL     2*TCL     1*TCL     2         2         2       ,...
+	      2         2         2         2         1         2         1         2         2         1       ,...
+	      2         1         2         1         2*TCL     2         1         2				};	      
+	     
 % ------------ FLOAT SELECTION: ----------------------------------------
 % You can select which floats to analyse by just giving specific index
 % numbers and all the parameters will be reduced to your selection. For
 % example like this, and uncomment the subset to DMQC:
+%
 % 1:length(float_names) % All floats
-1		% Just the first, as default.
-% 1:4 		% BGC (PROVOR CTS4)
-% [5:8 10:12]	% Bio (APEX AFP11) 
-% [13:17 20]  	% Core (Arvor)
-% 21:25  	% Dyp (Arvor Deep) 
-% 18:19  	% Those two floats in Barents Sea, no ref data, no OWC.
+%1		% Just the first, as default.
+% [1:4 26]		% BGC (PROVOR CTS4)
+% [5:12]		% Bio (APEX AFP11) 
+% [13:17 20 31:37]  	% Core (Arvor)
+ [21:25 30 38]		% Dyp (Arvor Deep) 
+% [18:19 31]		% Floats in Barents Sea, no ref data, no OWC.
 % 5		% The first APEX float
 % 12		% The last APEX, on greylist
 % [1:17 20:25] % All but those two that cannot be calibrated due to lack of refdata. 
-% 23		% A deep arvor to test on
+% [1:4]		% For the Chlorophyll calbration
+% [26:29 32:37]	% New deployments in 2021 (less the Barents Sea and Deep float)
+% [26 29]	% Rejected by Christine 24.11.2021, fixed RTPqc=>DMTqc&DMSqc
+%23	% Did CPcor_new change OWC results? No.
+
 float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checked=checked(ans); 
 
 % index is just a reference for your eyeing of the 'table' of floats
@@ -35,6 +52,9 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 %	name of this variable!
 % cal_action is your calibration decision. Set this initially to [0]
 %	for every float.
+%	case 0	Data are good; no adjustment has been applied.
+%	case 1	Data show sensor drift or offset; adjustment has been applied.
+%	case 4	% Data are bad and unadjustable.
 % checked is the mumber of profiles the RTQC flags is already checked for
 %	(you will be prompted to update this number in the
 %	process). Set this initially to 0 for every float. 
@@ -138,7 +158,7 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 %	e) Your workspace with your own configurations and DMQC
 %	   report material
 %
-% The philosphy is to be able to update toolboxes without losing
+% The philosophy is to be able to update toolboxes without losing
 % settings or data (a), to store direct results but preferably be able
 % to exclude them from any cloud sync or backup process which is both
 % unneccessary and might also slow down your computer while processing
@@ -292,7 +312,7 @@ if false      % (true = on, false = off)
               % of floats, OR when adding new floats to your set. In the
               % latter case, select only new floats in the float
               % selection section above. 
-  mkdir([my_working_dir,'DMQC']);
+  [my_working_dir,'DMQC']; if ~exist(ans,'dir') mkdir(ans); end
   for I=1:length(float_names)
     [my_working_dir,'DMQC',filesep,float_names{I}];
     if ~exist(ans,'dir')
@@ -300,10 +320,19 @@ if false      % (true = on, false = off)
       mkdir(ans);
       copyfile([my_backup_dir,'ow_config.txt'],  [my_working_dir,'DMQC',filesep,float_names{I},filesep]);
       copyfile([my_backup_dir,'set_calseries.m'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/DMQCreport.tex'],	[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/notes.tex'],		[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/discussion.tex'],	[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/text/supplementary.tex'],	[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/DMQCreport_float.tex'],	[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/notes.tex'],			[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/discussion.tex'],		[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/supplementary.tex'],		[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
     end
+  end
+end
+
+% --------------- FOR JUST DISTRIBUTING NEW VERSIONS OF LaTeX MASTER FILE: -------------------------------
+if false      % (true = on, false = off)
+  for I=1:length(float_names)
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/DMQCreport_float.tex'],	[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      % It is not recommended to distribute new notes.tex or
+      % discussion.tex, as these will likely contain important information.
   end
 end
