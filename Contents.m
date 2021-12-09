@@ -90,6 +90,8 @@
 %		anymore. Some other necessary tools are here as
 %		well. Unzip and add paths as needed.
 % 
+% ./doc/	Contains the odd presentation etc.
+%
 % ./old/	Ignore this directory.
 %
 % The following files are only examples of how you can edit the two
