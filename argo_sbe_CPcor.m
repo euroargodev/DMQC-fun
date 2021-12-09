@@ -4,6 +4,8 @@ function s_new = argo_sbe_CPcor (p,t,s,cpcor_new)
 % input: vector p,t,s, coeff. cpc
 % output: vector s_new  (salinity)
 
+% by Kjell Arne Mork
+
 % Coefficients
 ctcor     = 3.25e-6;
 cpcor_old = -9.57e-8;

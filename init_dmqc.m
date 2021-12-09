@@ -1,9 +1,12 @@
 % INIT_DMQC.M is init-file and setup instructions.  
-% DMQC-fun v0.9.3; See Contents.m for overview; work_log.txt for workflow description.
+% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% v0.9.3, jan.even.oeie.nilsen@hi.no.
+% See Contents.m for overview; work_log.txt for workflow description.
 %%%%%%%%%% Read further down below for instructions on how to set up your system! %%%%%%%%%%%%%%%%  
 %%%%%%%%%% The first part is where you control everything! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % ------------ LIST ALL YOUR FLOATS HERE: ----------------------------
+%
 TCL=complex(0,1); % Do not touch!
 
 % index =     1         2         3         4         5         6         7         8         9         10      
@@ -24,7 +27,8 @@ Nclu       ={ 2         2         2         2         2         2         2     
 	      2         2         2         2         1         2         1         2         2         1       ,...
 	      2         1         2         1         2*TCL     2         1         2				};	      
 	     
-% ------------ FLOAT SELECTION: ----------------------------------------
+% ------------ FLOAT SELECTION: --------------------------------------
+%
 % You can select which floats to analyse by just giving specific index
 % numbers and all the parameters will be reduced to your selection. For
 % example like this, and uncomment the subset to DMQC:
@@ -34,7 +38,7 @@ Nclu       ={ 2         2         2         2         2         2         2     
 % [1:4 26]		% BGC (PROVOR CTS4)
 % [5:12]		% Bio (APEX AFP11) 
 % [13:17 20 31:37]  	% Core (Arvor)
- [21:25 30 38]		% Dyp (Arvor Deep) 
+% [21:25 30 38]		% Dyp (Arvor Deep) 
 % [18:19 31]		% Floats in Barents Sea, no ref data, no OWC.
 % 5		% The first APEX float
 % 12		% The last APEX, on greylist
@@ -42,10 +46,12 @@ Nclu       ={ 2         2         2         2         2         2         2     
 % [1:4]		% For the Chlorophyll calbration
 % [26:29 32:37]	% New deployments in 2021 (less the Barents Sea and Deep float)
 % [26 29]	% Rejected by Christine 24.11.2021, fixed RTPqc=>DMTqc&DMSqc
-%23	% Did CPcor_new change OWC results? No.
 
 float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checked=checked(ans); 
 
+
+% ------------- OVERVIEW OF PARAMETERS IN TABLE ABOVE: ---------------
+%
 % index is just a reference for your eyeing of the 'table' of floats
 %	and parameters, and thus that line can stay commented. 
 % float_names is necessary for ow_calibration.m. DO NOT change the
@@ -166,13 +172,13 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % temporary folder (c-d), but keeping your time consuming work and
 % results where it is regularly backed up (e).  Ideas for this kind of
 % placement can be found below on the lines marked 'EDIT THIS', where
-% you wiill edit the paths according to your directory structure.
+% you will edit the paths according to your directory structure.
 
 % 4) Edit the paths in your generic ow_config.txt. HISTORICAL_DIRECTORY,
 % FLOAT_SOURCE_DIRECTORY, FLOAT_MAPPED_DIRECTORY, FLOAT_CALIB_DIRECTORY,
 % FLOAT_PLOTS_DIRECTORY, CONFIG_DIRECTORY must be matched to
-% owc_data_dir here in init_dmqc.m. Also, MAP_P_EXCLUDE should be the
-% same in both files.
+% owc_data_dir here in init_dmqc.m. Also, the parameter MAP_P_EXCLUDE
+% should be the same in both files.
 
 % 5) Edit the mapping and calibration parameters in your generic
 % ow_config.txt and set_calseries.m. As far as possible and based on
@@ -183,18 +189,19 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % the easier it will be to fine-tune to the individual floats later.
 
 % 6) Have INIT_DMQC build work environment for you by turning on the
-% final part of this script and run the script. This will build a
-% subfolder structure for all your floats and distribute copies of your
-% generic config files from (5), as well as the LaTeX report files from
-% the DMQC-fun toolbox, into each subfolder. You will now be able to
-% configure mapping and calibration, make comments and write your
-% summary/discussion, individually for each float. The other necessary
-% pieces of information will be distrbuted by DMQC-functions as you use
-% them. When adding new floats to your DMQC responsibility, you can run
-% this again only selecting the new floats in the float selection part
-% above. There is a safety mechanism to avoid overwriting existing float
-% directories, but it is recommended that you turn off the building part
-% once you have your float directories in place.
+% 'THE FIRST BUILD' section of this script and run the script. This will
+% build a subfolder structure for all your floats and distribute copies
+% of your generic config files from (5), as well as the LaTeX report
+% files from the DMQC-fun toolbox, into each subfolder. You will now be
+% able to configure mapping and calibration, make comments and write
+% your summary/discussion, individually for each float. The other
+% necessary pieces of information will be distrbuted by DMQC-functions
+% as you use them. When adding new floats to your DMQC responsibility,
+% you can run this again only selecting the new floats in the float
+% selection part above. There is a safety mechanism to avoid overwriting
+% existing float directories, but it is recommended that you turn off
+% the building section of this script once you have your float
+% directories in place.
 
 % 7) You are now ready to start doing core DMQC and salinity calibration
 % on your floats. Head over to your copy of WORK_LOG for a description

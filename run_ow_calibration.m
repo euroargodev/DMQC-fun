@@ -1,4 +1,6 @@
-% Use this shell to run the OW_CALIBRATION script.
+% RUN_OW_CALIBRATION is a shell to run the OW_CALIBRATION script from OWC.
+% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 
 % This script will allow you to have separate ow_config.txt and
 % set_calseries.m files for each float that you are analysing, and still

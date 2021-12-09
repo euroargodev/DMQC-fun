@@ -1,5 +1,7 @@
-% A script to ingest, quick-check and update list of reference data
-% for Argo DMQC. 
+% LOAD_REFERENCEDATA A script to ingest, quick-check and update list of
+% reference data for Argo DMQC.
+% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 %
 % - Ingests downloaded reference data into MATLAB_OWC's climatology/ directory.
 % - Produces map overview of the chosen WMO squares and contents in constants/)

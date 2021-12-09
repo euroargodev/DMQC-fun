@@ -1,5 +1,7 @@
 WORK_LOG.TXT describes the workflow for core DMQC and salinity calibration, and progress log in the same file.
-DMQC-fun v0.9.1; See Contents.m for file overview; init_dmqc.m for init-file and setup instructions.
+by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no
+See Contents.m for file overview; init_dmqc.m for init-file and setup instructions.
 
 0) For SETUP and FIRST TIME USE, go carefully through the instructions in INIT_DMQC.
    INIT_DMQC contains constants, paths and settings for, and will be called by, all scripts in DMQC-fun. 

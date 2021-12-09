@@ -1,4 +1,6 @@
-% This script writes the results of DMQC to D-files.
+% WRITE_D script writes the results of DMQC to D-files.
+% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 
 clear all; close all
 init_dmqc; % Paths and filenames.

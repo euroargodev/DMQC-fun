@@ -13,6 +13,9 @@ function [pres,temp,sal,long,lat,dates] = inpolygon_referencedata(LO,LA,tardir)
 %
 % See also INPOLYGON PADCONCATENATION HALO FINDWMO
 
+% DMQC-fun by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% v0.9.3, jan.even.oeie.nilsen@hi.no.
+
 tartyp={'ctd_','bottle_','argo_'};
 
 wmosq=unique(findwmo(LO,LA));

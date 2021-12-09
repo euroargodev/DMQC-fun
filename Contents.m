@@ -1,6 +1,6 @@
 % DMQC-fun 
 % by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
-% v0.9.1 
+% v0.9.3, jan.even.oeie.nilsen@hi.no.
 %
 % DMQC-fun is a comprehensive toolbox for performing DMQC on and
 % salinity calibration of core data from Argo floats. The toolbox
@@ -27,9 +27,9 @@
 %
 % The files and directories in this toolbox are as follows:
 %
-% Contents	This Matlab help text for the toolbox.
+% Contents	The Matlab help text for the toolbox.
 %
-% README.md	This file's twin on Github.
+% README.md	The Github version of Contents.m.
 %
 % init_dmqc	Both init-file and setup. Contains all installation
 %		and setup instructions, as well as list of your
@@ -45,7 +45,7 @@
 %		of reference data for Argo DMQC and OWC. 
 %
 % download_floats	
-%		This script downloads float Argo NetCDF-files from
+%		This script downloads Argo float NetCDF-files from
 %		the Coriolis server, as well as the altimetry
 %		comparison and current greylist. 
 %

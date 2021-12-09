@@ -1,6 +1,8 @@
-% This script loads float nc-files from your download folder, checks and
-% prepares float data for ow_calibration, as well as adding flags and
-% other DMQC parameters.
+% PREPARE_FLOATS loads float nc-files from your download folder, checks
+% and prepares float data for ow_calibration, as well as adding flags
+% and other DMQC parameters.
+% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 
 clear all; close all
 init_dmqc; % Paths and filenames.

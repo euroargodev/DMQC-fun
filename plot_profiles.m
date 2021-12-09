@@ -1,4 +1,6 @@
 % Plotting for PREPARE_FLOATS.
+% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 
 %LONG(LONG>180)=LONG(LONG>180)-360;
 % 28.05.2020: Corrected the erroneous change of LONG to negative values west of zero meridian:

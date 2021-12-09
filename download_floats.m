@@ -1,7 +1,9 @@
-% This script downloads float Argo NetCDF-files from the Coriolis
+% DOWNLOAD_FLOATS downloads float Argo NetCDF-files from the Coriolis
 % server, as well as the altimetry comparison and current greylist.
+% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
+% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 % 
-% Set which floats to operate on in INIT_DMQC!
+% You set which floats to operate on in INIT_DMQC!
 
 clear all; close all
 init_dmqc; % Paths and filenames, etc.
