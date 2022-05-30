@@ -13,7 +13,7 @@ for I=1:length(download_dir)	% Loop floats
       % 'PROFILE_*_N','*qco','*qcn','Rfiles','scientific_calib','PSAL_ADJUSTED_Cnew',...
       % 'ctdmodel','PSAL'); 
 
-  %PSAL=SAL; 
+  %PSAL=SAL; % PSAL comes from PEPARE_FLOATS, but is never written to D-files. 
   clear SAL
   load([calib_dir,'cal_',float_names{I}]); % results of OWC
   load([calib_dir,'calseries_',float_names{I}]); % results of OWC
@@ -26,22 +26,22 @@ for I=1:length(download_dir)	% Loop floats
   command=strcat({'cp '},Rfiles,{' '},Dfiles);
   for i=1:length(command), system(command{i}); end
 
-  % Count and test files vs. matrix data:
+  % Count files and test vs. matrix data:
   FN=length(Dfiles);
   if FN~=size(PRES,2), error('Number of files does not match number of columns in data!'); end
   
-  % Initiate variables for NetCDF (PSAL below):
+  % Initiate variables for NetCDF, back from the OWC renaming in PREPARE_FLOATS (PSAL below):
   PRES_ADJUSTED=PRES;		TEMP_ADJUSTED=TEMP;  
   PRES_ADJUSTED_QC=PRESqco;	TEMP_ADJUSTED_QC=TEMPqco; % Carry over the old flags
   %clear PSAL_ADJUSTED*
-  PRES_QC=PRESqco; TEMP_QC=TEMPqco; PSAL_QC=SALqco; % Rename old flags to fit netcdf names
+  PRES_QC=PRESqco; TEMP_QC=TEMPqco; PSAL_QC=PSALqco; % Rename old flags to fit netcdf names
 
-  % Update scientific equation info accordingly:
-  'PRES_ADJUSTED = PRES. '; %'none';
-	scientific_calib.equation.PRES(:,end+[1:size(ans,2)]) = repmat(ans,FN,1);
-  'TEMP_ADJUSTED = TEMP. '; %'none';
-	scientific_calib.equation.TEMP(:,end+[1:size(ans,2)]) = repmat(ans,FN,1);
-
+  % % Update scientific equation info accordingly:
+  % 'PRES_ADJUSTED = PRES. '; %'none';
+  % 	scientific_calib.equation.PRES(:,end+[1:size(ans,2)]) = repmat(ans,FN,1);
+  % 'TEMP_ADJUSTED = TEMP. '; %'none';
+  % 	scientific_calib.equation.TEMP(:,end+[1:size(ans,2)]) = repmat(ans,FN,1);
+  % √ Moved as default values defined in PREPARE_FLOATS.
   
   % SAL - from the pressure dep bias. if strcmp(platyp,'ARVOR-D');
   % must be put as PSAL_ADJUSTED_Cnew. Use PSAL, since it has the
@@ -54,21 +54,26 @@ for I=1:length(download_dir)	% Loop floats
   Na=length(cal_action{I});
   if length(unique(calseries(calseries>0)))~=Na, error('Number of specified actions differ from parts of calseries!'); end
   for i=1:Na			% Loop actions
-    jj=find(calseries==i);	% True at profiles for i-th action 
+    jj=find(calseries==i);							% Indices to profiles for i-th action 
+    dPJ=contains(string(scientific_calib.equation.PRES(jj,:)),'PRES - dP');	% True at profiles of these with SP correction
     switch cal_action{I}(i);	% What is i-th action?
-     case 0			% Data are good; no adjustment has been applied:
-      PSAL_ADJUSTED_QC(:,jj) = PSAL_QC(:,jj); % RTQC flags (DMQC flags are added below)
-      PSAL_ADJUSTED_ERROR(:,jj) = max(cal_SAL_err(:,jj),0.01); % Yes, also when no adjustment is done.
+     case 0			% Data are good; no PSAL adjustment has been applied by OWC:
+      PSAL_ADJUSTED_QC(:,jj) = PSAL_QC(:,jj);			% RTQC flags (DMQC flags are added below)
+      PSAL_ADJUSTED_ERROR(:,jj) = max(cal_SAL_err(:,jj),0.01);	% Yes, also when no adjustment is done.
       if isempty(PSAL_ADJUSTED_Cnew)
-	PSAL_ADJUSTED(:,jj) = PSAL(:,jj); % Original PSAL with NaNs assigned by PREPARE_FLOATS
-	'PSAL_ADJUSTED = PSAL. '; %'none';
-		scientific_calib.equation.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
+	PSAL_ADJUSTED(:,jj) = PSAL(:,jj); % PSAL maybe SP corrected, or original PSAL, with NaNs assigned by PREPARE_FLOATS
+	'PSAL_ADJUSTED = PSAL. ';					% No CPcorr, no SP, no drift
+		scientific_calib.equation.PSAL(jj(~dPJ),end+[1:size(ans,2)]) = repmat(ans,length(jj(~dPJ)),1);
+	'PSAL_ADJUSTED = PSAL(COND, TEMP_ADJUSTED, PRES_ADJUSTED). ';	% No CPcorr, has SP, no drift'
+		scientific_calib.equation.PSAL(jj(dPJ),end+[1:size(ans,2)]) = repmat(ans,length(jj(dPJ)),1);
       else
-	PSAL_ADJUSTED(:,jj) = PSAL_ADJUSTED_Cnew(:,jj); % Original PSAL with NaNs assigned by PREPARE_FLOATS
-	'PSAL_ADJUSTED = PSAL_ADJUSTED_Cnew. '; %'none';
+	% PSAL_ADJUSTED_Cnew formula involving PRES_ADJUSTED etc. is found in manual.
+	PSAL_ADJUSTED(:,jj) = PSAL_ADJUSTED_Cnew(:,jj); 
+	'PSAL_ADJUSTED = PSAL_ADJUSTED_Cnew. ';				% Has CPcorr, regardless of SP, no drift
 		scientific_calib.equation.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
       end
-      'none';	
+      % Coefficients and comments regarding OWC:
+      'none';
 		scientific_calib.coefficient.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
       'No significant salinity offset or drift detected. The quoted error is max[0.01, statistical uncertainty] in PSS-78. ';
 		scientific_calib.comment.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
@@ -81,18 +86,22 @@ for I=1:length(download_dir)	% Loop floats
       PSAL_ADJUSTED_QC(:,jj) = PSAL_QC(:,jj); % RTQC (DMQC flags are added below)
       PSAL_ADJUSTED_ERROR(:,jj) = max(cal_SAL_err(:,jj),0.01);
       if isempty(PSAL_ADJUSTED_Cnew)
-	'PSAL_ADJUSTED = PSAL + dS. ';
-		scientific_calib.equation.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
+	'PSAL_ADJUSTED = PSAL + dS. ';						% No CPcorr, no SP, has drift
+      		scientific_calib.equation.PSAL(jj(~dPJ),end+[1:size(ans,2)]) = repmat(ans,length(jj(~dPJ)),1);
+	'PSAL_ADJUSTED = PSAL(COND, TEMP_ADJUSTED, PRES_ADJUSTED) + dS. ';	% No CPcorr, has SP, has drift
+		scientific_calib.equation.PSAL(jj(dPJ),end+[1:size(ans,2)]) = repmat(ans,length(jj(dPJ)),1);
       else
-	'PSAL_ADJUSTED = PSAL_ADJUSTED_Cnew + dS. ';
+	% PSAL_ADJUSTED_Cnew formula involving PRES_ADJUSTED etc. is found in manual.
+	'PSAL_ADJUSTED = PSAL_ADJUSTED_Cnew + dS. ';				% Has CPcorr, regardless of SP, has drift
 		scientific_calib.equation.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
       end
+      % Coefficients and comments regarding OWC:
       % 'Vertically averaged dS = 0.012 +/- 0.003';
-      %strcat('Vertically averaged dS = ',num2str(median([cal_SAL(:,jj)-PSAL(:,jj)],1,'omitnan')','%5.3f'),' +/- ',num2str(median(cal_SAL_err(:,jj),1,'omitnan')','%5.3f'));
       strcat('Vertically averaged dS = ',num2str(mean([cal_SAL(:,jj)-PSAL(:,jj)],1,'omitnan')','%5.3f'),' +/- ',num2str(mean(cal_SAL_err(:,jj),1,'omitnan')','%5.3f'),'. ');
 		scientific_calib.coefficient.PSAL(jj,end+[1:size(ans,2)]) = ans;
       'Significant salinity sensor offset or drift detected. OW least squares fit adopted. The quoted error is max[0.01, statistical uncertainty] in PSS-78. ';
 		scientific_calib.comment.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
+		scientific_calib.date.PSAL(jj,:) = repmat(replace(datestr(now,30),'T',''),length(jj),1); 
       %W PSAL_ADJUSTED = original value + adjustment recommended by statistical analysis, or adjustment provided by PI;
       %W PSAL_ADJUSTED_QC = ‘1’ or ‘2’;
       %W PSAL_ADJUSTED_ERROR = maximum [ (Σadjustment_error2)1/2, 0.01]
@@ -107,6 +116,7 @@ for I=1:length(download_dir)	% Loop floats
       'none';	scientific_calib.coefficient.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
       'Salinity data are bad and unadjustable. ';
 		scientific_calib.comment.PSAL(jj,end+[1:size(ans,2)]) = repmat(ans,length(jj),1);
+		scientific_calib.date.PSAL(jj,:) = repmat(replace(datestr(now,30),'T',''),length(jj),1); 
       %W "PSAL_ADJUSTED = FillValue;"			
       %W "PSAL_ADJUSTED_QC = ‘4’; PSAL_QC = '4';"	
       %W "PSAL_ADJUSTED_ERROR = FillValue."
@@ -118,11 +128,10 @@ for I=1:length(download_dir)	% Loop floats
   end % Loop actions
   % This naive adding to the scientific calib info, often results in
   % superfluous 'none' in the texts. This will be cleaned up below (3.6.2).
-  scientific_calib.date.PSAL  	= repmat(replace(datestr(now,30),'T',''),FN,1); % Always replace
 
   % Some times OWC removes data above a set of NaN values; flag these
   % as bad (qc='4'):
-  SALqcn(isnan(cal_SAL) & ~isnan(PSAL))=4;
+  PSALqcn(isnan(cal_SAL) & ~isnan(PSAL))=4;
   
   
   % ------ ADD THE FLAGS FROM INITIAL DMQC (PREPARE_FLOATS) ---------------
@@ -156,8 +165,8 @@ for I=1:length(download_dir)	% Loop floats
     PRES_ADJUSTED_ERROR = 2.5/6000 * PRES + 2;  
     'PRES_ADJUSTED_ERROR = 2.5/6000 * PRES + 2. ';
   else
-    PRES_ADJUSTED_ERROR=ones(size(PRES_ADJUSTED))*2.4; 
-    'PRES_ADJUSTED_ERROR = 2.4. ';
+    PRES_ADJUSTED_ERROR=ones(size(PRES_ADJUSTED))*2.4;  % also when SP is corrected for.
+    'The quoted error is manufacturer specified accuracy.';
   end
   scientific_calib.comment.PRES(:,end+[1:size(ans,2)]) = repmat(ans,FN,1);
 
@@ -187,16 +196,21 @@ for I=1:length(download_dir)	% Loop floats
   
   % 3.5. Delayed-mode procedures for SALINITY 
   % √ But we need to flag before OWC, so same procedure as TEMP is applied.
-  SALqcn==1; PSAL_ADJUSTED_QC(ans)='1';
-  SALqcn==4; PSAL_ADJUSTED_QC(ans)='4';
-  % if ~isempty(PSAL_ADJUSTED_Cnew)
-  %   % PSAL_ADJUSTED_ERROR = minimum 0.004. DMQC operators should
-  %   % consider increasing this error in case of sensor drift adjustment,
-  %   % to take into account possible pressure dependency of the sensor
-  %   % drift that cannot be detected with certainty.
-  %   % [√] This is always set higher (at least 0.01) in the OWC
-  %   % section above, in any case.
-  % end
+  PSALqcn==1; PSAL_ADJUSTED_QC(ans)='1';
+  PSALqcn==4; PSAL_ADJUSTED_QC(ans)='4';
+  %if ~isempty(PSAL_ADJUSTED_Cnew)
+  %if ~all(isnan((PSAL_ADJUSTED_Cnew)))
+  if ~isempty(PSAL_ADJUSTED_Cnew)
+    % PSAL_ADJUSTED_ERROR = minimum 0.004. DMQC operators should
+    % consider increasing this error in case of sensor drift adjustment,
+    % to take into account possible pressure dependency of the sensor
+    % drift that cannot be detected with certainty.
+    % [√] This is always set higher (at least 0.01) in the OWC
+    % section above, in any case.
+    % If no other error is found in delayed-mode and OWC salinity
+    % adjustment is < 0.05, flag PSAL_QC='3' <= 2000 dbar:
+    % [] ???
+  end
 
   % ------ CHANGES TO BE DONE ON ALL THREE PARAMETERS ALIKE -------------------
 
@@ -238,7 +252,15 @@ for I=1:length(download_dir)	% Loop floats
   
   end
   
-  
+  % 3.10.1 Summary of delayed-mode QC flag scheme for Deep-Argo data
+  % Since PSAL_ADJUSTED_QC and PSAL_QC will be different in ths case,
+  % this must be done after the common section above.
+  if ~isempty(PSAL_ADJUSTED_Cnew)
+    % If no other error is found in delayed-mode and OWC salinity
+    % adjustment is < 0.05, flag PSAL_QC='3' > 2000 dbar:
+    PRES_ADJUSTED>2000 & PSAL_ADJUSTED_QC=='1'; PSAL_QC(ans)='3';
+  end
+
   
   % ------ WRITE TO THE FILES --------------------------------------------
   
@@ -348,7 +370,15 @@ for I=1:length(download_dir)	% Loop floats
     % 3.6.2. Scientific calibration information for each profile
     % Read what's in file already:
     ncread(Dfiles{i},'PARAMETER'); vars=ans(:,:,1,1)';
-    if size(vars,1)>3, warning(['More than 3 variables in ',Dfiles{i}]); end
+    % Check if all vars in this particular file have their scientific_calib info:
+    if ~all(ismember(sort(strip(string(vars))),sort(string(fieldnames(scientific_calib.equation)))))
+      error(['List in ''PARAMETER'' in ',Dfiles{i},...
+	     ' does not have all scientific_calib struct from tests!']); 
+    end
+    % if size(vars,1)>3, 
+    %   warning(['More than 3 variables in ',Dfiles{i}]); 
+    %   vars=vars(contains(string(vars),{'PRES','TEMP','PSAL'}),:);
+    % end
     calinfo={'EQUATION','COEFFICIENT','COMMENT','DATE'};
     for k=1:length(calinfo) % Loop calib struct fields
       scal=ncread(Rfiles{i},['SCIENTIFIC_CALIB_',calinfo{k}]); 
@@ -399,19 +429,24 @@ for I=1:length(download_dir)	% Loop floats
   end	% Loop files
   
   % ------- Write the scientific calibration to a tex file for report appendix --------
-  fid=fopen('scientific_calib_tabular.tex','w');
-  linecount=1;
-  fprintf(fid,'%s\n','\begin{table}[!h]');
-  fprintf(fid,'%s\n','\caption{Information filled in the SCIENTIFIC\_CALIB section for the variables, in the D-files.} \label{tab:scientific_calib}');
-  fprintf(fid,'%s\n','\begin{tabular}[b]{|r|l|p{3cm}|p{9cm}|}');
-  fprintf(fid,'%s\n','\hline');
-  fprintf(fid,'%s & %s & %s & %s\\\\ \n','Parameter','Field','Cycles/files','String');
-  fprintf(fid,'%s\n','\hline');
-  fprintf(fid,'%s\n','\hline');
   vars=fieldnames(scientific_calib.comment);
+  fid=fopen('scientific_calib_tabular.tex','w');
+  fprintf(fid,'%s\n',['The scientific calibration information written to the D-files are summarized in',...
+		      ' Tables~\ref{tab:scientific_calib_',vars{1},'}--\ref{tab:scientific_calib_',vars{end},'}.']);
+  fprintf(fid,'%s\n',['Note that adjustements are done and registered regardless of the amount of valid', ...
+		      ' data, hence some cycles will record scientific calibration information even when the whole profile consists of fillvalues.']);
   for k=1:length(vars)
-    %fprintf(fid,'%s & ',['Scientific calibration information for ',vars{k},':']);
-    fprintf(fid,'%s & ',vars{k});
+    linecount=1;
+    fprintf(fid,'%s\n','\begin{table}[!h]');
+    fprintf(fid,'%s%s%s%s%s%s\n','\caption{Information filled in the SCIENTIFIC\_CALIB section for ',replace(vars{k},'_','\_'),' in the D-files. Empty string means parameter not present in file.}',...
+	    ' \label{tab:scientific_calib_',vars{k},'}');
+    %fprintf(fid,'%s\n','\caption{Information filled in the SCIENTIFIC\_CALIB section for the variables, in the D-files.} \label{tab:scientific_calib}');
+    fprintf(fid,'%s\n','\begin{tabular}[b]{|r|l|p{3cm}|p{9cm}|}');
+    fprintf(fid,'%s\n','\hline');
+    fprintf(fid,'%s & %s & %s & %s\\\\ \n','Parameter','Field','Cycles/files','String');
+    fprintf(fid,'%s\n','\hline');
+    fprintf(fid,'%s\n','\hline');
+    fprintf(fid,'%s & ',replace(vars{k},'_','\_'));
     for j=1:length(calinfo) % Loop calib struct fields
       if j==1, form='%s & '; else, form='& %s & '; end
       fprintf(fid,form,calinfo{j});
@@ -423,9 +458,11 @@ for I=1:length(download_dir)	% Loop floats
 	replace(ans,{'='},{'= '}); replace(ans,{'+/-'},{'+/- '});	% Fix the issue of disappearing spaces
 	replace(ans,{'  '},{' '});					% remove any double spaces
 	lans=length(ans);
-	fprintf(fid,form,zipnumstr(find(IC==i),', '),ans);
+	%if length(find(IC==i))==2, return; end
+	fprintf(fid,form,zipnumstr(CYCLE_NUMBER(find(IC==i)),', '),ans);
+	%fprintf(fid,form,zipnumstr(find(IC==i),', '),ans);
 	linecount=linecount+ceil(lans/40);	% Increase by approximate line number
-	if linecount>60				% Split table at reasonable length
+	if linecount>50				% Split table at reasonable length
 	  % end current table
 	  fprintf(fid,'%s\n','\hline');
 	  fprintf(fid,'%s\n','\end{tabular}');
@@ -445,12 +482,11 @@ for I=1:length(download_dir)	% Loop floats
       end
     end
     fprintf(fid,'%s\n','\hline');
+    fprintf(fid,'%s\n','\end{tabular}');
+    fprintf(fid,'%s\n','\end{table}');
   end
-  %fprintf(fid,'%s\n','\hline');
-  fprintf(fid,'%s\n','\end{tabular}');
-  fprintf(fid,'%s\n','\end{table}');
   fclose(fid);
-
+  
 end	% Loop floats
 
 

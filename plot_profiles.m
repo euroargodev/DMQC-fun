@@ -41,38 +41,38 @@ xlabel(hcb,['Cycle number (',datestr(datenum(DATES(1),0,0),12),'-',datestr(daten
 
 % TS-diagram:
 a_TS=subplot(2,3,2);
-tsdiagrm(mima(SAL),mima(TEMP),0);
-hTS=line(SAL,TEMP,'marker','.','linestyle','none');
-if exist('snb'), hTSnb=line(SAL(snb),TEMP(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
-if exist('tnb'), hTSnb=line(SAL(tnb),TEMP(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
-if exist('inb'), hTSnb=line(SAL(inb),TEMP(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
-set(hTS,{'color'},num2cell(jet(size(PRES,2)),2));
+tsdiagrm(mima(PSAL_ADJUSTED),mima(TEMP_ADJUSTED),0);
+hTS=line(PSAL_ADJUSTED,TEMP_ADJUSTED,'marker','.','linestyle','none');
+if exist('snb'), hTSnb=line(PSAL_ADJUSTED(snb),TEMP_ADJUSTED(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('tnb'), hTSnb=line(PSAL_ADJUSTED(tnb),TEMP_ADJUSTED(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('inb'), hTSnb=line(PSAL_ADJUSTED(inb),TEMP_ADJUSTED(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+set(hTS,{'color'},num2cell(jet(size(PRES_ADJUSTED,2)),2));
 
 % Profiles:
 subplot 234
-hT=line(PRES,TEMP); 
-if exist('tnb'), hTnb=line(PRES(tnb),TEMP(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
-if exist('inb'), hTnb=line(PRES(inb),TEMP(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+hT=line(PRES_ADJUSTED,TEMP_ADJUSTED); 
+if exist('tnb'), hTnb=line(PRES_ADJUSTED(tnb),TEMP_ADJUSTED(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('inb'), hTnb=line(PRES_ADJUSTED(inb),TEMP_ADJUSTED(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
 view([90 90]);grid;set(gca,'yaxislocation','right','box','on');
-set(hT,{'color'},num2cell(jet(size(PRES,2)),2));
+set(hT,{'color'},num2cell(jet(size(PRES_ADJUSTED,2)),2));
 xlabel Pressure; ylabel Temperature
 
 subplot 235
-hS=line(PRES,SAL); 
-if exist('snb'), hSnb=line(PRES(snb),SAL(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
-if exist('inb'), hSnb=line(PRES(inb),SAL(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+hS=line(PRES_ADJUSTED,PSAL_ADJUSTED); 
+if exist('snb'), hSnb=line(PRES_ADJUSTED(snb),PSAL_ADJUSTED(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('inb'), hSnb=line(PRES_ADJUSTED(inb),PSAL_ADJUSTED(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
 view([90 90]);grid;set(gca,'yaxislocation','right','box','on');
-set(hS,{'color'},num2cell(jet(size(PRES,2)),2));
+set(hS,{'color'},num2cell(jet(size(PRES_ADJUSTED,2)),2));
 xlabel Pressure; ylabel Salinity
 
 subplot 236
-hD=line(PRES,DENS); 
-if exist('snb'), hDnb=line(PRES(snb),DENS(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
-if exist('tnb'), hDnb=line(PRES(tnb),DENS(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
-if exist('pnb'), hDnb=line(PRES(pnb),DENS(pnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
-if exist('inb'), hDnb=line(PRES(inb),DENS(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+hD=line(PRES_ADJUSTED,DENS); 
+if exist('snb'), hDnb=line(PRES_ADJUSTED(snb),DENS(snb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('tnb'), hDnb=line(PRES_ADJUSTED(tnb),DENS(tnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('pnb'), hDnb=line(PRES_ADJUSTED(pnb),DENS(pnb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
+if exist('inb'), hDnb=line(PRES_ADJUSTED(inb),DENS(inb),'color','k','linewidth',2,'linestyle','none','marker','o'); end
 view([90 90]);grid;set(gca,'yaxislocation','right','box','on');
-set(hD,{'color'},num2cell(jet(size(PRES,2)),2));
+set(hD,{'color'},num2cell(jet(size(PRES_ADJUSTED,2)),2));
 xlabel Pressure; ylabel('Potential Density')
 
 

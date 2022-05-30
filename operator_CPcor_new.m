@@ -109,7 +109,7 @@ for I=1:length(float_names)	% Loop floats
   load(outfiles{I});
   flt.pres=PRES;
   flt.temp=TEMP;
-  flt.psal=PSAL; % The one just saved before correcting CPcor.
+  flt.psal=PSAL; % The one just saved before correcting for CPcor.
   flt.ptmp=PTMP;
   flt.lon=LONG;
   flt.lat=LAT;

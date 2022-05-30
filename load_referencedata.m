@@ -96,30 +96,48 @@ if logical(1)
   %figure(2);set(gcf,'OuterPosition',[1 385 1426 960]);
   figure(2);set(gcf,'OuterPosition',get(0,'ScreenSize'));
   shape=get(gcf,'innerposition');
-  set(gcf,'units','points','innerposition',shape,'paperunits','points','paperposition',shape,'PaperSize',shape(3:4),'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl');
+  set(gcf,'units','points','innerposition',shape,'paperunits','points','paperposition',shape,...
+	  'PaperSize',shape(3:4),'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl');
   for j=1:length(tartyp)	% Loop the three data types
     d=edir(tardir{j},'mat',0,0); %filer=cellstr(char(d.name));	% List of files
     for i=1:length(d)	% Loop all mat-files
       load(d{i});
+      D=size(pres);
       long>180;long(ans)=long(ans)-360;
       % Check positions:
       wmosq=str2num(d{i}(end-7:end-4));
-      if unique(findwmo(long,lat)) ~= wmosq % Check positions
-	warning(['There are ',upper(tartyp{j}(1:end-1)),'-positions outside the WMO-square ',int2str(wmosq),' !'])
+      findwmo(long,lat)~=wmosq;
+      %if unique(findwmo(long,lat)) ~= wmosq % Check positions
+      if any(ans,'all') % Check positions
+	J=unique(find(ans));
+	warning(['Profiles ',snippet(zipnumstr(J)),...
+		 ' in ',upper(tartyp{j}(1:end-1)),...
+		 ' data for ',int2str(wmosq),...
+		 ' are outside the WMO-square!']);
       end
       % Check for zero sal and temp _and_ sal:
       sal==0 | sal==0 & temp==0;
       if any(ans,'all')
+	[I,J] = ind2sub(D,find(ans)); I=unique(I); J=unique(J);
 	warning(['There are zero S&T, or just S, in ',upper(tartyp{j}(1:end-1)),...
-		 ' data WMO-square ',int2str(wmosq),' ! (removed)'])
+		 ' data in WMO-square ',int2str(wmosq),...
+		 ' typically on rows ',snippet(zipnumstr(I)),...
+		 ' in profiles ',snippet(zipnumstr(J)),...
+		 ' with qclevels of type ',snippet(unique(qclevel(J))),...
+		 ' ! (removed)']);
 	sal(ans)=NaN; temp(ans)=NaN; % Useless in both cases
 	save(d{i},'sal','temp','-append');
       end      
       % Check for incomplete sal and temp pairs:
       isnan(sal) & ~isnan(temp) | ~isnan(sal) & isnan(temp);
       if any(ans,'all')
+	[I,J] = ind2sub(D,find(ans)); I=unique(I); J=unique(J);
 	warning(['There are incomplete S&T pairs in ',upper(tartyp{j}(1:end-1)),...
-		 ' data WMO-square ',int2str(wmosq),' !'])
+		 ' data in WMO-square ',int2str(wmosq),...
+		 ' typically on rows ',snippet(zipnumstr(I)),...
+		 ' in profiles ',snippet(zipnumstr(J)),...
+		 ' with qclevels of type ',snippet(unique(qclevel(J))),...
+		 ' ! (removed)']);
 	sal(ans)=NaN; temp(ans)=NaN;
       end      
       

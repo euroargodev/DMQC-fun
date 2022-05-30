@@ -21,7 +21,7 @@ for I=1:length(download_dir)
   %system(['lftp -e ''lcd ',download_dir{I},' ; get ',float_names{I},'_BRtraj.nc ; bye'' ftp.ifremer.fr/ifremer/argo/dac/coriolis/',float_names{I},'/']);
   %system(['lftp -e ''lcd ',download_dir{I},' ; get ',float_names{I},'_Sprof.nc ; bye'' ftp.ifremer.fr/ifremer/argo/dac/coriolis/',float_names{I},'/']);
   %
-  % From May 2021, download profiles here:
+  % From May 2021, download profiles from the R-files:
   mkdir(rootdirin{I}); 
   system(['lftp -e ''lcd ',rootdirin{I},' ; mget D',float_names{I},'_*.nc ; bye'' ftp.ifremer.fr/ifremer/argo/dac/coriolis/',float_names{I},'/profiles/']);
   system(['lftp -e ''lcd ',rootdirin{I},' ; mget R',float_names{I},'_*.nc ; bye'' ftp.ifremer.fr/ifremer/argo/dac/coriolis/',float_names{I},'/profiles/']);
