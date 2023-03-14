@@ -3,7 +3,11 @@
 % by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
 % DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 % 
-% You set which floats to operate on in INIT_DMQC!
+% You set which floats to operate on in INIT_DMQC! 
+%
+% No editing in this file (unless they change things on the ifremer-server).
+%
+% --------------------------------------------------------------------------
 
 clear all; close all
 init_dmqc; % Paths and filenames, etc.

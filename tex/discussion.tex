@@ -1,23 +1,55 @@
 % THIS FILE IS NECESSARY FOR YOUR DMQCreport_float.tex TO COMPILE.
 % THIS IS WHERE YOU WRITE YOUR DISCUSSION/SUMMARY (WE HAVE DECIDED THAT THESE TWO CAN BE THE SAME, FOR SIMPLICITY).
 % BELOW ARE SOME EXAMPLE PHRASES THAT YOU CAN COMMENT, UNCOMMENT, EDIT, OR REPLACE AS YOU NEED AND WISH FOR THIS PARTICULAR FLOAT.
-%
+
 Float number \WMOnum\ was deployed on \input{depdate}
 % centrally in the Norwegian Basin (NB) and has only moved slightly southwestwards, but is still in the deep parts of the basin.
+%% Since the previous report it has moved slightly further north and has been moving around between West Spitsbergen Current (WSC) and LB.
 % Hydrography is relatively invariable below 1000~m in the profiles.
+% Profiles are shallow, due to shallow region.
 
-% Visual verification of in total 232 RTQC '4' flags in 7 profiles was done, of which two had large groups of deviating salinity readings. 
+% All profiles have been visually inspected.
+% About half of the RTQC salinity flags, and all temperature flags were reversed.
+% Some new salinity flags added.  
+% All profiles have been visually inspected, including for temperature in the cycles with bad salinities.
+% Quite a few temperature flags were reversed due to RTQC apparently simultaneously flagging both temperature and salinity.
+% Visual verification of all profiles was done, resulting in only 2 new bad flags in one profile.
+% Visual control of all profiles has been done, and one profile needed larger parts of its salinity flagged.
+% Visual verification of in total 232 RTQC '4' flags in 7 profiles was done (T\&S), of which two had large groups of deviating salinity readings. 
 % The DMQC tests resulted in 2 further bad flags, all minor individual spikes.
 % No RTQC '4' flags where present, nor was any new bad flags necessary in DMQC. 
+%% Further 4 RTQC flags has been verified now.
+%% There were no further RTQC flags to inspect nor any new flags yielded in this DMQC.
+%% Now there were no further RTQC flags to inspect, but DMQC resulted in 4 new flags.
+% Note that there were many descending profiles from this float, and their salinities were all severely erratic and thus flagged bad.
+% The sea surface pressure data are not displaying values below 0~dbar and there are no indications of negative pressure drift.
 % The initial comparison between Argo float data and reference data, shows that temperature and salinity data are within normal values, somewhat on the warm and fresh side.
 % The comparison with satellite altimeter data shows the same trends, but the float derived DHA has very little of the variability seen in altimetry data.
 % The comparison with satellite altimeter data suggested no notable discrepancies.
-% The sea surface pressure data are not displaying values below 0~dbar and there are no indications of negative pressure drift.
+% The comparison with satellite altimeter data shows strong coherence. (Barotropic dynamics are normally strongest over slopes.)
+% The comparison with satellite altimeter data shows similar but weaker variability in the float derived DHA.
+% The comparison with satellite altimeter data shows large discrepancies, but this is expected in deep waters.
+
+% For this float the operator has determined new CPcor (within the range of the recommended) based on a near-deployment ship CTD profile.
 
 % The OWC analysis showed no noteworthy indications of drift or offset. Hence, no correction is done.
+% There is a fresh offset, which is also evident in CTD profiles near deployment (Figure~\protect\ref{fig:simple_offset}).
+% However, the offset is close to or smaller than our lower limit for correction, and the float is young and in a shallow area. Hence, no correction is done. 
 % The OWC analysis showed a strong negative salinity offset, and float salinity has been corrected with a $\Delta S \approx +0.01$.
-% The offset is also evident in long term variability seen in the reference data (Figure~\protect\ref{fig:trendcheck}) and more recent CTD profiles near deployment (Figure~\protect\ref{fig:supplementary}).
-% The OWC analysis showed no indications of drift before cycle~47, thereafter a drift started and crossed the 0.02 threshold after cycle~54 and developed into an extreme, unrealistic saline drift. This calibration was split into parts with cycles \input{calseries}\unskip . No correction is done to the first part, a linear correction is applied to the middle part, while profiles 55 and henceforth are marked as bad (qc='4').
+% The offset is also evident in long term variability seen in the reference data (Figure~\protect\ref{fig:trendcheck}) and more recent CTD profiles near deployment (Figure~\protect\ref{fig:simple_offset}).
+% The OWC analysis showed a consistent positive salinity offset through all cycles ($\Delta S \approx -0.008$).
+% Reference data is somewhat old and also indicates a trend (Figure~\protect\ref{fig:trendcheck}), but more importantly it may consist of many floats uncorrected for CPcor.
+% Using only CTD-reference data showed very scarce (old) availaility in the region, adn smaller offset was found by OWC, and for half of the period it was none at all (not shown).
+% Based on these considerations, it is decided not to correct this float.
+%
+% The OWC analysis showed a negative salinity offset and trend, and float salinity has been corrected with a linear correction from the first cycle. The initial offset is confirmed by ship CTD profile near deployment (Figure~\protect\ref{fig:simple_offset}).
+% The OWC analysis showed no indications of salinity drift before cycle~47, thereafter a weak drift started which suddenly developed into an extreme, unrealistic saline drift after cycle~54. This calibration was split into parts with cycles \input{calseries}\unskip. No correction is done to the first part, a linear correction is applied to the middle part, while salinity profiles in the last part are considered uncorrectable and marked as bad (qc='4') throughout.
 %\textbf{Hence, this float's salinity should be greylisted.}
 
+
 \input{monitoring} % DO NOT TOUCH!
+
+%%% Local Variables: 
+%%% mode: plain-tex
+%%% TeX-master: "DMQCreport_float"
+%%% End: 

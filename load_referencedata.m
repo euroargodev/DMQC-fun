@@ -4,6 +4,8 @@
 % DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 %
 % - Ingests downloaded reference data into MATLAB_OWC's climatology/ directory.
+% - Creates three versions of the matrix of available metadata
+%   (wmo_boxes.mat), one for each type in addition to the main file.
 % - Produces map overview of the chosen WMO squares and contents in constants/)
 % - Produces maps and TS, T, and S graphs of all profiles for each
 %   ingested WMO-square alongside their mat-files. 
@@ -27,7 +29,6 @@
 clear all; close all;
 init_dmqc;	% Get the necessary paths etc. as well as your
                 % choice of WMO-squares.
-tartyp={'ctd_','bot_','argo_'}; % The types of referencdata in matlab_owc
 
 % ----- Make an overview map of selected and ingested WMO-squares -----
 figure(1); clf; set(gcf,'OuterPosition',get(0,'ScreenSize'));
@@ -76,12 +77,12 @@ la_wmo_boxes(:,2:4)=0;					% Reset
 for j=1:length(tartyp)	% Loop the three data types
   d=dir(tardir{j}); filer=cellstr(char(d.name));	% List of files
   for i=1:N		% Loop all lines in the WMO-boxes list
-    if any(contains(filer,[tartyp{j},int2str(la_wmo_boxes(i,1)),'.mat']))
+    if any(contains(filer,[tartyp{j},'_',int2str(la_wmo_boxes(i,1)),'.mat']))
       la_wmo_boxes(i,1+j)=1;
       % Add text to the map for which data types exist in the WMOsq.
       wmosquare(la_wmo_boxes(i,1)); 
       la=linspace(ans(3),ans(4),10); la=la(1+j);
-      htxex=m_text((ans(1)+ans(2))/2,la,tartyp{j}(1:end-1));
+      htxex=m_text((ans(1)+ans(2))/2,la,tartyp{j});
       set(htxex,'HorizontalAlignment','center');
     end
   end
@@ -89,18 +90,26 @@ end
 print(gcf,'-depsc',[owc_data_dir,filesep,'constants',filesep,'selected_wmos_map.eps']);
 save([owc_data_dir,filesep,'constants',filesep,'wmo_boxes'],'la_wmo_boxes');
 
+% Save alternative versions in order to selectively OWC with CTD or Argo only:
+la_wmo_boxes_ctd=la_wmo_boxes; la_wmo_boxes_ctd(:,4)=0; 
+la_wmo_boxes_argo=la_wmo_boxes; la_wmo_boxes_argo(:,2)=0; 
+mkdir([owc_data_dir,filesep,'constants',filesep,'all']);
+mkdir([owc_data_dir,filesep,'constants',filesep,'ctd']);
+mkdir([owc_data_dir,filesep,'constants',filesep,'argo']);
+				save([owc_data_dir,filesep,'constants',filesep,'all',filesep,'wmo_boxes'],'la_wmo_boxes');
+la_wmo_boxes=la_wmo_boxes_ctd;	save([owc_data_dir,filesep,'constants',filesep,'ctd',filesep,'wmo_boxes'],'la_wmo_boxes');
+la_wmo_boxes=la_wmo_boxes_argo;	save([owc_data_dir,filesep,'constants',filesep,'argo',filesep,'wmo_boxes'],'la_wmo_boxes');
+% Then you can change the filenames to select, instead of fiddling inside matlab matrices
 
 % ----- Check the reference data (i.e., make a lot of figures): -----
-if logical(1) 
-  %figure(2);set(gcf,'OuterPosition',[1 385 1026 960]);
-  %figure(2);set(gcf,'OuterPosition',[1 385 1426 960]);
+if true 
   figure(2);set(gcf,'OuterPosition',get(0,'ScreenSize'));
   shape=get(gcf,'innerposition');
   set(gcf,'units','points','innerposition',shape,'paperunits','points','paperposition',shape,...
 	  'PaperSize',shape(3:4),'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl');
   for j=1:length(tartyp)	% Loop the three data types
     d=edir(tardir{j},'mat',0,0); %filer=cellstr(char(d.name));	% List of files
-    for i=1:length(d)	% Loop all mat-files
+    for i=1:length(d)		% Loop all mat-files
       load(d{i});
       D=size(pres);
       long>180;long(ans)=long(ans)-360;
@@ -110,8 +119,8 @@ if logical(1)
       %if unique(findwmo(long,lat)) ~= wmosq % Check positions
       if any(ans,'all') % Check positions
 	J=unique(find(ans));
-	warning(['Profiles ',snippet(zipnumstr(J)),...
-		 ' in ',upper(tartyp{j}(1:end-1)),...
+	disp(['Profiles ',snippet(zipnumstr(J)),...
+		 ' in ',upper(tartyp{j}),...
 		 ' data for ',int2str(wmosq),...
 		 ' are outside the WMO-square!']);
       end
@@ -119,12 +128,14 @@ if logical(1)
       sal==0 | sal==0 & temp==0;
       if any(ans,'all')
 	[I,J] = ind2sub(D,find(ans)); I=unique(I); J=unique(J);
-	warning(['There are zero S&T, or just S, in ',upper(tartyp{j}(1:end-1)),...
-		 ' data in WMO-square ',int2str(wmosq),...
-		 ' typically on rows ',snippet(zipnumstr(I)),...
-		 ' in profiles ',snippet(zipnumstr(J)),...
-		 ' with qclevels of type ',snippet(unique(qclevel(J))),...
-		 ' ! (removed)']);
+	msg=['There are zero S&T, or just S, in ',upper(tartyp{j}),...
+	     ' data in WMO-square ',int2str(wmosq),...
+	     ' typically on rows ',snippet(zipnumstr(I)),...
+	     ' in profiles ',snippet(zipnumstr(J)),...
+	     ' from source ',snippet(unique(source(J))),...
+	     ' ! (removed)'];
+	if exist('qclevel'), msg=[msg,' The qclevels are ',snippet(unique(qclevel(J))),'.']; end
+	disp(msg)
 	sal(ans)=NaN; temp(ans)=NaN; % Useless in both cases
 	save(d{i},'sal','temp','-append');
       end      
@@ -132,12 +143,14 @@ if logical(1)
       isnan(sal) & ~isnan(temp) | ~isnan(sal) & isnan(temp);
       if any(ans,'all')
 	[I,J] = ind2sub(D,find(ans)); I=unique(I); J=unique(J);
-	warning(['There are incomplete S&T pairs in ',upper(tartyp{j}(1:end-1)),...
-		 ' data in WMO-square ',int2str(wmosq),...
-		 ' typically on rows ',snippet(zipnumstr(I)),...
-		 ' in profiles ',snippet(zipnumstr(J)),...
-		 ' with qclevels of type ',snippet(unique(qclevel(J))),...
-		 ' ! (removed)']);
+	msg=['There are incomplete S&T pairs in ',upper(tartyp{j}),...
+	     ' data in WMO-square ',int2str(wmosq),...
+	     ' typically on rows ',snippet(zipnumstr(I)),...
+	     ' in profiles ',snippet(zipnumstr(J)),...
+	     ' from source ',snippet(unique(source(J))),...
+	     ' !'];
+	if exist('qclevel'), msg=[msg,' The qclevels are ',snippet(unique(qclevel(J))),'.']; end
+	disp(msg)
 	sal(ans)=NaN; temp(ans)=NaN;
       end      
       
@@ -147,19 +160,20 @@ if logical(1)
       % Map with colors for time:
       a_map1=subplot('position',[0.1 0.5 0.35 0.4]); 
       %title([upper(tartyp{j}(1:end-1)),'-reference data in WMO-square ',int2str(wmosq)]);
-      title(['Time span ',datestr(datenum(min(dates)/1e10,0,0),12),'-',datestr(datenum(max(dates)/1e10,0,0),12)]);
+      %%title(['Time span ',datestr(datenum(min(dates)/1e10,1,1),12),'-',datestr(datenum(max(dates)/1e10,1,1),12)]);
+      title(['Time span ',datestr(rdtime(min(dates)),12),'-',datestr(rdtime(max(dates)),12)]);
       lim=wmosquare(wmosq);
       m_proj('Albers','lon',lim(1:2)+[-4 4],'lat',[lim(3)-1 min([90 lim(4)+1])]);
       m_grid; m_coast('color','k'); m_elev('contour','color',[.7 .7 .7]);
       [lo,la]=erect(lim,'t'); hw=m_line(lo,la,'color','b');
-      [ans,IA]=sort(dates);
+      [ans,IA]=sort(rdtime(dates));
       %hp=m_line(long,lat,'linestyle','none','marker','.','color','b');
       hp=m_scatter(long(IA),lat(IA),20,jet(size(pres,2)));set(hp,'marker','.');
       hl=legend([hw hp(1)],'WMO-square','Reference data (by time)','location','northwestoutside');
 
       % Map with colors for latitude (as for the rest):
       a_map2=subplot('position',[0.55 0.5 0.35 0.4]); 
-      title([upper(tartyp{j}(1:end-1)),'-reference data in WMO-square ',int2str(wmosq)]);
+      title([upper(tartyp{j}),'-reference data in WMO-square ',int2str(wmosq)]);
       lim=wmosquare(wmosq);
       %m_proj('Albers','lon',lim(1:2)+[-4 4],'lat',[lim(3)-1 min([90 lim(4)+1])]);
       m_grid; m_coast('color','k'); m_elev('contour','color',[.7 .7 .7]);
@@ -195,7 +209,10 @@ if logical(1)
       set(hS,'clipping','off');
       %
       print(gcf,'-depsc',[d{i}(1:end-4),'.eps']); 
-    end
-  end
-end
+    
+      clear dates lat long pres ptmp qclevel sal source temp
+      
+    end % Loop all mat-files
+  end % Loop the three data types
+end 
 

@@ -29,7 +29,7 @@ ORCID: \input{dmqc_operator_orcid}\\ %0000-0003-2516-6106\\[1cm]
 %\date{yyyy.mm.dd} %% Insert actual date of DMQC if you produce report later.
 \maketitle
 
-%\vspace{2cm}
+\vspace{-1cm}
 \begin{center}
   \textbf{DMQC summary}
 \end{center} 
@@ -62,22 +62,26 @@ ORCID: \input{dmqc_operator_orcid}\\ %0000-0003-2516-6106\\[1cm]
 %about the deployment issues.     
 %\vspace{0.5cm}
 
-This report concerns the delayed mode analysis performed for Argo-float
-number~\WMOnum. For more information about this float use, for instance,
-the following link:
+This report concerns the delayed mode quality control performed for
+Argo-float number~\WMOnum. For more information about this float use, for
+instance, the following link:
 \begin{center}
 \href{url}{http://www.ifremer.fr/argoMonitoring/float/\WMOnum}.  
 \end{center}
 Before the analysis, real-time QC flags were visually inspected and
 modified if necessary.  In addition, a few stricter tests necessary before
 the salinity calibration were applied (and flags modified if necessary).
+% 
+Every single profile has been visually inspected, and the validity of all
+flags previously assigned flags considered and changed if deemed
+necessary, and new flags assigned.
 %
 Then, the satellite altimeter comparison plot between the sea surface
 height and dynamic height anomaly, constructed for this float by Ifremer,
 was analysed.
 %
-Part of this analysis are plots of temperature and salinity time
-series, and surface pressure. % \textbf{(if available)}.
+Part of this analysis are also time series plots of pressure, temperature,
+and salinity.
 %and plots of temperature, salinity and density plotted against the nearby
 %historical CTD and Argo profiles.
                                 %
@@ -97,29 +101,36 @@ The salinity calibration has been performed using the configuration and objectiv
 mapping parameters included in Section~\ref{Configuration1}.
                                 %and ~\ref{Configuration2}.
 The Argo float data were compared to nearby CTD and Argo profiles from the
-following reference databases: \small{{\verbatiminput{refdir}}} Reference
-data are distributed by Ifremer.  A simple visual check on the reference
-data is done prior to analysis (see Appendix~B).
-
+following reference databases: \small{{\verbatiminput{refdir}}}
+%
+Reference data are distributed by Ifremer. A simple visual check on the
+reference data is done prior to analysis (see Appendix~B).
+%
 The OWC toolbox version~3.0.0 % Version number needs to be manually updated here
 (\href{url}{https://github.com/ArgoDMQC/matlab\_owc}) was run to estimate
 a salinity offset and a salinity drift (Cabanes et al., 2016).
 
-Note that only ascending profiles are included in this DMQC. Note also
-that the concepts ``cycle number'' and ``profile number'' are not the
-same, as there might be missing cycles, while only existing profiles are
-input to OWC. ``Cycle number'' refers to the actual cycle number
-parameter and file naming of R/D-files.
+Note that the concepts ``cycle number'' and ``profile number'' are
+not the same, as there might be missing cycles, while only existing
+profiles are input to OWC. ``Cycle number'' refers to the actual cycle
+number parameter and file naming of R/D-files.
+
+Only results for ascending profiles are included in this report, as these
+are of primary interest and the only ones used for the estimation of
+calibration. However, any existing descending profiles have been tested
+and inspected the same way as the ascending profiles, and for cycles where
+calibration has been decided, the same correction is done on descending as
+on ascending profile.
 
 Technical info on the float is given in Table~\ref{tab:techinfo} and an
 overview of the float trajectory and T\&S data is shown in
 Figure~\ref{fig:float-info}.
 %
-\begin{table}[!ht]%\footnotesize
+\begin{table}[hp]%\footnotesize
 \caption{Technical information about float~\WMOnum.}
 \label{tab:techinfo}
         \centering
-\begin{tabular}{|r|m{10cm}|}
+\begin{tabular}{|r|m{12cm}|}
         \hline 
         {WMO float-number} &  {\WMOnum} \\ \hline
         {DAC} & {\input{DAC}} \\ \hline 
@@ -147,7 +158,7 @@ Figure~\ref{fig:float-info}.
 \end{tabular}
 \end{table}
         
-\begin{figure}[H]
+\begin{figure}[hp]
   %\centering    
   \centerline{\includegraphics[width=1.2\textwidth]{\floatsource\WMOnum}}
   \caption{Float \WMOnum. Map shows the locations of float profiles (numbers in
@@ -158,7 +169,9 @@ Figure~\ref{fig:float-info}.
     profiles, and density profiles for all profiles. The profiles shown
     have undergone pre-OWC analysis DMQC (as described in
     Section~\protect\ref{DMQCpreOWC}).  Colour shading in all panels
-    indicate cycle number (see colorbar under map).}
+    indicate cycle number (see colourbar under map).
+    Note that for floats with ASD, uncorrectable salinity profiles are not
+    shown here.}
   \label{fig:float-info}
 \end{figure} 
  
@@ -172,13 +185,17 @@ erroneous data are removed before the following phase:
 \begin{enumerate}
 \item Delayed-mode procedures for coordinates
 \item Sea Surface Pressure Adjustment (for APEX floats only)
-\item Visual verification of Real-time mode QC flags
-\item Selected automated tests necessary for OWC
-\item Visual DMQC of the variables
+\item Automated tests prior to visual control
+\item Visual control of all profiles and flags
+\item Overall comparison with the reference data
 \end{enumerate}
-The tests are described in the following subsections and all results are shown in Table~\ref{tab:rtqc}. 
-\input{comments}
+The tests are described in the following subsections and all results are
+shown in Table~\ref{tab:rtqc}.
 %
+\input{descending/descending_profiles} % Generated by PREPARE_FLOATS.
+%
+\input{comments}
+% 
 Note that the flagging summarised and shown in this section, does not
 include any flags resulting from OWC analysis (Section~\ref{sec:OWC}). See
 the discussion and conclusions (Section~\ref{sec:discussion}) about any
@@ -205,40 +222,14 @@ Position outliers were checked for visually in a map such as in
 Figure~\ref{fig:float-info} but based on original data, and any positions
 replaced by 2D linear interpolation.
 
+
 \newpage
 \subsection{Sea Surface Pressure Adjustment}
 \input{pressure-adjustment} % Generated by PREPARE_FLOATS.
 
-% % NEI, men plot tid mot overflatetrykk, sensortrykk.
-% Sea Surface Pressure Calibrations are not done for
-% \input{platform-type}-floats (Wong et al., 2021).  Figure~\ref{surf_press}
-% shows the surface pressure from the top of each profile, confirming
-% variations less than 5 dbar.
-% \begin{figure}[H]
-%   \centering    
-%   \includegraphics[width=\textwidth,natwidth=1500,natheight=750]{\floatsource\WMOnum_PRES.png}
-%   \caption{Float \WMOnum. Sea surface pressure data. Blue circles indicate
-%   pressure value in the real-time.}
-% %    \includegraphics[width=\textwidth]{Example_float/surf_pres_\WMOnum}
-% %    \caption{Float \WMOnum. Sea surface pressure data. The red crosses indicate the raw pressure before float descent, recorded after sending data to GDAC. Blue circle indicate pressure value in the real-time. Green rotated cross shows the pressure correction applied from the previous float cycle. Top plot- data constrained between -2.4 and 2.4 dbar, middle plot- data constrained between -20 and +20 dbar, bottom plot- data with a max range of data.}
-%     \label{surf_press}
-% \end{figure}
-
-
-
 
 \newpage
-\subsection{Visual verification of Real-time mode QC flags}
-In the case of RTQC flags in a profile, such profiles are compared to
-temporally close profiles from same float, as well as surrounding
-reference data. Each individual plot is inspected interactively in detail
-and flags are removed or new flags assigned when judged necessary (to both
-RTQC flagged data as well as any new findings).
-%
-\input{RTQCcheck} % This part is automated in LOAD_FLOATS. 
- 
-
-\subsection{Selected automated tests necessary for OWC}
+\subsection{Automated tests prior to visual control}\label{sec:automatedDMQC}
 In addition to RTQC, the following automated tests are necessary before 
 OWC as double checks using same critera as RTQC (see Wong et al., 2021)
 and in some aspects stricter based on experience in the region:
@@ -247,7 +238,7 @@ and in some aspects stricter based on experience in the region:
   waters deeper than \input{MAP_P_EXCLUDE}m.
 \item Double-pointed spike tests on PSAL and TEMP (see Section~\ref{sec:double-pointed-spike-test}).
 \item Spike tests on PSAL and TEMP (with 0.02~PSU criterion for pressures
-  greater than or equal to 500~dbar, and 0.01~PSU deeper than 1000~dbar;
+  greater than or equal to 500~dbar, and 0.005~PSU deeper than 1000~dbar;
   and the addition of temperature criterion 1$^\circ$C deeper than 1000~dbar).
 \item Gradient test on TEMP and PSAL (declared obsolete from RTQC in 2019,
   but implemented here nevertheless).
@@ -261,31 +252,61 @@ this is not an uncommon form of spikes. The test values are formed
 according to 
 \begin{equation}
   \label{eq:1}
-  TV = \left|\frac{V_{i} + V_{i+1}}{2} – \frac{V_{i-1} + V_{i+2}}{2}\right|  – \left|\frac{V_{i+2} – V_{i-1}}{2}\right| ,
+  TV = \left|\frac{V_{i} + V_{i+1}}{2} – \frac{V_{i-1} + V_{i+2}}{2}\right| – \left|\frac{V_{i+1} – V_{i}}{2}\right|  – \left|\frac{V_{i+2} – V_{i-1}}{2}\right| ,
 \end{equation}
 where $TV$ is the test value and $V_i$ are the subsequent points in a
-profile. As the test values are assigned to the $i$-th point in the
-profile (i.e., the upper point of the pair forming the spike), any testvalues
-exceeding the criteria results in flagging of both $V_i$ and $V_{i+1}$.
+profile.
 %
-The double-pointed spike test uses the same criteria as the single-point spike test.
+The first term is the difference between the average of two values forming
+a double-spike and the average of their two neighbouring values.
+Subtracted are the half width between the respective averaged values, so
+that the actual test value is the difference between the nearest two points
+of the compared pairs.
+
+As the test values are assigned to the $i$-th
+point in the profile (i.e., the upper point of the pair forming the
+spike), any testvalues exceeding the criteria results in flagging of both
+$V_i$ and $V_{i+1}$.
+%
+The double-pointed spike test uses the same criteria as the single-point
+spike test (see bullet list above).
 It is applied before the single-point spike test, since the latter may remove
 one of the values in a double-point spike and render the double-pointed spike
 test useless.
 
-\newpage
-\subsection{Visual DMQC of the variables}
-As prescribed in Section~3.3--3.5 of Wong et al.~(2021), PRES, TEMP, and
-PSAL were checked visually by comparing to other cycles from the float
-(using versions of Figures~\ref{fig:float-info} and \ref{hovmoller} from
-this stage), as well as in relation to reference data in the vicinity of
-the float (Figure~\ref{fig:refcomp}). Pressure consistency is also checked
-using Figure~\ref{fig:pres}.
-Trends in salinity in the same
-reference data are also compared to float data
-(Figure~\ref{fig:trendcheck}) in order to aid interpretation of the
-calibration results in Section~\ref{results_CTDArgo}.
+
+%\newpage
+\subsection{Visual control of all profiles and flags}\label{sec:visualDMQC}
+Firstly, an overall check on pressure consistency is done looking at the
+lower panel of Figure~\ref{fig:pres}.
+
+Then, as prescribed in Section~3.3--3.5 of Wong et al.~(2021), PRES, TEMP,
+and PSAL are compared to temporally close profiles from same float, as
+well as surrounding reference data. This is done by inspecting individual
+cycles in detail using the tool \emph{check\_profiles} from the toolbox
+\href{url}{https://github.com/evenrev1/evenmat.git}.
 %
+In this tool, profiles for all three parameters as well as their derived
+density are plotted on backdrops of profiles from the three preceeding and
+three succeeding cycles and localised historical reference data.  Both
+NRTQC flags and DMQC flags (Section~\ref{sec:automatedDMQC}) are marked
+and can be changed, or new flags can be added, interactively.
+%
+\input{RTQCcheck} % This part is automated in PREPARE_FLOATS. 
+
+
+\newpage
+\subsection{Overall comparison with the reference data}
+In addition to the visual control of individual profiles
+(Section~\ref{sec:visualDMQC}), the overall state of the dataset can be
+viewed in Figures~\ref{fig:float-info} and \ref{fig:hovmoller}, as well as
+all profiles in relation to reference data in the vicinity of the float in
+Figure~\ref{fig:refcomp}.
+
+Trends in salinity in the same reference data are also compared to float
+data (Figure~\ref{fig:trendcheck}) in order to aid interpretation of the
+calibration results in Section~\ref{results_CTDArgo}.
+
 \begin{figure}[H] 
   \input{refcomp}  % This part is automated in PREPARE_FLOATS.
 \end{figure}
@@ -298,27 +319,20 @@ calibration results in Section~\ref{results_CTDArgo}.
 
 \newpage
 \subsection{Satellite Altimeter Report}
-Figure~\ref{Altim} shows the comparison with altimetry.
-%
-\begin{figure}[H]
-  \centering    
-  \includegraphics[width=\textwidth,natwidth=810,natheight=650]{\downloaddir\WMOnum .png}
-  \caption{Float \WMOnum. The comparison between the sea level anomaly
-    (SLA) from the satellite altimeter and dynamic height anomaly (DHA)
-    extracted from the Argo float temperature and salinity. The figure is
-    created by the CLS/Coriolis, distributed by Ifremer
-    (ftp://ftp.ifremer.fr/ifremer/argo/etc/argo-ast9-item13-AltimeterComparison/figures/).
-    If graphics are missing, an altimetry report is not available (yet).}
-  \label{Altim}
-\end{figure}
+\input{altimetry_sec} % Full subsection with figure or just a sentence
+                     % about missing altimetry report.
 
       
 \newpage
 \subsection{Time Series of Argo Float Temperature and Salinity}
 %
-Figure~\ref{hovmoller} shows Hov-M{\"o}ller plots of temperature and
+Figure~\ref{fig:hovmoller} shows Hov-M{\"o}ller plots of temperature and
 salinty, respectively, disregarding flags but with flagged data marked.
-% after the pre-OWC DMQC (Section~\ref{DMQCpreOWC}).
+%
+Note that for floats with previously assigned uncorrectable profiles, full
+profile '4' flags will precede full profile '3' flags, in which case the
+latter are the new profiles subject to the latest DMQC session.
+%
 \begin{figure}[H]
   \centering
   \begin{tabular}{lr}
@@ -332,9 +346,9 @@ salinty, respectively, disregarding flags but with flagged data marked.
   circles indicate data that has been flagged '4' by RTQC and DMQC, respectively. 
   A diamond indicates the rare occurence of DMQC reversal of an RTQC flag to '1'.
   White points indicate RTQC flags of '2' or '3'. 
-  Flags based on OWC findings are not shown here (see Section~\ref{sec:discussion} about any extra flags).}
-%   Pressure flags are marked with the same symbols, in grey.
-\label{hovmoller}
+  Flags based on (the current) OWC findings are not shown here (see Section~\ref{sec:discussion} about any extra flags).}
+  %   Pressure flags are marked with the same symbols, in grey.
+\label{fig:hovmoller}
 \end{figure}
 
 
@@ -354,6 +368,11 @@ shows the positions of reference data actually used in mapping. In
 Appendix~B profile plots of reference data from the WMO squares
 (\input{wmosquares}) traversed by the float, can be found.
 
+For floats with previously assigned uncorrectable profiles,
+these profiles are still included in the current OWC analysis
+in order to avoid gaps in the presentation of the mapping and
+calibration (esp.\ Figure~\ref{SalWithErrors}). 
+
 \subsubsection{Configuration}\label{Configuration1}
 % The following is a trascript of the \texttt{ow\_config.txt} file of the
 % OWC toolbox with the parameters set for the final correction, as well as
@@ -362,7 +381,7 @@ Appendix~B profile plots of reference data from the WMO squares
 The following are the mapping configuration parameters set in
 \texttt{ow\_config.txt} file of the OWC toolbox with the parameters set
 for the final correction:  \verbatiminput{ow_config}
-The scaling parameters are typical for use in the Lofoten Basin. % (LBmap, KAMage, KAMphi)
+%The scaling parameters are typical for use in the Lofoten Basin. % (LBmap, KAMage, KAMphi)
 
 The calseries parameters are set in \texttt{set\_calseries.m} file as
 follows: \verbatiminput{cal_par}
@@ -484,7 +503,8 @@ toolbox provided at \href{url}{https://github.com/ArgoDMQC/matlab\_owc}.
 The map in Figure~\ref{fig:float-info} was made using the M\_MAP toolbox
 (Pawlowicz, 2020; \url{http://www.eoas.ubc.ca/~rich/map.html}).
 %
-Supporting functions can be found in the author's own distribution at
+The visual DMQC tool CHECK\_PROFILES and other supporting functions can be
+found in the author's own distribution at
 \href{url}{https://github.com/evenrev1/evenmat.git}.
 
 

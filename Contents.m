@@ -22,7 +22,7 @@
 % scripts produce snippets of content linked into that template. You
 % will need a working version of LaTeX, and for instance dviPDFm to make
 % PDF reports. However, this is not necessary for DMQC-fun to be
-% useful. (You may even be able to link the produced figures and text
+% useful. (You might even be able to link the produced figures and text
 % parts into some other word processor of choice.)
 %
 % The files and directories in this toolbox are as follows:

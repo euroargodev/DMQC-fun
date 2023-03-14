@@ -77,11 +77,19 @@ MAP_USE_SAF=0
 % MAPSCALE_AGE_LARGE=2 and MAPSCALE_AGE_SMALL=0.69
 
 
-% spatial decorrelation scales, in degrees (SMALL 3.2 0.8 2 0.5; KAM 8.0 4.0 4.0 2.0; Too large: 8 2.7 4 1.3; Lofoten Basin 1.6 0.4 1 0.3)
-% OW: The large scales (×3) are also used to specify the ellipse used in selecting historical data. I suggest you start at a maximum scale of 8° and experiment on decreasing it to see what scales suit your region. 
-MAPSCALE_LONGITUDE_LARGE=1.6
-MAPSCALE_LONGITUDE_SMALL=0.4
-MAPSCALE_LATITUDE_LARGE=1
+% spatial decorrelation scales, in degrees (SMALL 3.2 0.8 2 0.5; KAM 8.0 4.0 4.0 2.0; Too large: 8 2.7 4 1.3; Lofoten Basin 1.6 0.4 1 0.3; New LB 1.4 0.6 0.7 0.3 Norwegian Basin 1.8 1.5 0.7 0.6)
+% OW: The large scales (×3) are also used to specify the ellipse used in selecting historical data. I suggest you start at a maximum scale of 8° and experiment on decreasing it to see what scales suit your region.
+% E: Here are roughly the lon/lat relation per latitudes: 60N 2.0 ; 67N 2.5 ; 70N 3.0 ; 73N 3.5 ; 76N 4.0. 
+% E: These are my current regional scales for regions:
+% New Lofoten Basin (NLBmap)	1.4 0.6 0.7 0.3
+% Greenland Sea North (GSNmap)	2.0 1.2 0.5 0.3 
+% Greenland Sea South (GSSmap)	1.8 1.1 0.5 0.3 
+% Norwegian Basin (NBmap)	1.8 1.5 0.7 0.6 
+% NB+LB (NBLBmap)		1.5 1.3 0.7 0.6 
+% Used in northern GB&LB	1.7 1.1 0.5 0.3
+MAPSCALE_LONGITUDE_LARGE=1.4
+MAPSCALE_LONGITUDE_SMALL=0.6
+MAPSCALE_LATITUDE_LARGE=0.7
 MAPSCALE_LATITUDE_SMALL=0.3
 
 % cross-isobath scales, dimensionless, see BS(2005) 0.5 0.1 (0.1 0.02 ?) (KAM 0.5 0.1) (LARGE 1 0.2)
