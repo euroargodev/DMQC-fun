@@ -1,7 +1,7 @@
 # DMQC-fun
- v0.9
+ v0.9.
  J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
- Last updated: Mon Jun  5 11:24:22 2023 by jan.even.oeie.nilsen@hi.no
+ Last updated: Mon Jun  5 13:06:16 2023 by jan.even.oeie.nilsen@hi.no
 
  DMQC-fun is a comprehensive toolbox for performing DMQC on and
  salinity calibration of core data from Argo floats. The toolbox
@@ -13,7 +13,7 @@
 
  The toolboxes to install are:
  
- - DMQC-fun - [https://github.com/imab4bsh/DMQC-fun.git](https://github.com/imab4bsh/DMQC-fun.git)
+ - DMQC-fun - [https://github.com/euroargodev/DMQC-fun.git](https://github.com/euroargodev/DMQC-fun.git)
  - matlab_owc -  [https://github.com/ArgoDMQC/matlabow.git](https://github.com/ArgoDMQC/matlabow.git)
  - evenmat - [https://github.com/evenrev1/evenmat.git](https://github.com/evenrev1/evenmat.git) 
  - m_map - [https://www.eoas.ubc.ca/~rich/map.html](https://www.eoas.ubc.ca/~rich/map.html)
