@@ -1,6 +1,6 @@
 function s_new = argo_sbe_CPcor (p,t,s,cpcor_new)
 % function s_new = argo_sbe_CPcor (p,t,s,cpcor_new)
-% Calculat new salinity using new CPcor (cpc_new)
+% Calculate new salinity using new CPcor (cpc_new)
 % input: vector p,t,s, coeff. cpc
 % output: vector s_new  (salinity)
 
@@ -21,5 +21,5 @@ c_new = c.*n_old./n_new;
 
 % Calculate new salinity
 s_new = sw_salt (c_new./sw_c3515,t,p);
-end
+
 

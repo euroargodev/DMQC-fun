@@ -1,12 +1,13 @@
-% DMQC-fun 
-% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
-% v0.9.3, jan.even.oeie.nilsen@hi.no.
+% DMQC-fun
+% v0.9
+% J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
+% Last updated: Mon Jun  5 11:24:22 2023 by jan.even.oeie.nilsen@hi.no
 %
 % DMQC-fun is a comprehensive toolbox for performing DMQC on and
 % salinity calibration of core data from Argo floats. The toolbox
 % provides a system for semi-automated work-flow through the stages of
 % downloading reference and float data, general DMQC and preparation of
-% float data for MATLAB_OWC, running of MATLAB_WC, and production of
+% float data for MATLAB_OWC, running of MATLAB_OWC, and production of
 % updated D-files. Graphs, metadata and information from these stages
 % are automaticly integrated into reports for each float.
 %
@@ -33,16 +34,21 @@
 %
 % init_dmqc	Both init-file and setup. Contains all installation
 %		and setup instructions, as well as list of your
-%		floats and parameters that all functions use. Read
-%		that first! 
+%		floats and set up for parameters that all functions
+%		use. Read that first! 
 %
-% work_log.txt	Explains the whole workflow of DMQC and the use of this
-%		toolbox, and a good place to log your overall
+% work_log.txt	Explains the whole workflow of DMQC and the use of
+%		this toolbox, and a good place to log your overall
 %		progress. Understand more there! 
 %
 % load_referencedata	
 %		A script to ingest, quick-check and update the list
 %		of reference data for Argo DMQC and OWC. 
+%
+% check_referencedata	
+%		A function to plot and check reference data
+%		files. Used by load_referencedata, but can also be
+%		used stand alone. 
 %
 % download_floats	
 %		This script downloads Argo float NetCDF-files from
@@ -50,14 +56,15 @@
 %		comparison and current greylist. 
 %
 % prepare_floats	
-%		Does general DMQC, and builds the mat-files for OWC. 
+%		Does general DMQC, including your visual checking of
+%		the profiles, and builds the mat-files for OWC. 
 %
-% plot_profiles	Used by PREPARE_FLOATS to make plots if any instabilities or
-%		non-monotonic increasing pressure is found.
+% plot_profiles	Used by PREPARE_FLOATS to make overview plots of the
+%		positions and T&S data.
 %
 % inpolygon_referencedata	
-%		A function used by PREPARE_FLOATS to find reference
-%		data inside a lon/lat polygon.
+%		A function used to find	reference data inside a
+%		lon/lat polygon. 
 %
 % operator_CPcor_new	
 %		A tool for finding operator CPcor to correct for
@@ -71,7 +78,15 @@
 % run_ow_calibration	
 %		Runs OWC on all selected floats.
 %
-% write_D	Produces the D-files to deliver.
+% pair_floats_with_referencedata
+%		Compares float profiles to individual reference data
+%		profiles in the vicinity of float. Alternative when
+%		OWC is not possible, but also useful for any float. 
+%
+% write_D	Produces the D-files to deliver. The last thing you do. 
+%
+% rdtime	Translates time format in Argo reference data
+%		to Matlab serial days. Used by several functions.
 %
 % plot_diagnostics_ow	
 %		This function is copied from the OWC toolbox and
@@ -106,4 +121,4 @@
 % ./bak/set_calseries.m	
 %		Example of how to set the OWC calibration parameters.
 %
-% Feedback is most welcome to jan.even.oeie.nilsen@hi.no.
+% Feedback is most welcome!

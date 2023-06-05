@@ -1,15 +1,17 @@
 % LOAD_REFERENCEDATA A script to ingest, quick-check and update list of
 % reference data for Argo DMQC.
-% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
-% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
 %
+% DMQC-fun v0.9.
+% J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
+% Last updated: Wed May 24 13:40:44 2023 by jan.even.oeie.nilsen@hi.no
+
 % - Ingests downloaded reference data into MATLAB_OWC's climatology/ directory.
 % - Creates three versions of the matrix of available metadata
 %   (wmo_boxes.mat), one for each type in addition to the main file.
 % - Produces map overview of the chosen WMO squares and contents in constants/)
 % - Produces maps and TS, T, and S graphs of all profiles for each
 %   ingested WMO-square alongside their mat-files. 
-
+%
 %%%%%%%%%%%% INITIAL STEPS: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % First, in a shell, find, download and unpack DMQC reference data:
 %	cd ~/Downloads/DMQC   (i.e., your download_ref_data_dir)
@@ -19,12 +21,16 @@
 %
 % IMPORTANT: INIT_DMQC will build the object refdir according to the
 % subdirectories present in the download_ref_data_dir, so make sure to
-% delete old datasets and keep only the three to be used!
+% delete old datasets and keep only the ones to be used!
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%
 % After running LOAD_REFERENCEDATA you can check the map in
 % matlab_owc's 'constants' directory.
+%
+% No editing in this file!
+%
+% ------------------------------------------------------------------------------
 
 clear all; close all;
 init_dmqc;	% Get the necessary paths etc. as well as your
@@ -103,116 +109,10 @@ la_wmo_boxes=la_wmo_boxes_argo;	save([owc_data_dir,filesep,'constants',filesep,'
 
 % ----- Check the reference data (i.e., make a lot of figures): -----
 if true 
-  figure(2);set(gcf,'OuterPosition',get(0,'ScreenSize'));
-  shape=get(gcf,'innerposition');
-  set(gcf,'units','points','innerposition',shape,'paperunits','points','paperposition',shape,...
-	  'PaperSize',shape(3:4),'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl');
   for j=1:length(tartyp)	% Loop the three data types
     d=edir(tardir{j},'mat',0,0); %filer=cellstr(char(d.name));	% List of files
-    for i=1:length(d)		% Loop all mat-files
-      load(d{i});
-      D=size(pres);
-      long>180;long(ans)=long(ans)-360;
-      % Check positions:
-      wmosq=str2num(d{i}(end-7:end-4));
-      findwmo(long,lat)~=wmosq;
-      %if unique(findwmo(long,lat)) ~= wmosq % Check positions
-      if any(ans,'all') % Check positions
-	J=unique(find(ans));
-	disp(['Profiles ',snippet(zipnumstr(J)),...
-		 ' in ',upper(tartyp{j}),...
-		 ' data for ',int2str(wmosq),...
-		 ' are outside the WMO-square!']);
-      end
-      % Check for zero sal and temp _and_ sal:
-      sal==0 | sal==0 & temp==0;
-      if any(ans,'all')
-	[I,J] = ind2sub(D,find(ans)); I=unique(I); J=unique(J);
-	msg=['There are zero S&T, or just S, in ',upper(tartyp{j}),...
-	     ' data in WMO-square ',int2str(wmosq),...
-	     ' typically on rows ',snippet(zipnumstr(I)),...
-	     ' in profiles ',snippet(zipnumstr(J)),...
-	     ' from source ',snippet(unique(source(J))),...
-	     ' ! (removed)'];
-	if exist('qclevel'), msg=[msg,' The qclevels are ',snippet(unique(qclevel(J))),'.']; end
-	disp(msg)
-	sal(ans)=NaN; temp(ans)=NaN; % Useless in both cases
-	save(d{i},'sal','temp','-append');
-      end      
-      % Check for incomplete sal and temp pairs:
-      isnan(sal) & ~isnan(temp) | ~isnan(sal) & isnan(temp);
-      if any(ans,'all')
-	[I,J] = ind2sub(D,find(ans)); I=unique(I); J=unique(J);
-	msg=['There are incomplete S&T pairs in ',upper(tartyp{j}),...
-	     ' data in WMO-square ',int2str(wmosq),...
-	     ' typically on rows ',snippet(zipnumstr(I)),...
-	     ' in profiles ',snippet(zipnumstr(J)),...
-	     ' from source ',snippet(unique(source(J))),...
-	     ' !'];
-	if exist('qclevel'), msg=[msg,' The qclevels are ',snippet(unique(qclevel(J))),'.']; end
-	disp(msg)
-	sal(ans)=NaN; temp(ans)=NaN;
-      end      
-      
-      % Figure:
-      figure(2);clf;
-
-      % Map with colors for time:
-      a_map1=subplot('position',[0.1 0.5 0.35 0.4]); 
-      %title([upper(tartyp{j}(1:end-1)),'-reference data in WMO-square ',int2str(wmosq)]);
-      %%title(['Time span ',datestr(datenum(min(dates)/1e10,1,1),12),'-',datestr(datenum(max(dates)/1e10,1,1),12)]);
-      title(['Time span ',datestr(rdtime(min(dates)),12),'-',datestr(rdtime(max(dates)),12)]);
-      lim=wmosquare(wmosq);
-      m_proj('Albers','lon',lim(1:2)+[-4 4],'lat',[lim(3)-1 min([90 lim(4)+1])]);
-      m_grid; m_coast('color','k'); m_elev('contour','color',[.7 .7 .7]);
-      [lo,la]=erect(lim,'t'); hw=m_line(lo,la,'color','b');
-      [ans,IA]=sort(rdtime(dates));
-      %hp=m_line(long,lat,'linestyle','none','marker','.','color','b');
-      hp=m_scatter(long(IA),lat(IA),20,jet(size(pres,2)));set(hp,'marker','.');
-      hl=legend([hw hp(1)],'WMO-square','Reference data (by time)','location','northwestoutside');
-
-      % Map with colors for latitude (as for the rest):
-      a_map2=subplot('position',[0.55 0.5 0.35 0.4]); 
-      title([upper(tartyp{j}),'-reference data in WMO-square ',int2str(wmosq)]);
-      lim=wmosquare(wmosq);
-      %m_proj('Albers','lon',lim(1:2)+[-4 4],'lat',[lim(3)-1 min([90 lim(4)+1])]);
-      m_grid; m_coast('color','k'); m_elev('contour','color',[.7 .7 .7]);
-      [lo,la]=erect(lim,'t'); hw=m_line(lo,la,'color','b');
-      [ans,IA]=sort(lat);
-      %hp=m_line(long,lat,'linestyle','none','marker','.','color','b');
-      hp=m_scatter(long(IA),lat(IA),20,jet(size(pres,2)));set(hp,'marker','.');
-      hl=legend([hw hp(1)],'WMO-square','Reference data (by latitude)','location','northeastoutside');
-
-      % TS-diagram:
-      subplot 234
-      tsdiagrm(mima(sal),mima(temp),0);
-      title('Reference data (by latitude)');
-      hTS=line(sal(:,IA),temp(:,IA),'marker','.','linestyle','none');
-      set(hTS,{'color'},num2cell(jet(size(pres,2)),2));
-      %set(gca,'xlim',[31.5 35.5],'ylim',[-2 16]); % Lock for specific presentation
-      set(hTS,'clipping','off');
-      
-      % Profiles:
-      subplot 235
-      hT=line(pres(:,IA),temp(:,IA)); 
-      view([90 90]);grid;set(gca,'yaxislocation','right');
-      set(hT,{'color'},num2cell(jet(size(pres,2)),2));
-      xlabel Pressure; ylabel Temperature
-      %set(gca,'xlim',[0 3500],'ylim',[-2 16]);  % Lock for specific presentation
-      set(hT,'clipping','off');
-      subplot 236
-      hS=plot(pres(:,IA),sal(:,IA)); 
-      view([90 90]);grid;set(gca,'yaxislocation','right');
-      set(hS,{'color'},num2cell(jet(size(pres,2)),2));
-      xlabel Pressure; ylabel Salinity
-      %set(gca,'xlim',[0 3500],'ylim',[31.5 35.5]);  % Lock for specific presentation
-      set(hS,'clipping','off');
-      %
-      print(gcf,'-depsc',[d{i}(1:end-4),'.eps']); 
-    
-      clear dates lat long pres ptmp qclevel sal source temp
-      
-    end % Loop all mat-files
+    hf=check_referencedata(d,true);
+    close(hf);
   end % Loop the three data types
 end 
 

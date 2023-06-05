@@ -1,11 +1,31 @@
 % OPERATOR_CPCOR_NEW helps find the best CPcor_new as well as
 % calculates simple offset by comparison between ship CTD and Argo
-% profiles for any float. 
-% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
-% with contribution from Cécile Cabanes.
-% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
+% profiles for any float, with graphics. 
 %
-% DISCLAIMER: Not a beautiful solution, but it works. However, it can be
+% DMQC-fun v0.9.
+% J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
+% Last updated: Wed May 24 16:13:15 2023 by jan.even.oeie.nilsen@hi.no
+
+% This script does the following:
+% - Uses a list you maintain here, coupling your float to its
+%   deployment cruise as well as your decisions about which ship
+%   CTD-profile and float profile to pair, temperature range to
+%   compare in, and method for calculation of CPcor_new.
+% - Reads your prepared float data and the cruise data.
+% - If deep float it
+%	calculates CPcor_new by chosen method.
+%	Makes several plots aiding your judgement (but the plots for
+%	the report is made by PREPARE_FLOATS).
+%	Saves the results for PREPARE_FLOATS to use.
+% - In any case calculates simple salinity offset relative to CTD.
+% - Makes figure and section on comparison for the report.
+%
+% You will iterate several times before settling on a decision.
+
+% Due to the general nature of ship CTD comparison, this script should
+% be run on all floats with deployment cruise data available.
+
+% DISCLAIMER: Not an elegant solution, but it works. However, it can be
 % considered optional since it is not entirely necessary (and only
 % relevant for deep floats), and really not user friendly as of now.
 %
@@ -69,6 +89,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 clear all; close all; 
 init_dmqc; % Paths and filenames. Set one float at a time when
            % considering new ctd data and decisions.
@@ -100,6 +121,12 @@ for I=1:length(float_names)	% Loop floats
   %	Use 'gain' to only calculate simple offset 
   %
   switch float_names{I}
+   case '1902579', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='580'; ptlim=-0.4; 	np=1; decision='gain';%580
+   case '2903771', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station=539;   ptlim=-0.5; 	np=1; decision='gain';%540!!
+   case '3902462', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='612'; ptlim=-0.3; 	np=1; decision='king';%√sqr
+   case '3902463', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='537'; ptlim=-0.3; 	np=1; decision='king';%√sqr
+   case '3902464', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='577'; ptlim=-0.3; 	np=1; decision='king';%√sqr
+   case '3902465', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='578'; ptlim=-0.5; 	np=1; decision='gain';%578
    case '6903549', ctd_cruise='2019205'; ctd_file='4-2019-1019-5_tkt_kva.txt';	ctd_station=499; ptlim=-0.3; 	np=1; decision='gain';%499, 500
    case '6903550', ctd_cruise='2019205'; ctd_file='4-2019-1019-5_tkt_kva.txt';	ctd_station=528; ptlim=-0.3; 	np=1; decision='gain';%501, 502
    case '6903551', ctd_cruise='2019205'; ctd_file='4-2019-1019-5_tkt_kva.txt';	ctd_station=547; ptlim=-0.3; 	np=2; decision='gain';%547, 548!
@@ -114,6 +141,7 @@ for I=1:length(float_names)	% Loop floats
    case '6903561', ctd_cruise='2019205'; ctd_file='4-2019-1019-5_tkt_kva.txt';	ctd_station=541; ptlim=-0.5; 	np=1; decision='gain';%541
    case '6903562', ctd_cruise='2019205'; ctd_file='4-2019-1019-5_tkt_kva.txt';	ctd_station=579; ptlim=4; 	np=1; decision='gain';%578
    case '6903563', ctd_cruise='2019205'; ctd_file='4-2019-1019-5_tkt_kva.txt';	ctd_station=543; ptlim=-0.4; 	np=1; decision='gain';%543
+   case '6903564', ctd_cruise='2019211'; ctd_file='4-2019-1019-11_tkt_kva.txt';	ctd_station=1019; ptlim=5.739; 	np=1; decision='gain';%1019
    case '6903565', ctd_cruise='2020608'; ctd_file='4-2020-1172-8_tkt_kva.txt';	ctd_station=394; ptlim=4; 	np=1; decision='gain';%395
    case '6903566', ctd_cruise='2020608'; ctd_file='4-2020-1172-8_tkt_kva.txt';	ctd_station=429; ptlim=-0.4; 	np=1; decision='gain';%429
    case '6903567', ctd_cruise='2020608'; ctd_file='4-2020-1172-8_tkt_kva.txt';	ctd_station=425; ptlim=-0.4; 	np=1; decision='gain';%425
@@ -125,6 +153,7 @@ for I=1:length(float_names)	% Loop floats
    case '6903573', ctd_cruise='2020616'; ctd_file='4-2020-1172-16_tkt_kva.txt';	ctd_station=714; ptlim=-0.3; 	np=1; decision='king';%714
    case '6903574', ctd_cruise='2020616'; ctd_file='4-2020-1172-16_tkt_kva.txt';	ctd_station=679; ptlim=-0.3; 	np=1; decision='gain';%679
    case '6903575', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station=357; ptlim=0; 	np=1; decision='gain';%, 500
+   case '6903576', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='534'; ptlim=-0.2; 	np=1; decision='gain';%534
    case '6903577', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station=430; ptlim=-0.4; 	np=1; decision='gain';%430
    case '6903578', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station=402; ptlim=-0.4; 	np=1; decision='gain';%402
    case '6903579', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station=359; ptlim=-0.4; 	np=1; decision='gain';%359
@@ -135,20 +164,15 @@ for I=1:length(float_names)	% Loop floats
    case '6903584', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station=401; ptlim=-0.5; 	np=2; decision='gain';%1-401,2-401
    case '6903585', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station=369; ptlim=-0.1; 	np=1; decision='gain';%1-369,2-371
    case '6903586', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station=365; ptlim=0; 	np=1; decision='gain';%1-365,2-365
-   case '6903587', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station='365'; ptlim=-0.4; 	np=1; decision='gain';%374??wrongcruise?
-   case '6903576', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='534'; ptlim=-0.2; 	np=1; decision='gain';%534
+   case '6903587', ctd_cruise='2021205'; ctd_file='T21JH205.KVA';		ctd_station='365'; ptlim=-0.4; 	np=1; decision='gain';%374
+   case '6903588', ctd_cruise='2021713'; ctd_file='4-2021-9566-13_tkt_kva.txt';	ctd_station=545; ptlim=4.5; 	np=1; decision='gain';%545
+   case '6903589', ctd_cruise='2021713'; ctd_file='4-2021-9566-13_tkt_kva.txt';	ctd_station=545; ptlim=4.5; 	np=1; decision='gain';%545
    case '6903590', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='576'; ptlim=-0.5; 	np=1; decision='gain';%576
    case '6903591', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='615'; ptlim=-0.4; 	np=1; decision='gain';%615
    case '6903592', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='538'; ptlim=-0.4; 	np=1; decision='gain';%538
-   case '3902462', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='612'; ptlim=-0.3; 	np=1; decision='king';%√sqr
-   case '3902463', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='537'; ptlim=-0.3; 	np=1; decision='king';%√sqr
-   case '3902464', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='577'; ptlim=-0.3; 	np=1; decision='king';%√sqr
+   case '6904242', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='518'; ptlim=-0.5; 	np=1; decision='gain';%517t!
    case '7901006', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='597'; ptlim=-0.5;	np=1; decision='gain';%597
    case '7901007', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='502'; ptlim=6;	np=1; decision='gain';%barents
-   case '3902465', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='578'; ptlim=-0.5; 	np=1; decision='gain';%578
-   case '1902579', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='580'; ptlim=-0.4; 	np=1; decision='gain';%580
-   case '2903771', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station=539;   ptlim=-0.5; 	np=1; decision='gain';%540!!
-   case '6904242', ctd_cruise='2022207'; ctd_file='4-2022-1019-7_tkt_kva.txt';	ctd_station='518'; ptlim=-0.5; 	np=1; decision='gain';%517t!
    otherwise
     warning(['There are no ship CTD made available for float ',float_names{I},'!']);
     continue
@@ -193,6 +217,7 @@ for I=1:length(float_names)	% Loop floats
   flt.lon=LONG;
   flt.lat=LAT;
   flt.juld=datenum(DATES,1,1); 
+  flt.cycle=CYCLE_NUMBER;
   % [√] Has flt.juld taken into account the REFERENCE_DATE? Yes. 
   % [√] Why 2? KAM: det kan være at første profil ikke var så dyp (det kan
   % være at man velger å ta første profil kort tid etter utsetting slik at
@@ -211,9 +236,10 @@ for I=1:length(float_names)	% Loop floats
   if isnumeric(ctd_station)	% Forced use of particular station  
     ind=find(ctd.station==ctd_station);
   else				% Find the nearest ctd profile based on positions
+% [] replace this with nearpos
     try % using Seawater toolbox
       for i=1:length(ctd.lon)
-	dx(i)=sw_dist([flt.lon(np),ctd.lon(i)],[flt.lat(np),ctd.lat(i)]);
+	dx(i)=sw_dist([flt.lat(np),ctd.lat(i)],[flt.lon(np),ctd.lon(i)]);
       end
       [~,ind]=min(dx); clear dx
     catch % or maybe stats toolbox is available	
@@ -229,19 +255,18 @@ for I=1:length(float_names)	% Loop floats
   set(10,'units','points','innerposition',shape,...
 	  'paperunits','points','paperposition',shape,'PaperSize',shape(3:4),...
 	  'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl');
-  %figure(10);  set(10,'position',[0 0 1000 500])
   amap=subplot(1,2,1);
-  %m_proj('albers','lon',mima(flt.lon)+[-2 2],'lat',mima(flt.lat)+[-1 1]);
   m_proj('albers','lon',flt.lon(np)+[-4 4],'lat',flt.lat(np)+[-2 2]);
   m_elev('contour',[-5000:250:0],'color',[.7 .7 .7]); m_coast('color','k'); m_grid; 
   hf=m_plot(flt.lon,flt.lat,'r.-'); 
   hc=m_line(ctd.lon,ctd.lat); set(hc,'linestyle','-','marker','.','color','b'); 
-  m_text(flt.lon,flt.lat,int2str([1:length(flt.lon)]'),'clipping','on','fontsize',8);
+  m_text(flt.lon,flt.lat,int2str(flt.cycle'),'clipping','on','fontsize',8);
   m_text(ctd.lon,ctd.lat,int2str(ctd.station'),'clipping','on','fontsize',8);
   hpf=m_plot(flt.lon(np),flt.lat(np),'o');
   hpc=m_plot(ctd.lon(ind),ctd.lat(ind),'o');
   set([hpf,hpc],'markersize',10,'linewidth',1);
-  legend([hf;hc;hpf;hpc],'Argo','CTD',['Float cycle ',int2str(np)],['CTD station ',ctd_station],'Location','southeast');
+  legend([hf;hc;hpf;hpc],'Argo','CTD',['Float cycle ',int2str(flt.cycle(np))],['CTD station ',ctd_station],'Location','southeast');
+  title(['Float ',float_names{I},' and deployment cruise'])
   % Reduce the CTD arrays to this one station:
   %ctd.station = ctd.station(ind); ctd.lon=ctd.lon(ind); ctd.lat=ctd.lat(ind); ctd.t=ctd.t(ind);
   %ctd.salt=ctd.salt(:,ind); ctd.temp=ctd.temp(:,ind);
@@ -263,9 +288,15 @@ for I=1:length(float_names)	% Loop floats
   % ------- Prepare some objects for both types of calculations below: ----------------------------------
   % Common position for GSW to use, for consistency:
   lon=mean([flt.lon(np),ctd_lon]); lat=mean([flt.lat(np),ctd_lat]);
+  dx=sw_dist([flt.lat(np) ctd_lat],[flt.lon(np) ctd_lon],'km');	% Distance between the two profiles
+  dt=ctd_t-flt.juld(np);					% Days ctd profile is past float profile
   % Strings about time and place for Argo and CTD:
-  leg.float=[datestr(flt.juld(np)),', ',num2str(flt.lon(np),'%10.3f'),'\circE, ',num2str(flt.lat(np),'%10.3f'),'\circN, Argo ',float_names{I},', cycle ',int2str(np)];
-  leg.ctd=[datestr(ctd_t),', ',num2str(ctd_lon,'%10.3f'),'\circE, ',num2str(ctd_lat,'%10.3f'),'\circN, Cruise ',ctd_cruise,', station ',ctd_station]
+  leg.float=[datestr(flt.juld(np)),', ',num2str(flt.lon(np),'%10.3f'),'\circE, ',num2str(flt.lat(np),'%10.3f'),'\circN, Argo ',float_names{I},', cycle ',int2str(flt.cycle(np))];
+  leg.ctd=[datestr(ctd_t),', ',num2str(ctd_lon,'%10.3f'),'\circE, ',num2str(ctd_lat,'%10.3f'),'\circN, Cruise ',ctd_cruise,', station ',ctd_station];
+  if ~isempty(dx) & ~isempty(dt)
+    leg.dist=[' ( ',int2str(round(dx)),' km away, ',int2str(round(dt)),' days past.)'];
+  end
+  
   switch tool
    case 'sw'
     ctd_ptmp   = sw_ptmp(ctd_salt,ctd_temp,ctd_z,0);
@@ -439,20 +470,19 @@ for I=1:length(float_names)	% Loop floats
       M_new = 1;
     end
     CPcor_new.gain=CPcor_new.king;
-
   
     % ------- Sal and ptemp profiles for recommended and Cécile's CPcor: --------------
     switch tool
      case 'sw'
-      s_new.recl = argo_sbe_CPcor(argo_p,argo_t,argo_s,CPcor_new.rec-1.5e-8); 
+      s_new.recl = argo_sbe_CPcor(argo_p,argo_t,argo_s,CPcor_new.rec-1.5e-8);	% Recommended lower limit
       pt_new.recl = sw_ptmp(s_new.recl,argo_t,argo_p,0);
-      s_new.rec = argo_sbe_CPcor(argo_p,argo_t,argo_s,CPcor_new.rec); 
+      s_new.rec = argo_sbe_CPcor(argo_p,argo_t,argo_s,CPcor_new.rec);		% Recommended
       pt_new.rec = sw_ptmp(s_new.rec,argo_t,argo_p,0);
-      s_new.recu = argo_sbe_CPcor(argo_p,argo_t,argo_s,CPcor_new.rec+1.5e-8); 
+      s_new.recu = argo_sbe_CPcor(argo_p,argo_t,argo_s,CPcor_new.rec+1.5e-8);	% Recommended upper limit
       pt_new.recu = sw_ptmp(s_new.recu,argo_t,argo_p,0);
-      s_new.king = argo_sbe_CPcor(argo_p,argo_t,argo_s,CPcor_new.king); 
+      s_new.king = argo_sbe_CPcor(argo_p,argo_t,argo_s,CPcor_new.king);		% King/Cabanes calculation 
       pt_new.king = sw_ptmp(s_new.king,argo_t,argo_p,0);
-     case 'gsw'
+     case 'gsw' 
       Cnew.recl = Co.*(1 + d*argo_t + CPcor_SBE*argo_p) ./ (1 + d*argo_p + CPcor_new.rec-1.5e-8*argo_p); 
       s_new.recl = gsw_SP_from_C(Cnew.recl,argo_t,argo_p);
       pt_new.recl = gsw_pt_from_t(s_new.recl,argo_t,argo_p,0);
@@ -608,25 +638,29 @@ for I=1:length(float_names)	% Loop floats
   ctdsalt_a = interp1(ctd_ptmp(inda),ctd_salt(inda),pt(indt));			% ctd salinity at argo ptemp 
   mind_offset=max(min(argo_p(indt)),min(ctd_z(inda)))
   simple_offset=nanmean(argo_s(indt)-ctdsalt_a)
-  figure(10); subplot 122
+  figure(10); 
+  acomp=subplot(1,2,2);
   % Simple offset profile-plot:
   plot(pt(indt),argo_s(indt),'r.-',ctd_ptmp(inda),ctd_salt(inda),'g.-',pt(indt),ctdsalt_a,'b.-')
   legend('Argo','CTD','CTD at Argo ptmp levels','location','Best');
   title(['Float ',float_names{I},' average offset = ',num2str(round(simple_offset,3,'decimals')),...
 	 ' @ ptmp < ',num2str(ptlim),' => p > ',int2str(mind_offset),' dBar)']);
   grid; xlabel PTMP; ylabel PSAL
-  % Put info on the two profiles over map:
-  x0=get(amap,'xlim'); y0=get(amap,'ylim');
-  text(amap,x0(1),y0(2),struct2cell(leg),'verticalalignment','bottom')
+  % Put info on the two profiles on right side:
+  p=get(acomp,'position');
+  aleg=axes('position',[p(1)+p(3)+.01 p(2) .01 p(4)],'visible','off');
+  htxt=text(aleg,0,0,struct2cell(leg),'verticalalignment','top','horizontalalignment','left','rotation',90);
+  % % Put info on the two profiles over map:
+  % x0=get(amap,'xlim'); y0=get(amap,'ylim');
+  % text(amap,x0(1),y0(2),struct2cell(leg),'verticalalignment','bottom')
   % Print figure to file:
   [outfiles{I}(1:end-4),'_simple_offset.eps'];
-  disp(['Printing figure to file ',ans]); print(gcf,'-depsc',ans);
+  disp(['Printing figure to file ',ans]); 
+  print(gcf,'-depsc',ans);
   % Make a section for the report:
   % [] remember to generate an empty file somewhere if not made here
-  fid=fopen('supplementary.tex','w');
-  fprintf(fid,'%s\n','\FloatBarrier');
-  fprintf(fid,'%s\n','\section{Appendix C: Supplementary information}\label{sec:supplementary}');
-  fprintf(fid,'%s\n','\subsection{Comparison with ship CTD}');
+  fid=fopen('shipctd.tex','w');
+  fprintf(fid,'%s\n','\subsection{Comparison with deployment ship CTD}');
   fprintf(fid,'%s\n',['The ',num2ordinal(np),' salinity profile from the float is compared with ship CTD profile in Figure~\ref{fig:simple_offset}. The average offset of the argo and ship CTD salinities on potential temperature levels less than ',num2str(ptlim),' (corresponding to depths of more than ',int2str(mind_offset),' dBar) is found to be ',num2str(round(simple_offset,3,'decimals')),'. ',tit]);
   fprintf(fid,'%s\n','\begin{figure}[H]');
   fprintf(fid,'%s%u%s%u%s\n','\centerline{\includegraphics[width=\textwidth,natwidth=',shape(3),',natheight=',shape(4),']{\floatsource\WMOnum_simple_offset.eps}}');

@@ -1,74 +1,129 @@
 % INIT_DMQC.M is init-file and setup instructions.  
-% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
-% v0.9.3, jan.even.oeie.nilsen@hi.no.
 % See Contents.m for overview; work_log.txt for workflow description.
+%
 %%%%%%%%%% Read further down below for instructions on how to set up your system! %%%%%%%%%%%%%%%%  
 %%%%%%%%%% The first part is where you control everything! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% ------------ LIST ALL YOUR FLOATS HERE: ----------------------------
 %
-TCL=complex(0,1); % Do not touch!
+% DMQC-fun v0.9.
+% J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
+% Last updated: Wed May 24 13:40:45 2023 by jan.even.oeie.nilsen@hi.no
 
-% index =     1         2         3         4         5         6         7         8         9         10      
-float_names={'6903549','6903550','6903551','6903574','6903552','6903553','6903554','6903555','6903567','6903568',... % 0
-	     '6903569','6903570','6903559','6903560','6903561','6903562','6903563','6903564','6903565','6903566',... % 10
-	     '6903556','6903557','6903558','6903571','6903573','6903575','6903577','6903578','6903579','6903580',... % 20
-	     '6903581','6903582','6903583','6903584','6903585','6903586','6903587','6903572'			};   % 30
-cal_action ={ [0]     , [0]     , [1]     , [1]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     ,...
-	      [0]     , [0]     , [0]     , [0]     , [0 1]   , [0 1 4] , [1]     , [0]     , [0]     , [0]     ,...
-	      [0 1 4] , [0 1 4] , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     ,...
-	      [0]     , [0]     , [0]     , [1]     , [1]     , [1]     , [0]     , [0]				}; 
-checked    ={ 177       147       124       80        41        113       152       70        60        89      ,...
-	      115       82        85        86        86        85        86        156       101       51      ,...
-	      57        93        88        57        46        43        39        41        43        23      ,...
-	      73        20        28        21        21        21        21        47				};
-Nclu       ={ 2         2         2         2         2         2         2         2         2         2       ,...
-	      2         2         2         2         3*TCL     2*TCL     1*TCL     2         2         2       ,...
-	      2         2         2         2         1         2         1         2         2         1       ,...
-	      2         1         2         1         2*TCL     2         1         2				};	      
+% ------------ FLOAT SETTTINGS: ----------------------------------------
+TCL=complex(0,1); % Do not touch!
+% List all your floats here:
 	     
-% ------------ FLOAT SELECTION: --------------------------------------
+%             1         2         3         4         5         6         7         8         9         10      
+float_names={'6903549','6903550','6903551','6903552','6903553','6903554','6903555','6903556','6903557','6903558',... % 0
+	     '6903559','6903560','6903561','6903562','6903563','6903564','6903565','6903566','6903567','6903568',... % 10
+	     '6903569','6903570','6903571','6903572','6903573','6903574','6903575','6903577','6903578','6903579',... % 20
+	     '6903580','6903581','6903582','6903583','6903584','6903585','6903586','6903587','6903588','6903589',... % 30
+	     '6903576','6903590','6903591','6903592','3902462','3902463','3902464','7901006','7901007','3902465',... % 40
+	     '1902579','2903771','6904242'									};   % 50
+%             1         2         3         4         5         6         7         8         9         10      
+cal_action ={ [0]     , [0]     , [1]     , [0]     , [0]     , [0]     , [0]     , [0 1 4] , [0 1 4] , [0]     ,... % 0 
+	      [0]     , [0]     , [0 1]   , [0 1 4] , [0]     , [0]     , [0]     , [0]     , [0]     , [1]     ,... % 10
+	      [0]     , [0]     , [0]     , [0]     , [0]     , [1]     , [0]     , [0]     , [0]     , [0 0]   ,... % 20 
+	      [0]     , [0]     , [1]     , [0]     , [1]     , [1]     , [1]     , [0]     , [0]     , [0]     ,... % 30
+	      [0]     , [1]     , [1]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     , [0]     ,... % 40
+	      [0]     , [0]     , [1]										};   % 50
+%             1         2         3         4         5         6         7         8         9         10      
+checked    ={ 230       147       124       52        113       152       70        100       124       127     ,... % 0 
+	      0         0         136       132       0         412       369       0         176       89      ,... % 10
+	      164       185       104       90        90        186       139       141       143       154     ,... % 20 
+	      67        201           5         0         0         0         0         0         162       0       ,... % 30
+	      47        43        40        47        22        23        23        45        54        23      ,... % 40
+              23        21        64										};   % 50
+%             1         2         3         4         5         6         7         8         9         10      
+Dchecked   ={ 0         0         0         0         0         0         0         1         1         1       ,... % 0 
+	      0         0         1         1         0         1         1         0         0         0       ,... % 10
+              0         0         1         1         1         87        139       141       143       154     ,... % 20 
+	      0         1         0         0         0         0         0         0         1         0       ,... % 30
+	      47        43        40        47        1         1         1         45        21        1       ,... % 40
+              0         1         1										};   % 50
+%             1         2         3         4         5         6         7         8         9         10      
+Nclu       ={ 2         2         2         1         1         3         1         2*TCL     2         3*TCL   ,... % 0 
+	      2         2         3*TCL     3*TCL     2         2         2         1         2         1       ,... % 10
+	      2         2         2*TCL     2         1         1         1         2         1         {75 135},... % 20 
+	      1         {70 135}  2         2         1         1         2         1         {40 120}  1	,... % 30     
+	      1         2*TCL     1         1         1         1         1         1         1         1       ,... % 40
+              1         1         1										};   % 50
+%             1         2         3         4         5         6         7         8         9         10      
+
+% ------------ FLOAT SELECTION: ----------------------------------------
 %
 % You can select which floats to analyse by just giving specific index
-% numbers and all the parameters will be reduced to your selection. For
-% example like this, and uncomment the subset to DMQC:
+% numbers and all the onjects will be reduced to your
+% selection. Helping-numbers for finding indices are given in the
+% commented lines and end of lines above.  
+% Examples:
+1:length(float_names);	% All floats
+[11:18 32:40 51:53]  	% Core (Arvor)
+% [1:3 26:27 41:44]	% BGC (PROVOR CTS4)
+[28:30 48:49]		% Bio (PROVOR CTS4)
+% [4:7 19:22]		% Bio (APEX AFP11) 
+% [8:10 23:25 31 45:47]	% Dyp (Arvor Deep) 
+% [50]			% Core + DO (Arvor)
+% %[34]			% √ Lost in the Arctic?
+% setdiff(ans,[34])	% Exclude lost in the Arctic?
+% [8 9 13 14];		% PSAL greylisted
+
+
+% DO NOT CHANGE:
+float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checked=checked(ans);  Dchecked=Dchecked(ans); 
+float_names % Display which floats are about to be processed
+
+% ------------ DIRECTION SELECTION: ------------------------------------
 %
-% 1:length(float_names) % All floats
-%1		% Just the first, as default.
-% [1:4 26]		% BGC (PROVOR CTS4)
-% [5:12]		% Bio (APEX AFP11) 
-% [13:17 20 31:37]  	% Core (Arvor)
-% [21:25 30 38]		% Dyp (Arvor Deep) 
-% [18:19 31]		% Floats in Barents Sea, no ref data, no OWC.
-% 5		% The first APEX float
-% 12		% The last APEX, on greylist
-% [1:17 20:25] % All but those two that cannot be calibrated due to lack of refdata. 
-% [1:4]		% For the Chlorophyll calbration
-% [26:29 32:37]	% New deployments in 2021 (less the Barents Sea and Deep float)
-% [26 29]	% Rejected by Christine 24.11.2021, fixed RTPqc=>DMTqc&DMSqc
+% Indicate by commenting lines here whether you are doing DMQC on
+direction = 'A'; % ascending profiles (Do these first!) or
+%direction = 'D'; % descending profiles (do these separately after OWC).
+% All the direction related changes are done in each script separately. 
 
-float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checked=checked(ans); 
-
-
-% ------------- OVERVIEW OF PARAMETERS IN TABLE ABOVE: ---------------
+% ------------ REFERENCE DATA SELECTION: -------------------------------
 %
-% index is just a reference for your eyeing of the 'table' of floats
-%	and parameters, and thus that line can stay commented. 
+% Indicate by commenting lines here whether you are going to use:
+itardir=[1 2 3]; % All reference data (DEFAULT)
+%itardir=[1   3]; % only CTD and Argo
+%itardir=[1    ]; % only CTD
+%itardir=[    3]; % only Argo
+% This will affect plots made by DMQC-fun (sets tardir), as well as
+% OWC (wmo_boxes.mat will be replaced).
+
+
+% ------------ EXPLANATION OF VARIABLES ABOVE: -------------------------
+%
 % float_names is necessary for ow_calibration.m. DO NOT change the
 %	name of this variable!
 % cal_action is your calibration decision. Set this initially to [0]
 %	for every float.
-%	case 0	Data are good; no adjustment has been applied.
-%	case 1	Data show sensor drift or offset; adjustment has been applied.
+%	case 0	Data are good; no adjustment to be applied.
+%	case 1	Data show sensor drift or offset; adjustment to be applied.
 %	case 4	% Data are bad and unadjustable.
-% checked is the mumber of profiles the RTQC flags is already checked for
+% checked is the number of ascending profiles already manually checked
 %	(you will be prompted to update this number in the
 %	process). Set this initially to 0 for every float. 
-% Nclu is number of clusters to use in the visual comparison with
-%	reference data. Set to 2 or longer if float has traversed
-%	several basins or regions. Multiply with TCL if time (i.e.,
-%	cycle number) is to affect the clustering. 
-
+% Dchecked is the number of DESCENDING profiles already manually
+%	checked (you will be prompted to update this number in the
+%	process). Set this initially to 0 for every float. 
+% Nclu is specification of the clustering of profiles to use in
+%	the visual comparison with reference data in PREPARE_FLOATS:
+%	scalar - the number of clusters. Set to 2 or more if float
+%		has traversed several basins or regions. 
+%       scalar multiplied with TCL - means that time (i.e., cycle
+%		number) will affect the clustering.
+%	cell - a series of specific profile (!) numbers that will
+%		separate the clusters, in order to control the
+%		clusters manually.
+%	char - any character means that the clustering will follow
+%		the grouping defined by calseries as set in
+%		set_calseries.m for the float. This advanced option
+%		is only to be used in combination with deliberate 
+%		grouping of the calseries. For descending profiles,
+%		for which the calseries do not necessarily match,
+%		there is possibility to indicate number of clusters
+%		by choice of character (A=1, B=2, etc.).
+% direction is descrived above.
+% itardir is descrived above.
 
 % ------------- OVERVIEW OF THIS INIT FILE: --------------------------
 %
@@ -78,6 +133,8 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % - A list of all your floats and corresponding parameters you will
 %   change during DMQC (above for convenience). 
 % - Float selection part for which floats to DMQC (above).
+% - Direction selection for working on ascending or descending
+%   profiles.  
 % - This overview of this file.
 % - First-time preparations, i.e., the install instructions.
 % - Operator name etc. for the report and D-files.
@@ -125,7 +182,7 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % LaTeX: DMQC-fun includes a LaTeX report template and the Matlab
 % scripts produce snippets of content linked into that template. You
 % will need a working version of LaTeX, and for instance dvipdfm to make
-% PDF. However, this is not necessary for DMQC-fun to be useful. (You
+% PDFs. However, this is not necessary for DMQC-fun to be useful. (You
 % may even be able to link the produced figures and text parts into some
 % other word processor of choice.)
 
@@ -147,15 +204,15 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 %	set_calseries.m
 %
 % These two files are now your own generic setup files for OWC, and you
-% will edit them in (4-5). Then copies of them will be distributed into
+% will edit them (4-5). Then copies of them will be distributed into
 % directories for each float (6) for more tailored settings as you
 % analyse the float.
 
-% 3) In your init_dmqc.m, edit your float list on top, as well as the
-% information and paths below. Do not change the names of the objects,
-% as these are tailored to be used by both DMQC-fun and OWC
-% functions. The directory structure is built to keep the following
-% types of files separated:
+% 3) In your init_dmqc.m (copy of this file), edit your float list on
+% top, as well as the information and paths below. Do not change the
+% names of the variables, as these are tailored to be used by both
+% DMQC-fun and OWC functions. The directory structure is built to keep
+% the following types of files separated:
 %
 %	a) Matlab toolboxes
 %	b) Data and figures produced by the toolboxes
@@ -164,44 +221,46 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 %	e) Your workspace with your own configurations and DMQC
 %	   report material
 %
-% The philosophy is to be able to update toolboxes without losing
-% settings or data (a), to store direct results but preferably be able
-% to exclude them from any cloud sync or backup process which is both
-% unneccessary and might also slow down your computer while processing
-% (b), have the easily re-downloadable and reproduceable data in a
-% temporary folder (c-d), but keeping your time consuming work and
-% results where it is regularly backed up (e).  Ideas for this kind of
-% placement can be found below on the lines marked 'EDIT THIS', where
-% you will edit the paths according to your directory structure.
+% The philosphy behind this separation is to be able to update toolboxes
+% without losing settings or data (a), to store direct results but
+% preferably be able to exclude them from any cloud sync or backup
+% process which is both unneccessary and might also slow down your
+% computer while processing (b), have the easily re-downloadable and
+% reproduceable data in a temporary folder (c-d), but keeping your time
+% consuming work and results where it is regularly backed up (e).  Ideas
+% for this kind of placement can be found below on the lines marked
+% 'EDIT THIS', where you will edit the paths according to your own
+% directory structure.
 
-% 4) Edit the paths in your generic ow_config.txt. HISTORICAL_DIRECTORY,
-% FLOAT_SOURCE_DIRECTORY, FLOAT_MAPPED_DIRECTORY, FLOAT_CALIB_DIRECTORY,
-% FLOAT_PLOTS_DIRECTORY, CONFIG_DIRECTORY must be matched to
-% owc_data_dir here in init_dmqc.m. Also, the parameter MAP_P_EXCLUDE
-% should be the same in both files.
+% 4) Edit the paths in your generic ow_config.txt (see point 2
+% above). HISTORICAL_DIRECTORY, FLOAT_SOURCE_DIRECTORY,
+% FLOAT_MAPPED_DIRECTORY, FLOAT_CALIB_DIRECTORY, FLOAT_PLOTS_DIRECTORY,
+% CONFIG_DIRECTORY must be matched to owc_data_dir as set below in your
+% init_dmqc.m.
 
 % 5) Edit the mapping and calibration parameters in your generic
 % ow_config.txt and set_calseries.m. As far as possible and based on
 % knowledge and advise from fellow operators in the region, set the
-% scales etc. to something that should work in your region. Make
-% comments and commented alternatives, so you later can keep track of
-% what you are doing. The more alternatives and comments you put here,
-% the easier it will be to fine-tune to the individual floats later.
+% scales etc. to something that should in general work in your
+% region. Make comments and commented alternatives, so you later can
+% keep track of what you are doing. The more alternatives and comments
+% you put here, the easier it will be to fine-tune to the individual
+% floats later.
 
-% 6) Have INIT_DMQC build work environment for you by turning on the
-% 'THE FIRST BUILD' section of this script and run the script. This will
-% build a subfolder structure for all your floats and distribute copies
-% of your generic config files from (5), as well as the LaTeX report
-% files from the DMQC-fun toolbox, into each subfolder. You will now be
-% able to configure mapping and calibration, make comments and write
-% your summary/discussion, individually for each float. The other
-% necessary pieces of information will be distrbuted by DMQC-functions
-% as you use them. When adding new floats to your DMQC responsibility,
-% you can run this again only selecting the new floats in the float
-% selection part above. There is a safety mechanism to avoid overwriting
-% existing float directories, but it is recommended that you turn off
-% the building section of this script once you have your float
-% directories in place.
+% 6) Have INIT_DMQC build work environment for you by setting float
+% selection to include all floats and turning on the final part of this
+% script and run the script. This will build a subfolder structure for
+% all your floats and distribute copies of your generic config files
+% from (5), as well as the LaTeX report files from the DMQC-fun toolbox,
+% into each subfolder. You will now be able to configure mapping and
+% calibration, make comments and write your summary/discussion,
+% individually for each float. The other necessary pieces of information
+% will be distrbuted by DMQC-functions as you use them. When adding new
+% floats to your DMQC responsibility, you can run this again only
+% selecting the new floats in the float selection part above. There is a
+% safety mechanism to avoid overwriting existing float directories, but
+% it is recommended that you turn off the building part once you have
+% your float directories in place.
 
 % 7) You are now ready to start doing core DMQC and salinity calibration
 % on your floats. Head over to your copy of WORK_LOG for a description
@@ -211,8 +270,8 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % from the toolboxes could have been copied if you made absolutely sure
 % which one is first in the path list. You may desire to keep the
 % orignals in their place for backup/reference, but may run the risk of
-% them being used instead of your copies. Careful use of commenting
-% instead of deleting is recommended instead.  For the same reason
+% them being used instead of your copies. Instead, careful use of
+% commenting instead of deleting is recommended. For the same reason
 % plot_diagnostics_ow could be deleted from the matlab_owc toolbox, but
 % it should be all right as long as the DMQC-fun toolbox has priority in
 % your path list.  There are copies of ow_config.txt and set_calseries.m
@@ -224,7 +283,7 @@ float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checke
 % Now go carefully through the next sections and tailor to yourself.
 
 
-% ------------- OPERATOR DATA ETC. (for report and D-files) ---------------					EDIT THIS!
+% ------------- OPERATOR DATA ETC. (for report and D-files) ------------					EDIT THIS!
 dmqc_operator.name		= 'Jan Even Øie Nilsen'; 
 dmqc_operator.parameter		= 'PRIMARY'; % I.e., CORE
 dmqc_operator.orcid		= '0000-0003-2516-6106';
@@ -233,19 +292,26 @@ dmqc_operator.address		= 'Strandgaten 196, Bergen, Norway';
 % Fill in more operators to the structure if needed, e.g.:
 % dmqc_operator(2).name		= 'Joe Doe'; 
 % dmqc_operator(2).parameter	= 'DOXY';
-% dmqc_operator(2).orcid		= '2222-2222-2222-2222';
+% dmqc_operator(2).orcid	= '2222-2222-2222-2222';
 % dmqc_operator(2).institution	= 'University B';
 % dmqc_operator(2).address	= 'Knowledge Street 123, Chippingford, Narnia';
-user_manual_version = '3.41';
-history_update = 'DMQC performed on CORE variables';
+user_manual_version		= '3.41';
+history_update			= 'DMQC performed on CORE variables';
 
 
-% -------------- ASSORTED PARAMETERS ---------------------------------------
-MAP_P_EXCLUDE=400; % Keep as same as in ow_config.txt, but here for
-                   % use in PREPARE_FLOATS. 
-		   % [] In future versions this should be localised to
-                   % float directory.
+% -------------- ASSORTED PARAMETERS -----------------------------------
+% None at the moment.
 
+% -------------- FTP SITES ----------------------------------------------					EDIT THIS FOR YOUR DAC!
+float_main_download_site='ftp.ifremer.fr/ifremer/argo/dac/coriolis/'; % Where we normally download from, and where our D-files go when submitted.
+%float_profile_download_site='ftp.ifremer.fr/ifremer/argo/dac/coriolis/'; % Location of 'profiles' directory (normally same place).
+float_profile_download_site='ftp.ifremer.fr/ifremer/coriolis/argo/dac/coriolis/'; % EDAC
+% EDAC is a special place if you need to access R files. These files are
+% R-files that have format updated, but does not seem to have RTQC
+% applied to them. Quoting Christine C.: "directly from our EDAC which
+% provides the last version of the Argo float files" ; "the best way is
+% to use directly the EDAC because you are sure to get the last version
+% of the files.".
 
 % -------------- PATHS (USE FULL PATHS AND DO NOT CHANGE THE NAME OF ANY OBJECTS): ---------------------------------------
 % Many of these paths are used by both DMQC-fun and OWC-functions.
@@ -264,24 +330,25 @@ rootdirin  = strcat(download_dir,'profiles/');			% Automatic.
 rootdirout = strcat(download_dir,'Dfiles/');			% Automatic; used by WRITE_D.
 
 % REFERENCE DATA directories:
-download_ref_data_dir='/Users/a21627/Downloads/DMQC'; % Where you want to download reference data.		EDIT THIS!
+download_ref_data_dir='/Users/a21627/Downloads/DMQC'; % Where you will download reference data.			EDIT THIS!
 % Directories of reference data (versions):
 struct2cell(dir(download_ref_data_dir)); ans(1,:); 
-refdir=ans(contains(ans,'for_DMQC'));				% Automatic. 
+refdir=ans(contains(ans,'_for_DMQC_'));				% Automatic. 
 % E.g., refdir={'CTD_for_DMQC_2021V01_1','CTD_for_DMQC_2021V01_7','ARGO_for_DMQC_2020V03'};
 % Target directories (names of these subdirectories are given by OWC-toolbox):
 tardir={[owc_data_dir,'climatology/historical_ctd'], ... 
 	[owc_data_dir,'climatology/historical_bot'], ...
 	[owc_data_dir,'climatology/argo_profiles']};		% Automatic. 
+tartyp={'ctd','bottle','argo'};					% Automatic. 
 
 % REFERENCE DATA selection by WMO-squares:
 % WMO-squares of chosen area to populate for DMQC-FUN and MATLAB_OWC.
 % North Atlantic - Arctic sector:										EDIT THIS FOR YOUR REGION
-my_WMOs = [1803 1804 1805	                         7802 7801 7800 1800 1801 1802 ...
-	   1703 1704 1705	7707 7706 7705           7702 7701 7700 1700 1701 1702 ...
-	   1603 1604 1605	     7606 7605 7604 7603 7602 7601 7600 1600 1601 1602 ...
-			             7506 7505 7504 7503 7502 7501 7500 1500 1501 1502 ...
-			             7406 7405 7404 7403 7402 7401 7400  ];
+my_WMOs = [                         7802 7801 7800 1800 1801 1802 1803 1804 1805 1806 1807 1808	...
+	   7707 7706 7705           7702 7701 7700 1700 1701 1702 1703 1704 1705 1706 1707 1708	...
+	        7606 7605 7604 7603 7602 7601 7600 1600 1601 1602 1603 1604			...
+	        7506 7505 7504 7503 7502 7501 7500 1500 1501 1502				...
+	        7406 7405 7404 7403 7402 7401 7400  ];		  		        
 % After running LOAD_REFERENCEDATA you can check the map in matlab_owc's 'constants' directory.
 
 % Your other relevant Argo directories:
@@ -304,7 +371,7 @@ metafiles = strcat(download_dir,filesep,float_names,{'_meta.nc'});
 trajfiles = strcat(download_dir,filesep,float_names,{'_Rtraj.nc'}); 
 outfiles  = strcat(source_dir,float_dirs,float_names,'.mat');	% PREPARE_FLOATS uses this base filename also for plots.
 								% (outfiles is also used by WRITE_D.)
-
+  
 % Directories for WRITE_D etc. (automatic, do not edit):
 float_dir  = [owc_data_dir,'float_source',filesep,project_name]; % Also for DOWNLOAD_FLOATS and RUN_OW_CALIBRATION.
 mapped_dir = [owc_data_dir,'float_mapped',filesep,project_name]; % Added for completeness.
@@ -325,12 +392,12 @@ if false      % (true = on, false = off)
     if ~exist(ans,'dir')
       disp(['Creating directory ',ans]);
       mkdir(ans);
-      copyfile([my_backup_dir,'ow_config.txt'],  [my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_backup_dir,'ow_config.txt'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
       copyfile([my_backup_dir,'set_calseries.m'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/DMQCreport_float.tex'],	[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/notes.tex'],			[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/discussion.tex'],		[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/supplementary.tex'],		[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/DMQCreport_float.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/notes.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/discussion.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/supplementary.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
     end
   end
 end
@@ -338,7 +405,7 @@ end
 % --------------- FOR JUST DISTRIBUTING NEW VERSIONS OF LaTeX MASTER FILE: -------------------------------
 if false      % (true = on, false = off)
   for I=1:length(float_names)
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/DMQCreport_float.tex'],	[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
+      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/DMQCreport_float.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
       % It is not recommended to distribute new notes.tex or
       % discussion.tex, as these will likely contain important information.
   end

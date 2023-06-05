@@ -1,7 +1,7 @@
-function [pres,temp,sal,long,lat,dates,dt,dmon,mons,yrs] = inpolygon_referencedata(LO,LA,tardir,maxprof,time)
+function [pres,temp,sal,long,lat,dates,rdt,dt,dmon,mons,yrs] = inpolygon_referencedata(LO,LA,tardir,maxprof,time)
 % INPOLYGON_REFERENCEDATA	Finds RDB data inside lon/lat-polygon.
 % 
-% [pres,temp,sal,long,lat,dates,dt,dmon,mons,yrs] 
+% [pres,temp,sal,long,lat,dates,rdt,dt,dmon,mons,yrs] 
 %		= inpolygon_referencedata(LO,LA,tardir,maxprof,time)
 % 
 % LO,LA	  = polygon within which to find all reference data.
@@ -27,7 +27,8 @@ function [pres,temp,sal,long,lat,dates,dt,dmon,mons,yrs] = inpolygon_referenceda
 % long, lat       = row vectors of positions of chosen data.
 % dates		  = row vector of dates of chosen data (units as in
 %                   reference data).
-% dt		  = time differences to the central time (in days). 
+% rdt		  = real time differences to the central time (in days). 
+% dt		  = julian day time differences to the central time. 
 % dmon            = month differences to the central time (calendar months). 
 % mons		  = Reference data months of year
 % yrs		  = Reference data years
@@ -36,13 +37,12 @@ function [pres,temp,sal,long,lat,dates,dt,dmon,mons,yrs] = inpolygon_referenceda
 % last column of the output. This is done so that the nearest will
 % appear on top when plotting the output.
 %
-% This is part of DMQC-fun.  Requires PADCONCATENATION (provided with
-% DMQC-fun), MATLAB_OWC, and EVENMAT (see INIT_DMQC).
+% This is part of DMQC-fun toolbox.  Requires PADCONCATENATION (provided
+% with DMQC-fun), MATLAB_OWC, and EVENMAT (see INIT_DMQC).
 %
 % See also INPOLYGON PADCONCATENATION HALO FINDWMO
 
-% DMQC-fun by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
-% Main programmer: jan.even.oeie.nilsen@hi.no.
+% Last updated: Wed May 24 10:48:57 2023 by jan.even.oeie.nilsen@hi.no
 
 if any(contains(tardir,'historical_ctd')), tartyp={'ctd'}; end
 if any(contains(tardir,'historical_bot')), tartyp(end+1)={'bottle'}; end
@@ -54,9 +54,10 @@ if nargin<4 | isempty(maxprof),	maxprof=[];	end
 
 maxprof=floor(maxprof);
 
-wmosq=unique(findwmo(LO,LA));
+%wmosq=unique(findwmo(LO,LA));
+wmosq=unique(findwmo(linspace(min(LO),max(LO),36),linspace(min(LA),max(LA),36)));
 
-[PRES,TEMP,SAL,LONG,LAT,DATES,dt,dmon,mons,yrs]=deal([]);
+[PRES,TEMP,SAL,LONG,LAT,DATES,rdt,dt,dmon,mons,yrs]=deal([]);
 for j=1:length(tardir)
   for i=1:length(wmosq)
     try 
@@ -77,15 +78,16 @@ for j=1:length(tardir)
   end
 end
 
-LONG>180; LONG(ans)=LONG(ans)-360;		% Subtract 360 to match the input polygons
+LONG>180; LONG(ans)=LONG(ans)-360;	% Subtract 360 to match the input polygons
 
-IN = find(inpolygon(LONG,LAT,LO,LA));		% Indices inside polygon
+IN = find(inpolygon(LONG,LAT,LO,LA));	% Indices inside polygon
 % Now, if there is no time input and number of found indices is less
 % than maxprof, no more selection is done.
 
 if ~isempty(IN)
-  if ~isempty(time)				% PRIORITISE AROUND TIME
+  if ~isempty(time)			% PRIORITISE AROUND TIME:
     rtime=rdtime(DATES(IN));		% Reference data (RD) times
+    rdt=rtime(:)-nanmean(time(:));	% Real simple time difference in days
     [~,~,tdays]=yrday(time(:));		% Input time in circular yeardays
     [~,~,rdays]=yrday(rtime(:));	% RD circular yeardays
     cday=nanmean(tdays);		% Central day of input
@@ -97,6 +99,7 @@ if ~isempty(IN)
     IN=IN(I);				% Apply sorting to the indices for data inside polygon
     dt=dt(I);				% Apply sorting to the time differences
     rtime=rtime(I);			% Apply sorting to the RD times
+    rdt=rdt(I);				% Apply sorting to the real time differences
     if ~isempty(maxprof)		% Reduce to the desired number:
       if maxprof==0		% Data from the same months of year
 	[~,MT]=datevec(time);
@@ -107,15 +110,16 @@ if ~isempty(IN)
       else			% Just pick the maxprof nearest times
 	1:min(length(IN),maxprof); 
       end
-      IN=IN(ans); dt=dt(ans);
+      IN=IN(ans); dt=dt(ans); rdt=rdt(ans);
     end
   elseif ~isempty(maxprof) & length(IN)>maxprof	% JUST REDUCE TO THE DESIRED NUMBER
-    IN = unique(ceil(rand(1,maxprof)*length(IN)));% by picking profiles at random
+    IN = IN(unique(ceil(rand(1,maxprof)*length(IN))));% by picking profiles at random
   end
 
-  IN=flipdim(IN(:),1);		% Change order so nearest data will be plotted
-  dt=flipdim(dt(:),1);		% last, i.e., on top of more offset data. 
-  
+  IN=flipdim(IN(:),1)';		% Change order so nearest data will be plotted
+  dt=flipdim(dt(:),1)';		% last, i.e., on top of more offset data. 
+  rdt=flipdim(rdt(:),1)';
+
   % Set the output:
   pres=PRES(:,IN);
   temp=TEMP(:,IN);
@@ -129,5 +133,5 @@ if ~isempty(IN)
   dt=dt(:)';				% Ensure correct orientation
   dmon=floor(dt/30.437);		% Deviation from middle in average months 
 else
-  [pres,temp,sal,long,lat,dates,dt,dmon,mons,yrs] = deal([]);		% Otherwise empty
+  [pres,temp,sal,long,lat,dates,rdt,dt,dmon,mons,yrs] = deal([]);		% Otherwise empty
 end

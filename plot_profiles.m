@@ -1,6 +1,14 @@
-% Plotting for PREPARE_FLOATS.
-% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
-% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
+% PLOT_PROFILES makes overview plots of the positions and T&S data.
+%
+% PREPARE_FLOATS uses this to make the five panel plots with map,
+% TS-diagram and profile plots of T, S and density: the raw input; with
+% flagging by the automated tests prior to visual control marked; and
+% finally with the cleaned up data only.
+%
+% DMQC-fun v0.9.
+% J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
+% Last updated: Wed May 24 13:40:44 2023 by jan.even.oeie.nilsen@hi.no
+
 
 %LONG(LONG>180)=LONG(LONG>180)-360;
 % 28.05.2020: Corrected the erroneous change of LONG to negative values west of zero meridian:
@@ -16,7 +24,8 @@ set(gcf,'units','points','innerposition',shape,'paperunits','points','paperposit
 % Map:
 a_map=subplot(2,3,1); 
 %title([upper(tartyp{j}(1:end-1)),'-reference data in WMO-square ',int2str(wmosq)]);
-if exist('nbt'), title([nbt,' at float number ',float_names{I}]); end
+if exist('nbt'), title([nbt,' at float number ',float_names{I}]); 
+else,            title(float_names{I});					end
 lim=[mima(lon) mima(LAT)];
 m_proj('Albers','lon',lim(1:2)+[-4 4],'lat',lim(3:4)+[-1 1])
 m_elev('contour',[-5000:250:0],'color',[.7 .7 .7]);
@@ -39,7 +48,8 @@ set(hp,'marker','*');
 if exist('jnb'), hpnb=m_line(lon(jnb),LAT(jnb)); set(hpnb,'marker','o','color','k','linestyle','none'); end
 %hl=legend([hw hp(1)],'WMO-square','Reference data','location','northwestoutside');
 hcb=colorbar('southoutside');colormap(jet(n));caxis(mima(CYCLE_NUMBER)+[-.01 .01]);%caxis([0 n]);
-xlabel(hcb,['Cycle number (',datestr(datenum(DATES(1),0,0),12),'-',datestr(datenum(DATES(end),0,0),12),')']);
+%xlabel(hcb,['Cycle number (',datestr(datenum(DATES(1),0,0),12),'-',datestr(datenum(DATES(end),0,0),12),')']);
+xlabel(hcb,['Cycle number (',datestr(time(1),12),'-',datestr(time(end),12),')']);
 
 % TS-diagram:
 a_TS=subplot(2,3,2);

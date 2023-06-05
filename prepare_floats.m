@@ -2,18 +2,40 @@
 % and prepares float data for ow_calibration, as well as adding flags
 % and other DMQC parameters.
 %
-% by J. Even Ø. Nilsen, Ingrid Angel, Birgit Klein, and Kjell Arne Mork.
-% DMQC-fun v0.9.3, jan.even.oeie.nilsen@hi.no.
+% DMQC-fun v0.9.
+% J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
+% Last updated: Wed May 24 13:40:44 2023 by jan.even.oeie.nilsen@hi.no
 %
 % You will likely run this at least twice when new profiles come in.
-% You set which floats to operate on etc. in INIT_DMQC. 
-% You also select direction in INIT_DMQC, in order to inspect both
-% ascending and descending profiles.  
+% You set which floats to operate on etc. in INIT_DMQC. You also select
+% direction in INIT_DMQC, in order to inspect both ascending and
+% descending profiles.
+%
+% This script basicly follows the Argo QC manual, and does the following:
+% - Ingests individual R-files
+% - Loads QC flags from previous DMQC sessions (see below about flagging)
+% - Fills scientific calib information
+% - Delayed-mode procedures for coordinates and pressure
+% - Pressure adjustments for APEX floats
+% - Delayed-mode procedures for temperature and salinity:
+%	Automated tests prior to visual control
+%	Facilitates visual control of all profiles and flags
+% - Makes several graphics necessary for DMQC
+% - Applies flags to the data (in matlab)
+% - Corrects deep argo/arvor floats pressure dependent conductivity bias
+% - Saves results for both OWC and WRITE_D
+% - Creates several parts of the report:
+%	snippets of text, e.g., for the technical table
+%	altimetry section
+%	reference data appendix
+%	visual test example figures
+%	Overall comparison with the reference data figures
+%	Sections about the APEX and deep corrections
+%	The flagging summary table
 %
 % No editing in this file!
 %
-%
-% ----- On flagging throughout PREPARE_FLOATS and WRITE_D: -----
+% ----- On flagging throughout PREPARE_FLOATS and WRITE_D: -------------
 %
 % The flag matrices at work here are: 
 %
@@ -54,7 +76,7 @@
 % same. Thus, for plot marks and statistics in PREPARE_FLOATS older DMQC
 % flags will be marked and counted as RTQC flags.
 %
-% ----- On columns, profiles, and cycles ------------------------------
+% ----- On columns, profiles, and cycles -------------------------------
 % 
 % Each column of the matrices used herein corresponds to a file in the
 % Rfiles list, which is not (necessarily) the same as cycle numbers. But
@@ -63,7 +85,7 @@
 % do take care to use the variable CYCLE_NUMBER throughout when needed
 % in plots and text!
 %
-% --------------------------------------------------------------------------
+% ----------------------------------------------------------------------
 
 clear all; close all
 init_dmqc; % Paths and filenames.
@@ -78,6 +100,8 @@ for I=1:length(download_dir)	% Loop floats
   close all
   clear hP hPo hPn LO LA scientific_calib
   
+  % ----- INITIAL INFO EXTRACTION: --------------------------------------
+
   % Specifics for ascending and descending profiles:
   switch direction
    case 'A',
@@ -127,11 +151,13 @@ for I=1:length(download_dir)	% Loop floats
   ncread(metafiles{I},'LAUNCH_DATE'); snippet([ans(7:8)','/',ans(5:6)','/',ans(1:4)'],'depdate');
   ncread(metafiles{I},'LAUNCH_LATITUDE'); snippet(ans,'deplat');
   ncread(metafiles{I},'LAUNCH_LONGITUDE'); snippet(ans,'deplon');
-  ncread(trajfiles{I},'REPRESENTATIVE_PARK_PRESSURE'); snippet([int2str(round(max(ans(end))/100)*100),' m'],'park-depth');
+  ncread(trajfiles{I},'REPRESENTATIVE_PARK_PRESSURE'); snippet([int2str(round(nanmedian(ans)/100)*100),' m'],'park-depth');
+  %ncread(trajfiles{I},'REPRESENTATIVE_PARK_PRESSURE'); snippet([int2str(round(max(ans(end))/100)*100),' m'],'park-depth');
   %ncread(proffiles{I},'PRES'); snippet([int2str(round(max(ans(:,end))/100)*100),' m'],'profile-depth');
   ncread(proffiles{I},'PRES'); 
   profdepth=round(nanmax(ans,[],'all')/100)*100; snippet([int2str(profdepth),' m'],'profile-depth');
-  ncread(proffiles{I},'JULD'); t=ans; snippet([int2str(round(nanmean(diff(t,1,1)))),' days'],'cycle-time');
+  ncread(trajfiles{I},'JULD_ASCENT_END'); t=ans; snippet([int2str(round(nanmedian(diff(t,1,1)))),' days'],'cycle-time');
+  %ncread(proffiles{I},'JULD'); t=ans; snippet([int2str(round(nanmean(diff(t,1,1)))),' days'],'cycle-time');
   ncread(metafiles{I},'DEPLOYMENT_PLATFORM'); snippet(ans(:,1)','ship','_deblank');
   ncread(metafiles{I},'PI_NAME'); snippet(ans(:,1)','PI','deblank');
   ncread(metafiles{I},'END_MISSION_STATUS'); 
@@ -141,9 +167,9 @@ for I=1:length(download_dir)	% Loop floats
    case 'R', 'Retrieved';
   end
   snippet(ans,'float-status','_deblank');
-  snippet([num2str(diff(dyear(t([1 end]))),'%4.2f'),' yrs'],'age');
+  snippet([num2str(diff(mima(t))/365,'%4.1f'),' yrs'],'age');
   inCYCLE_NUMBER=ncread(infiles{I},'CYCLE_NUMBER')'; snippet(max(inCYCLE_NUMBER),'last-cycle');
-  snippet(inCYCLE_NUMBER(find(diff(inCYCLE_NUMBER,1,2)>1))+1,'missing-cycles');
+  snippet(zipnumstr(setdiff(1:max(inCYCLE_NUMBER),inCYCLE_NUMBER)),'missing-cycles');
   % Grey list:
   [g1,g2,g3,g4,g5,g6,g7]=textread([download_parent_dir,'coriolis_greylist.csv'],'%s%s%s%s%s%s%s','delimiter',',');
   ii=find(contains(g1,float_names{I}));
@@ -163,7 +189,7 @@ for I=1:length(download_dir)	% Loop floats
   fid=fopen('downloaddirdef.tex','w'); fprintf(fid,'%s%s%s','\newcommand{\downloaddir}{',download_dir{I},'}'); fclose(fid);
 
 
-  % ------ INGEST FLOAT FILES (for DMQC here and the OWC system): ----------------------------------
+  % ------ INGEST FLOAT FILES: -----------------------------------------
 
   % Init of some objects:
   comments='';				% String for report on what is done here (obsolete)
@@ -249,14 +275,6 @@ for I=1:length(download_dir)	% Loop floats
     end % Parameter name loop
   end % R-file loop
   
-  % ---- Some checks on the information from the float files: ----
-  
-  % unique(inCYCLE_NUMBER);
-  % plot(1:length(ans),ans,'o',1:length(CYCLE_NUMBER),CYCLE_NUMBER,'.-');
-  % legend prof D-files
-  % if any(unique(inCYCLE_NUMBER)~=CYCLE_NUMBER), error('CYCLE_NUMBER mismatch!'); end	%D
-  % return
-
   % Original number of measurements in each profile (for PROFILE_<PARAMETER>_QC in write_D):
   PROFILE_PRES_N=sum(~isnan(PRES)); PROFILE_TEMP_N=sum(~isnan(TEMP)); PROFILE_PSAL_N=sum(~isnan(PSAL));
   % Just a test on how percentage is calculated:
@@ -265,26 +283,21 @@ for I=1:length(download_dir)	% Loop floats
   % PROFILE_PSAL_QC(ans==0)='F', PROFILE_PSAL_QC(ans>0)='E', PROFILE_PSAL_QC(ans>=25)='D'
   % PROFILE_PSAL_QC(ans>=50)='C', PROFILE_PSAL_QC(ans>=75)='B', PROFILE_PSAL_QC(ans==100)='A'
   
-  REFERENCE_DATE_TIME=ncread(Rfiles{1},'REFERENCE_DATE_TIME'); % For datenum
-  % I am only reading first column of each file! Other profiles are
-  % not part of DMQC.
-
-  % figure(2); plotyy(PRES(:,1),SAL(:,1),PRES(:,1),TEMP(:,1));
-  % whos LONG LAT JULD PRES SAL TEMP CYCLE_NUMBER DIRECTION REFERENCE* HISTORY*; 
-  % CYCLE_NUMBER
-  % DIRECTION
-  % ~isnan(PRES);all(pres(ans)==PRES(ans)); % Test for equality
-  % return
+  % Get start date for datenum
+  REFERENCE_DATE_TIME=ncread(Rfiles{1},'REFERENCE_DATE_TIME'); 
+  % Only reading first column from file! Other profiles are not part of DMQC.
 
   % This part is obsolete, since descending profile(s) are removed by
   % filename above, but check in case '*D.nc' is not sufficient:
   if any(DIRECTION~=direction)
     error(['There are profiles not in the ',direction,'-direction!']);
   end
-  %if any(DIRECTION=='D'), error('There are descending profiles!'); end	%D
   
-
-  % ---- Replace qco and qcn for previously DMQC'ed profiles with saved matrices: ----
+  % whos CYCLE_NUMBER LONG LAT JULD PRES SAL TEMP DIRECTION REFERENCE* HISTORY* 
+  
+  % ----- INPUT PREVIOUS QC FLAGS: -------------------------------------
+  
+  % Replace qco and qcn for previously DMQC'ed profiles with saved matrices: ----
   % New full length blank flag matrices to add previous DMQC to:
   [POSqcnb,JULDqcnb] = deal(repmat(' ',1,n));		
   [PRESqcnb,PSALqcnb,TEMPqcnb] = deal(repmat(' ',m,n));
@@ -327,9 +340,12 @@ for I=1:length(download_dir)	% Loop floats
   %
   % Finally make temporary RTQC-flag matrices for the automatic tests
   % below to fill:
+  POSqct=POSqco; JULDqct=JULDqco;
   PRESqct=PRESqco; PSALqct=PSALqco; TEMPqct=TEMPqco;
   
-  % ---- More info for the report (including the whole appendix): ----
+  % whos *qco *qct *qcn 
+  
+  % ---- More info for the report (including the whole appendix) only for ascending profiles: ----------------
   if direction=='A'
     % The Altimetry section
     fid=fopen('altimetry_sec.tex','w');
@@ -351,22 +367,37 @@ for I=1:length(download_dir)	% Loop floats
     for i=1:length(wmosquares)
       fprintf(fid,'%s\n','\begin{figure}[ph]');
       fprintf(fid,'%s\n','\centering');
+      reffig=false;
       for j=1:length(tardir) % one fig per type of refdata
 	% [] Note that page is not formatted with room for all three types. When
         % bottle data is added, will need to accomodate for this.
 	wmofig=[tardir{j},filesep,tartyp{j},'_',int2str(wmosquares(i)),'.eps'];
 	if exist(wmofig,'file')	% if file exist make graphics input line
+	  reffig=true;
 	  fprintf(fid,'%s%s%s\n','\includegraphics[width=\textwidth]{',wmofig,'}');
 	end
+      end 
+      if reffig
+	fprintf(fid,'%s%u%s\n','\caption{Overview of reference data in WMO square ',wmosquares(i),' which is traversed by Float~\WMOnum . Upper set of graphs are for CTD reference data, and lower set is for historical ARGO data (if only one set is displayed, see title of second panel). Colouring of positions in map pairs illustrate temporal coverage and latitude, respectively. The following TS and profile plots use the latter colormap.}');
+      else
+	fprintf(fid,'%s%u%s\n','\caption{There are no reference data in WMO square ',wmosquares(i),' traversed by Float~\WMOnum .}');
       end
-      fprintf(fid,'%s%u%s\n','\caption{Overview of reference data in WMO square ',wmosquares(i),' which is traversed by Float~\WMOnum . Upper set of graphs are for CTD reference data, and lower set is for historical ARGO data. Colouring of positions in map pairs illustrate temporal coverage and latitude, respectively. The following TS and profile plots use the latter colormap.}');
       fprintf(fid,'%s%u%s\n','\label{reference',wmosquares(i),'}');
       fprintf(fid,'%s\n','\end{figure}');
-    end
+    end % loop wmosquares
     fclose(fid);
   end % if direction 'A'
+
+  % Create empty files for the report if they do not exist, as some procedures may not be performed:
+  if ~exist('shipctd.tex','file'), fid=fopen('shipctd.tex','w'); fclose(fid); end
+  if ~exist('coincidence.tex','file'), fid=fopen('coincidence.tex','w'); fclose(fid); end
+  if ~exist('coincidence_appendix.tex','file'), fid=fopen('coincidence_appendix.tex','w'); fclose(fid); end
+  if ~exist('owc.tex','file'), fid=fopen('owc.tex','w'); fclose(fid); end
+  if ~exist('scientific_calib_tabular.tex','file'), fid=fopen('scientific_calib_tabular.tex','w'); fclose(fid); end
   
-  % Initialise the new calibration information objects (for all profiles, but for now just with no size):
+
+  % ----- Initialise the new calibration information objects: ---------- 
+  % (For all profiles, but for now just with no size)
   % When data are good and no adjustment is needed and assuming that scientific_calib should be 'none' throughout:
   [scientific_calib.equation.PRES, scientific_calib.coefficient.PRES, scientific_calib.comment.PRES, ...
    scientific_calib.equation.PSAL, scientific_calib.coefficient.PSAL, scientific_calib.comment.PSAL, ...
@@ -384,7 +415,6 @@ for I=1:length(download_dir)	% Loop floats
   % All superfluous 'none' will be removed in WRITE_D.  
 
   
-
   
   % --------- DMQC: ----------------------------------------------------------------
 
@@ -398,16 +428,20 @@ for I=1:length(download_dir)	% Loop floats
   % are in chronological order. Erroneous or missing JULD values should
   % be replaced with another telemetered value if available, or replaced
   % with interpolated values and marked with JULD_QC = ‘8’.
+  fid=fopen('JULDtest.tex','w'); [automsg,manualmsg]=deal('');
   union( find(diff(JULD)<0)+1, find(isnan(JULD)) );
   if any(ans)  
     JULD(ans)=NaN; JULDqcn(ans)='8'; JULD=efill(JULD);	% Interpolate to fill NaNs
-    comments=[comments,'Non-chronological or missing JULD; '];
-    disp(comments);
+    automsg=['Non-chronological or missing JULD in cycles ',zipnumstr(CYCLE_NUMBER(find(ans))),'.'];
+    disp(['prepare_floats: ',automsg]);
     %error('Some JULD not chronological! Check!');
   end
+  fprintf(fid,'%s %s\n',automsg,manualmsg);
+  fclose(fid);
+  % Calculate DATES as OWC wants them:
   REFERENCE_DATE_TIME'; time=datenum([ans(1:8),'T',ans(9:14)],'yyyymmddTHHMMSS')+JULD; 
   DATES=dyear(time);
-  [~,MONTHS]=datevec(time); % For the seasnonal aspect
+  [~,MONTHS]=datevec(time); % For the seasonal aspect
   % JULDqcn is set now.
   
   % Sort cycle number (not sure this should be done, so just a check and error for now):
@@ -415,31 +449,72 @@ for I=1:length(download_dir)	% Loop floats
   % Also Rfiles may be ordered wrong.
   [ans,IA]=sort(CYCLE_NUMBER); % C = A(IA);
   if ~all(ans==CYCLE_NUMBER)
-    error('Cycle numbers not in succession!');
+    error('Cycle numbers not in temporal succession!');
     LONG=LONG(IA); LAT=LAT(IA); DATES=DATES(IA); CYCLE_NUMBER=CYCLE_NUMBER(IA); PRES=PRES(:,IA); PSAL=PSAL(:,IA); TEMP=TEMP(:,IA);
     CYCLE_NUMBER=ans;
   end
   snippet([int2str(CYCLE_NUMBER(1)),'-',int2str(CYCLE_NUMBER(end))],'cycle-numbers');
   
-  % [] How to know about wrong dates not being just shifted? Relation
-  % to cycle number?
-  
-  % Profile positions in LONGITUDE, LATITUDE should be checked for
-  % outliers.  Erroneous or missing LONGITUDE, LATITTUDE values should
-  % be replaced with another telemetered value if available, or replaced
-  % with interpolated values and marked with POSITION_QC = ‘8’.
-  % Done by visual of raw map. 
-  
+  % Size of data geometry is final after sorting:
+  [m,n]=size(PRES);
+  PROFILE_NO=1:n;
   % Default adjusted values (after sorting):
   PRES_ADJUSTED=PRES; TEMP_ADJUSTED=TEMP; PSAL_ADJUSTED=PSAL;
-    
+
+  % [] How to know about wrong dates not being just shifted? Relation
+  % to cycle number?
+
+  % Profile positions in LONGITUDE, LATITUDE should be checked for
+  % outliers.  Erroneous or missing LONGITUDE, LATITUDE values should
+  % be replaced with another telemetered value if available, or replaced
+  % with interpolated values and marked with POSITION_QC = ‘8’.
+  %
+  % Automated pre-check: 
+  if any(PROFILE_NO>checked{I}) 
+    fid=fopen('POStest.tex','w'); [automsg,manualmsg]=deal('');
+    % Extrapolated data, i.e. 'interpolated' data at the end of series
+    % cannot be used (extrapolation makes no sense):
+    j=find(POSqco=='8' | POSqco=='9');
+    if any(j), if j(end)==n			% Missing position at end 
+      [~,gi]=groups(diff(j)); 
+      if j(gi(end))+1==n		% Several, actually
+	j=j(gi(1,end):gi(2,end)+1);
+	POSqct(j)='4';			% Flag them
+	automsg=['There were extrapolated (!) or missing positions at the end of series. ' ...
+		 'Hence, positions of cycles ',zipnumstr(CYCLE_NUMBER(j)),' as a rule flagged as bad.'];
+	disp(['prepare_floats: ',automsg]);
+      end
+    end, end
+    LAT<-90 | 90<LAT;
+    if any(ans)
+      POSqct(ans)=='4';
+      'There were latitudes outside 90S and 90N.'; disp(['prepare_floats: ',ans]); automsg=[automsg,' ',ans];
+    end
+    % Visual test of positions:
+    POSqct = check_profiles(CYCLE_NUMBER,LONG,LAT,POSqct);
+    % Add only different flags as new flags:
+    POSqct~=POSqco; POSqcn(ans)=POSqct(ans);	
+    if any(ans)
+      manualmsg=['Automatic and visual DMQC have changed the position flags of cycles ',zipnumstr(CYCLE_NUMBER(find(ans))),'.'];
+      disp(['prepare_floats: ',manualmsg]);
+    end
+    fprintf(fid,'%s %s\n',automsg,manualmsg);
+    fclose(fid);
+  end
+  
+  % Apply LATITUDE, LONGITUDE flags immediately in order for the visual tests and plots hereafter to function: 
+  POSqco=='4' & POSqcn~='1' | POSqcn=='4'; LONG(ans)=NaN; LAT(ans)=NaN; 
+  
+  % whos LONG LAT POSqcn JULDqcn 
+  % whos *_ADJUSTED
+  
   
     if direction=='D'
       % Apply salinity flags from the RTQC in the surface, to the
       % _ADJUSTED already here since the descending profiles contain
       % above surface salinities. This is done mainly to avoid too many
       % unneccessary detections in the automatic test below, and not to
-      % muddle the automatic profile plots with far off values. This
+      % zoom out the automatic profile plots with far off values. This
       % does not affect the visual control, as that uses non adjusted
       % data.
       PSALqco~='1' & PRES<10;		% Find data to omit
@@ -448,23 +523,42 @@ for I=1:length(download_dir)	% Loop floats
       PSAL_ADJUSTED(ans)=NaN;		% Omit data for the tests
       PSALqct(ans & PSALqco~='4')='Y';	% Assign new flags (used in manual control part)
       PSALqcn(ans & PSALqco~='4')='4';	% Assign new flags (used when no manual control)
+      % Special case: Just omit and flag all shallow (useless) data:
+      % if contains(platyp,{'PROVOR'})
+      % 	PRES<10;
+      % 	TEMPqct(ans)='Y';	% Assign new flags (used in manual control part)
+      % 	PSALqct(ans)='Y';	% Assign new flags (used in manual control part)
+      % end 
+      %
+      % Skipped, because it looks not so good to do this
+      % indiscriminately. The user must just realise that descending
+      % floats are not trustworthy in the top.
     end
 
     
+    
+    
   % Plot the input data raw:
-  [m,n]=size(PRES);
-  PROFILE_NO=1:n;
-  %DENS = sw_dens(PSAL,TEMP,PRES);	% For the plotting of warning plots.
-  DENS = sw_pden(PSAL_ADJUSTED,TEMP_ADJUSTED,PRES_ADJUSTED,0);	% Potential density instead
-  zerow=zeros(1,n);			% Row of zeros
-  plot_profiles; % Plots based on ADJUSTED parmeters
-  print(gcf,'-depsc',[outfiles{I}(1:end-4),'_raw.eps']);
-  % 
-  % comments=[comments,'POSITION outliers; '];
-  % POSqcn()=8; LONG()=interp; LAT()=interp; % Set QC flags if outliers are seen
-  % Set POSITION_QC when this happens.
+  DENS = sw_pden(PSAL_ADJUSTED,TEMP_ADJUSTED,PRES_ADJUSTED,0);	% Potential density
+  zerow=zeros(1,n);						% Row of zeros
+  plot_profiles;						% Plots based on ADJUSTED parameters
+  print(gcf,'-depsc',[outfiles{I}(1:end-4),'_raw.eps']);	% Print to file
 
+  % whos DENS
+
+  
   % W21 3.3. Delayed-mode procedures for pressure
+  %
+  % Bad data points identified by visual inspection from delayed-mode
+  % analysts are recorded with PRES_ADJUSTED_QC = ‘4’ and PRES_QC =
+  % '4'. For these bad data points, TEMP_QC, TEMP_ADJUSTED_QC, PSAL_QC,
+  % PSAL_ADJUSTED_QC should also be set to ‘4’.  Please note that
+  % whenever PARAM_ADJUSTED_QC = ‘4’, both PARAM_ADJUSTED and
+  % PARAM_ADJUSTED_ERROR should be set to FillValue.
+  %
+  % √ This is taken care of both here for OWC and in WRITE_D.
+  %
+  % PRESqcn TEMPqcn PSALqcn % Change QC flags if necessary, all in this case.
   %
   % Check for negative pressures:
   PRES_ADJUSTED<0;
@@ -542,10 +636,11 @@ for I=1:length(download_dir)	% Loop floats
 		      'Lower panel: Pressure data for all profiles presented by every 10th (and the deepest) measurement in each profile. ',...
 		      'Blue dots indicate pressure value in the real-time. ',...
 		      'Any extra marks show RTQC and DMQC flags as explained in the legend. ',...
-		      'Any ''4'', ''8'', or ''9'' are shown regardless of depth, not just at every 10th.}']);
+		      'Any ''4'', or ''8'' are shown regardless of depth, not just at every 10th.}']);
   fprintf(fid,'%s\n','\label{fig:pres}');
   fprintf(fid,'%s\n','\end{figure}');
   fclose(fid);
+  % 'PRES_ADJUSTED = PRES - dP'; 
 
   % Check for negative pressures after the correction:
   PRES_ADJUSTED<0;
@@ -554,29 +649,65 @@ for I=1:length(download_dir)	% Loop floats
     PRESqct(ans)='X'; % For the visual control below
   end  
   
+  % whos PRES_ADJUSTED PSAL_ADJUSTED PRESqct
+    
   % For the plots later, but also PTMPo here:
   PTMP = sw_ptmp(PSAL,TEMP,PRES,0); 
   
+  % whos PTMP      
+
+  % Save ASD profiles salinities and ptmp from PSAL and PTMP (before test plots):
   ASD=n+1;			% Add 1 just since -1 is used later
-  %if direction=='A'
-    % Find any start of uncorrectable salinities (before test plots): 
-    % For stability, extract your own explicitly set calseries in
-    % set_calseries.m.
-    jj=find(cal_action{I}==4);					% Which cal action (if any) is 4? 
-    aa=strip(readlines([my_working_dir,'DMQC',filesep,float_names{I},filesep,'set_calseries.m']));	% Read local set_calseries.m
-    find(contains(aa,'calseries = [ones') & ~startsWith(aa,'%')); % Scan set_calseries.m 
-    eval(aa(ans(end)));						% Get the last definition of calseries
-    if any(jj) & direction=='A' & exist('calseries','var')
-      [C,IA] = unique(calseries,'stable');		% Find the shifts in calseries
-      ASD=IA(jj);			% The one before the first profile of the jjth action (4). 
-      SALo=PSAL(:,ASD:end);	% Save to fill SAL with in the end
-      PTMPo=PTMP(:,ASD:end);	% Save to fill PTMP with in the end
-      disp(['prepare_floats: Conserving salinity profiles with ASD (profiles ',int2str(ASD),'-',int2str(n),').']);
-    end
-  %end
+  % For stability, extract your own explicitly set calseries in set_calseries.m.
+  jj=find(cal_action{I}==4);					% Which cal action (if any) is 4? 
+  aa=strip(readlines([my_working_dir,'DMQC',filesep,float_names{I},filesep,'set_calseries.m']));	% Read local set_calseries.m
+  find(contains(aa,'calseries = [ones') & ~startsWith(aa,'%')); % Scan set_calseries.m 
+  eval(aa(ans(end)));						% Get the last definition of calseries
+  if any(jj) & direction=='A' & exist('calseries','var')
+    [C,IA] = unique(calseries,'stable');		% Find the shifts in calseries
+    ASD=IA(jj);						% The one before the first profile of the jjth action (4). 
+    SALo=PSAL(:,ASD:end);				% Save to fill SAL with in the end
+    PTMPo=PTMP(:,ASD:end);				% Save to fill PTMP with in the end
+    disp(['prepare_floats: Conserving salinity profiles with ASD (profiles ',int2str(ASD),'-',int2str(n),').']);
+  end
+
+  % whos ASD SALo PTMPo
   
-  % ----- PHASE 3 and PHASE 4 ------
   
+  % ----- PHASE 3 and PHASE 4 ------------------------------------------
+  
+  % W21 3.4. Delayed-mode procedures for temperature
+  %
+  % Bad data points identified by visual inspection from delayed-mode
+  % analysts are recorded with TEMP_ADJUSTED_QC = ‘4’ and TEMP_QC =
+  % '4'. Please note that whenever PARAM_ADJUSTED_QC = ‘4’,
+  % PARAM_ADJUSTED = FillValue, and PARAM_ADJUSTED_ERROR = FillValue.
+  %
+  % TEMP_ADJUSTED, TEMP_ADJUSTED_ERROR, and TEMP_ADJUSTED_QC should be
+  % filled even when the data are good and no adjustment is needed. In
+  % these cases, TEMP_ADJUSTED_ERROR can be the manufacturer’s quoted
+  % accuracy at deployment, which is 0.002°C.
+  % √ Done in WRITE_D.
+  %
+  % Please use the SCIENTIFIC CALIBRATION section in the netCDF files to
+  % record details of the delayed-mode adjustment.
+  %
+  % TEMPqc % Change QC flags if necessary
+	
+  % W21 3.5. Delayed-mode procedures for salinity
+  %
+  % It is recommended that float salinity be adjusted for pressure
+  % offset and cell thermal mass error before sensor drift
+  % adjustment.
+  % [√] Done above.
+  %
+  %W Operators should also ensure that other float measurements (PRES,
+  %W TEMP, LATITUDE, LONGITUDE, JULD) are accurate or adjusted before
+  %W they input them into the statistical tools for estimating reference
+  %W salinity.
+  %
+  % PSALqcn % Change QC flags if necessary
+
   J=find(PROFILE_NO>checked{I});
   %J=[]; visd(2)=0; % Use this for no DMQC checks
   
@@ -707,7 +838,8 @@ for I=1:length(download_dir)	% Loop floats
     V=PSAL_ADJUSTED; V(snb2)=NaN;  V(snb1)=NaN; % Remove above test results
     testvalue = [zerow ; abs(V(2:end-1,:)-(V(3:end,:)+V(1:end-2,:))/2) ; zerow];
     switch direction
-     case 'A', [PRES_ADJUSTED<500 & testvalue>1.5 | PRES_ADJUSTED>=500 & testvalue>0.5]; % The RTQC9 limits 
+     case 'A'
+      [PRES_ADJUSTED<500 & testvalue>1.5 | PRES_ADJUSTED>=500 & testvalue>0.5]; % The RTQC9 limits 
      case 'D'
       % The RTQC9 limits plus ignore near surface which is often hampered by bad salinities in descending profiles 
       [PRES_ADJUSTED>2 & (PRES_ADJUSTED<500 & testvalue>1.5 | PRES_ADJUSTED>=500 & testvalue>0.5)]; 
@@ -795,10 +927,7 @@ for I=1:length(download_dir)	% Loop floats
     % the top-removals in descending profiles), and qcn is flagging from
     % previous DMQC.
     %
-    [PRESqct,TEMPqct,PSALqct] = ...
-	check_profiles(PRES,TEMP,PSAL,PRESqct,TEMPqct,PSALqct,...
-		       PROFILE_NO(J),LONG,LAT,CYCLE_NUMBER,...
-		       'refdatadir',tardir,'time',time,'parallelprofiles',pp);
+    [PRESqct,TEMPqct,PSALqct] = check_profiles(PRES,TEMP,PSAL,PRESqct,TEMPqct,PSALqct,PROFILE_NO(J),LONG,LAT,CYCLE_NUMBER,'refdatadir',tardir,'time',time,'parallelprofiles',pp);
     %
     % Change any flags from the automatic checks overlooked in visual:
     PRESqct(PRESqct=='Y')='4'; TEMPqct(TEMPqct=='Y')='4'; PSALqct(PSALqct=='Y')='4';
@@ -864,6 +993,10 @@ for I=1:length(download_dir)	% Loop floats
 	jj=J(j)+[-3:3];					% indices for neighbouring profiles
 	jj=jj(0<jj&jj<=n);				% keep indices inside range 
 	~isnan(LONG(jj))&~isnan(LAT(jj)); jj=jj(ans);	% Avoid NaNs (POSqco is not applied yet)
+	
+	if ~any(ismember(J(j),jj))		% profile not in valid 'neighbourhood'
+	  jj=J(j);				% so just use profile position
+	end
 	if ismember(j,1:5:N)				% Make new figure window
 	  ju=j-1;					% j used in previous figure(s)
 	  M=min(5,N-ju);				% Rows in this figure
@@ -873,8 +1006,14 @@ for I=1:length(download_dir)	% Loop floats
 		  'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl');
 	end
 	% Referencedata:
-	[LO{j},LA{j}]=halo(LONG(jj),LAT(jj),.3,.2);
-	[pres,temp,sal,long,lat,~,dt,dmon]=inpolygon_referencedata(LO{j},LA{j},tardir,[],time(jj));
+	if ~all(isnan(LONG(jj))) | ~all(isnan(LAT(jj)))
+	  [LO{j},LA{j}]=halo(LONG(jj),LAT(jj),.3,.2);
+	  [pres,temp,sal,long,lat,~,~,dt,dmon]=inpolygon_referencedata(LO{j},LA{j},tardir,[],time(jj));
+	  dtnote={'Reference data''s seasonal';['offset is ',int2str(min(dmon)),'-',int2str(max(dmon)),' months']};
+	else 
+	  [pres,temp,sal,long,lat,~,dt,dmon,LO{j},LA{j}]=deal(NaN);
+	  dtnote='';
+	end
 	% Temperature plot:
 	aT=subplot(M,2,2*((j-ju)-1)+1); 
 	hrT=plot(temp,pres,'color',grey); 
@@ -904,7 +1043,6 @@ for I=1:length(download_dir)	% Loop floats
 	get(aT,'position'); ax=axes('position',[ans(1)+ans(3)-ans(3)/3-.01 ans(2)+.01 ans(3)/3 ans(4)/3]); hold on
 	set(ax,'visible','off'); 
 	plot(LO{j},LA{j},'color',grey);
-	dtnote={'Reference data''s seasonal';['offset is ',int2str(min(dmon)),'-',int2str(max(dmon)),' months']};
 	text(nanmean(LO{j}),nanmax(LA{j}),dtnote,'color',grey,'verticalalignment','bottom','horizontalalignment','center');
 	plot(LONG(jj),LAT(jj),'marker','.','color','b'); 
 	plot(LONG(J(j)),LAT(J(j)),'marker','s','color','r'); 
@@ -935,9 +1073,11 @@ for I=1:length(download_dir)	% Loop floats
   elseif direction=='A' & DATES(end)<dyear(now)-1/52*3 % three weeks allowance 
     ['There are no new profiles from this float since ',datestr(datenum(DATES(end),1,1),1),'.'];
     snippet(ans,'monitoring');
-    disp(['prepare_floats: ',ans,' Has Float ',float_names{I},' been decommissioned after profile ',int2str(n),'?']);
+    disp(['prepare_floats: ',ans,' Has Float ',float_names{I},' been decommissioned after Cycle ',int2str(CYCLE_NUMBER(n)),' (profile ',int2str(n),')?']);
   end 
   clear LO LA
+  
+  % whos *qcn
   
   
   if direction=='D'
@@ -954,17 +1094,17 @@ for I=1:length(download_dir)	% Loop floats
   
   
   
-  
-  
   %%%%%%% Time-series plots of the variables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   % PLOT the Hov-Möller diagrams of PTEMP and PSAL with raw data (i.e., disregarding flags)
   figure(1001); set(gcf,'OuterPosition',[1 385 1026 600]);
-  ccc=1:max(CYCLE_NUMBER); % All possible/expected cycle numbers
-  [ppp,ttt,sss]=deal(nan(size(PRES,1),length(ccc))); % Corresponding matrices (empty)
-  ppp(:,CYCLE_NUMBER)=PRES; ttt(:,CYCLE_NUMBER)=PTMP; sss(:,CYCLE_NUMBER)=PSAL; % Put data in right columns
-  [~,X,Y]=profcolor(ccc,ppp,ttt);shading flat;
-  X=X(:,CYCLE_NUMBER); Y=Y(:,CYCLE_NUMBER); % put coordinates back into compact format (for later marks on plot)
+  ccc=1:max(CYCLE_NUMBER);								% All possible/expected cycle numbers
+  [ppp,ttt,sss,ppq,ttq,ssq]=deal(nan(size(PRES,1),length(ccc)));			% Corresponding matrices (empty)
+  ppp(:,CYCLE_NUMBER)=PRES; ttt(:,CYCLE_NUMBER)=PTMP; sss(:,CYCLE_NUMBER)=PSAL;		% Put data in right columns
+  [ppq,ttq,ssq]=deal(repmat(' ',size(PRES,1),length(ccc)));				% Corresponding qc matrices (empty)
+  ppq(:,CYCLE_NUMBER)=PRESqcn; ttq(:,CYCLE_NUMBER)=TEMPqcn; ssq(:,CYCLE_NUMBER)=PSALqcn;% Put data in right columns
+  [~,X,Y]=profcolor(ccc,ppp,ttt);shading flat;						% Hov-Moller plot
+  X=X(:,CYCLE_NUMBER); Y=Y(:,CYCLE_NUMBER);		% put coordinates back into compact format (for later marks on plot)
   axis ij; xlabel('CYCLE NUMBER'); ylabel('PRES');
   cmocean thermal; cbh=colorbar; ylabel(cbh,'PTMP');
   title(['Float ',char(float_names{I}),' Potential Temperature']);
@@ -976,7 +1116,6 @@ for I=1:length(download_dir)	% Loop floats
   title(['Float ',char(float_names{I}),' Salinity (PSS-78)']);
   caxis(mima(sss(ppp>10)));
   % Revisit these and print them in the end.
-  
   
   % PLOT and PRINT the profile first-pressure series:
   figure(1003); set(gcf,'OuterPosition',[1 385 1026 900]);
@@ -998,23 +1137,28 @@ for I=1:length(download_dir)	% Loop floats
   PRESqco10=='3'; hPo{3}=line(CYC10(ans)',PRES10(ans)'); set(hPo{3},'color','m','marker','s','linestyle','none','tag','qcflag','userdata','RTQC flag ''3''');
   PRESqco=='4'; hPo{4}=line(CYC(ans)',PRES_ADJUSTED(ans)'); set(hPo{4},'color','r','marker','s','linestyle','none','tag','qcflag','userdata','RTQC flag ''4''');
   PRESqco=='8'; hPo{8}=line(CYC(ans)',PRES_ADJUSTED(ans)'); set(hPo{8},'color','b','marker','s','linestyle','none','tag','qcflag','userdata','RTQC flag ''8''');
-  PRESqco=='9'; hPo{9}=line(CYC(ans)',PRES_ADJUSTED(ans)'); set(hPo{9},'color','k','marker','s','linestyle','none','tag','qcflag','userdata','RTQC flag ''9''');
+  %PRESqco=='9'; hPo{9}=line(CYC(ans)',PRES_ADJUSTED(ans)'); set(hPo{9},'color','k','marker','s','linestyle','none','tag','qcflag','userdata','RTQC flag ''9''');
+  % Flag '9' is for missing data, so will not show anyway.
   title(ap(1),['Top of profile pressure measurements by float ',char(float_names{I})]);
   title(ap(2),['Every 10th pressure measurement by float ',char(float_names{I})]);
   % Legend and print of lower panel done below, after DMQC.
   
+  
+        % ----- APPLY FLAGS TO THE DATA: --------------------------------
   
 	% Apply flags from the RTQC to the _ADJUSTED: 
 	% For reversal qcn has been set to 1. Do not reverse the RTQC flags
 	% yet, because they should be shown properly in the graphics and
 	% stats, but make sure reversed flags are not applied to the data here
 	% (added '&<PARAMETER>qcn~=1' to this code).
-	% NaN out columns based on bad meta:
-	j=find(POSqco=='4'&POSqcn~='1' | JULDqco=='4'&JULDqcn~='1' & LAT<-90 & 90<LAT);  
+	% NaN out columns based on bad coordinates:
+	%j=find(POSqco=='4'&POSqcn~='1' | JULDqco=='4'&JULDqcn~='1' & LAT<-90 & 90<LAT);  
+	%j=find(POSqco=='4'&POSqcn~='1' | JULDqco=='4'&JULDqcn~='1' | LAT<-90 | 90<LAT);  
+	j=find(POSqco=='4' & POSqcn~='1' | JULDqco=='4' & JULDqcn~='1');  
 	if any(j), 
-	  disp(['prepare_floats: ',direction,' profiles from cycles ',zipnumstr(CYCLE_NUMBER(j)),...
+	  disp(['prepare_floats: Direction ''',direction,''' profiles from cycles ',zipnumstr(CYCLE_NUMBER(j)),...
 		' have been NaN''ed due to RTQC (unreversed)  bad date or position!'])
-	  LONG(j)=NaN; LAT(j)=NaN; DATES(j)=NaN; PRES_ADJUSTED(:,j)=NaN; PSAL_ADJUSTED(:,j)=NaN; TEMP_ADJUSTED(:,j)=NaN;
+	  LONG(j)=NaN; LAT(j)=NaN; DATES(j)=NaN; %PRES_ADJUSTED(:,j)=NaN; PSAL_ADJUSTED(:,j)=NaN; TEMP_ADJUSTED(:,j)=NaN;
 	end
 	% NaN out single values (according to manual Section 3.3):
 	PRESqco=='4' & PRESqcn~='1'; PRES_ADJUSTED(ans)=NaN; 
@@ -1026,24 +1170,70 @@ for I=1:length(download_dir)	% Loop floats
         % before OWC.):
   	if ASD<=n, PSAL_ADJUSTED(:,ASD:end)=NaN; end
 
+	% Apply flags from the DMQC to the _ADJUSTED: 
+	% Now apply new bad-flags to the data going into OWC, i.e. _ADJUSTED.
+	% This is where we need to heed the fact that qcn now contains
+        % _only_the_brand_new_ flags.
+	% Reversed data is given qcn=1 and considered above when removing
+	% data based on RTQC. Now we only need to NaN out the new '4's.
+	% NaN out columns:
+	%j=find(POSqcn=='4' | JULDqcn=='4' & LAT<-90 & 90<LAT); 
+	%j=find(POSqcn=='4' | JULDqcn=='4' | LAT<-90 | 90<LAT); 
+	j=find(POSqcn=='4' | JULDqcn=='4'); 
+	if any(j), 
+	  disp(['prepare_floats: Direction ''',direction,''' profiles from cycles ',zipnumstr(CYCLE_NUMBER(j)),...
+		' have been NaN''ed due to bad date or position found in DMQC!'])
+	  LONG(j)=NaN; LAT(j)=NaN; DATES(j)=NaN; %PRES_ADJUSTED(:,j)=NaN; PSAL_ADJUSTED(:,j)=NaN; TEMP_ADJUSTED(:,j)=NaN;
+	end
+	% NaN out single values (according to manual, Section 3.3):
+	PRESqcn=='4'; PRES_ADJUSTED(ans)=NaN; PSAL_ADJUSTED(ans | PSALqcn=='4')=NaN;  TEMP_ADJUSTED(ans | TEMPqcn=='4')=NaN;
+	% At this point the variables here are to be considered _ADJUSTED variables.
+	% PRES, TEMP, and PSAL are never changed in this script.
 
+	% whos LONG LAT DATES *_ADJUSTED
+
+	
 	
   %%%%%	Phase 5: Overall comparison with the reference data %%%%%%
   
   [yrnow,~]=datevec(now);
   long=LONG; long>180; long(ans)=long(ans)-360;
-  % if isscalar(long)
-  %   m_proj('albers','lon',mima(long+[1 1 -1 -1]),'lat',mima(LAT+[.5 -.5 -.5 .5]));
-  % else
-  %   m_proj('albers','lon',mima(long),'lat',mima(LAT));
-  % end
   m_proj('albers','lon',mima(long)+[-1 1],'lat',mima(LAT)+[-.5 .5]);
   [x,y]=m_ll2xy(long,LAT);
   % Find and put cluster numbers (i.e., groups) in sequence:
-  if isscalar(x),	CLU1=1; Nclu{I}=1;	% Only one cluster possible
-  elseif imag(Nclu{I}),	CLU1=kmeans([CYCLE_NUMBER',x',y'],abs(Nclu{I}))'; % Cluster also wrt time.
-  else			CLU1=kmeans([x',y'],abs(Nclu{I}))';
+  if isscalar(x),	CLU1=1; Nclu{I}=1;					% Only one cluster possible
+    msg='prepare_floats: Only one cluster possible';
+  elseif ischar(Nclu{I})							% Use the calseries to cluster
+    if direction=='A' % & exist('calseries','var')
+      msg=['prepare_floats: Using calseries to define clusters. '];
+      CLU1=calseries;
+      Nclu{I}=length(unique(CLU1));
+    else
+      msg=['prepare_floats: The use of calseries to define clusters are only valid for ascending profiles. '];
+      let2int(Nclu{I});
+      if any(ans)						% Number given by letter
+	msg=[msg,'Using ',int2str(ans(1)),' clusters as given by the character ''',Nclu{I},''' in Nclu.'];
+	Nclu{I}=ans(1); CLU1=kmeans([x',y'],Nclu{I})';		
+      else
+	CLU1=1; Nclu{I}=1;					% Default for descending profiles
+	msg=[msg,'Defaulting to one cluster.'];
+      end
+    end
+    return
+  elseif iscell(Nclu{I})							% Cluster manually
+    msg=['prepare_floats: Using manual clustering. '];
+    % cell2mat(Nclu{I}) is a vector of split-points
+    CLU1=nan(1,n);
+    [0 cell2mat(Nclu{I}) n]; for i=1:length(ans)-1, CLU1(ans(i)+1:ans(i+1))=i; end
+    Nclu{I}=length(cell2mat(Nclu{I}))+1;
+  elseif imag(Nclu{I}),	
+    msg=['prepare_floats: Automatic clustering wrt. time. '];
+    CLU1=kmeans([CYCLE_NUMBER',x',y'],abs(Nclu{I}))';	% Cluster wrt time.
+  else
+    msg=['prepare_floats: Clustering is automatic. '];
+    CLU1=kmeans([x',y'],abs(Nclu{I}))';			% Cluster not wrt time.
   end
+  disp(msg);
   CL=unique(CLU1,'stable'); CL=CL(~isnan(CL)); 
   CLU=nan(size(CLU1)); 
   for j=1:length(CL), CLU(CLU1==CL(j))=j; end 
@@ -1057,7 +1247,7 @@ for I=1:length(download_dir)	% Loop floats
     %if isempty(jj), continue; end
     tit=['Cluster ',int2str(j),' (Cycles ',zipnumstr(CYCLE_NUMBER(jj)),' ; months ',zipnumstr(MONTHS(jj)),')'];
     [LO{j},LA{j}]=halo(LONG(jj),LAT(jj),.3,.2); 
-    [pres,temp,sal,long,lat,dates,dt,dmon,RMONTHS]=inpolygon_referencedata(LO{j},LA{j},tardir,0,time(jj));
+    [pres,temp,sal,long,lat,dates,~,dt,dmon,RMONTHS]=inpolygon_referencedata(LO{j},LA{j},tardir,0,time(jj));
     save(['refdata_cluster',int2str(j)],'pres','temp','sal','long','lat','dates');
     figure(1004); % Profile plots
     plim=[MAP_P_EXCLUDE max(PRES_ADJUSTED(:,jj),[],'all')];
@@ -1107,9 +1297,15 @@ for I=1:length(download_dir)	% Loop floats
     tit=['Cluster ',int2str(j),' (Cycles ',zipnumstr(CYCLE_NUMBER(jj)),' ; all year)'];
     ja(j,1)=subplot(abs(Nclu{I}),2,2*(j-1)+1); 
     [years,~]=datevec(rdtime(dates)); years=years(:)';
-    g_y=yrnow-30:yrnow+1; g_d=1000:400:2000; % center around newyear/winter
+    g_y=yrnow-30:yrnow+1; % center around newyear/winter 
+    % Flexible depth grid:
+    g_d=200:400:2000; 
+    find(min(PRES_ADJUSTED,[],'all') < g_d & g_d < max(PRES_ADJUSTED,[],'all'));
+    if length(ans)==1, ans(1)+[0 1]; elseif isempty(ans), ans=1:2; end
+    g_d=g_d(ans);
+    %if max(pres,[],'all')<800,	g_d=[200 600]; 
+    %else			g_d=1000:400:2000; end
     bin=bin2d(repmat(years(:)',size(sal,1),1),pres,sal,g_y,g_d,false);
-    %jbin=bin2d(repmat(dyear(datenum(1950,1,JULD(jj))),size(PSAL_ADJUSTED(:,jj),1),1),PRES_ADJUSTED(:,jj),PSAL_ADJUSTED(:,jj),g_y,g_d,false);
     jbin=bin2d(repmat(DATES(jj),size(PSAL_ADJUSTED(:,jj),1),1),PRES_ADJUSTED(:,jj),PSAL_ADJUSTED(:,jj),g_y,g_d,false);
     %errorbar(repmat(bin.x,size(bin.mean,1),1)',bin.mean',bin.var'./(bin.n'-1)); % error of the mean 
     errorbar(repmat(bin.x,size(bin.mean,1),1)',bin.mean',bin.var'); % variance 
@@ -1163,75 +1359,7 @@ for I=1:length(download_dir)	% Loop floats
   fclose(fid);
   clear LO LA
   
-  % W21: Bad data points identified by visual inspection from
-  % delayed-mode analysts are recorded with PRES_ADJUSTED_QC = ‘4’ and
-  % PRES_QC = '4'. For these bad data points, TEMP_QC, TEMP_ADJUSTED_QC,
-  % PSAL_QC, PSAL_ADJUSTED_QC should also be set to ‘4’.  Please note
-  % that whenever PARAM_ADJUSTED_QC = ‘4’, both PARAM_ADJUSTED and
-  % PARAM_ADJUSTED_ERROR should be set to FillValue.
-  %
-  % √ This is taken care of both here for OWC and in WRITE_D.
-  %
-  % PRESqcn TEMPqcn PSALqcn % Change QC flags if necessary, all in this case.
-  
-
  
-  % 3.4. Delayed-mode procedures for temperature
-  %
-  % Subjective assessment following the same figures as for pressure (above).
-  %
-  % Bad data points identified by visual inspection from delayed-mode
-  % analysts are recorded with TEMP_ADJUSTED_QC = ‘4’ and TEMP_QC =
-  % '4'. Please note that whenever PARAM_ADJUSTED_QC = ‘4’,
-  % PARAM_ADJUSTED = FillValue, and PARAM_ADJUSTED_ERROR = FillValue.
-  %
-  % TEMP_ADJUSTED, TEMP_ADJUSTED_ERROR, and TEMP_ADJUSTED_QC should be
-  % filled even when the data are good and no adjustment is needed. In
-  % these cases, TEMP_ADJUSTED_ERROR can be the manufacturer’s quoted
-  % accuracy at deployment, which is 0.002°C.
-  % √ Done in WRITE_D.
-  %
-  % Please use the SCIENTIFIC CALIBRATION section in the netCDF files to
-  % record details of the delayed-mode adjustment.
-  %
-  % TEMPqc % Change QC flags if necessary
-
-  
-	% Apply flags from the DMQC to the _ADJUSTED: 
-	% Now apply new bad-flags to the data going into OWC, i.e. _ADJUSTED.
-	% This is where we need to heed the fact that qcn now contains
-        % _only_the_brand_new_ flags.
-	% Reversed data is given qcn=1 and considered above when removing
-	% data based on RTQC. Now we only need to NaN out the new '4's.
-	% NaN out columns:
-	j=find(POSqcn=='4' | JULDqcn=='4' & LAT<-90 & 90<LAT); 
-	if any(j), 
-	  disp(['prepare_floats: ',direction,' profiles from cycles ',zipnumstr(CYCLE_NUMBER(j)),...
-		' have been NaN''ed due to NEW bad date or position!'])
-	  LONG(j)=NaN; LAT(j)=NaN; DATES(j)=NaN; PRES_ADJUSTED(:,j)=NaN; PSAL_ADJUSTED(:,j)=NaN; TEMP_ADJUSTED(:,j)=NaN;
-	end
-	% NaN out single values (according to manual, Section 3.3):
-	PRESqcn=='4'; PRES_ADJUSTED(ans)=NaN; PSAL_ADJUSTED(ans | PSALqcn=='4')=NaN;  TEMP_ADJUSTED(ans | TEMPqcn=='4')=NaN;
-	% At this point the variables here are to be considered _ADJUSTED variables.
-	% PRES, TEMP, and PSAL are never changed in this script.
-
-	
-  % 3.5. Delayed-mode procedures for salinity
-  %
-  % It is recommended that float salinity be adjusted for pressure
-  % offset and cell thermal mass error before sensor drift
-  % adjustment.
-  % [√] Done above.
-  %
-  %W Operators should also ensure that other float measurements (PRES,
-  %W TEMP, LATITUDE, LONGITUDE, JULD) are accurate or adjusted before
-  %W they input them into the statistical tools for estimating reference
-  %W salinity.
-  % 
-  % Perform visual inspection as for PRES and TEMP above.
-  %
-  % PSALqcn % Change QC flags if necessary
-
 
   
 
@@ -1277,7 +1405,6 @@ for I=1:length(download_dir)	% Loop floats
       about='For this float the operator has determined CPcor\_new based on a near-deployment ship CTD profile. ';
       endtext=' compared to a near-deployment ship CTD profile. ';
       disp(['prepare_floats: ',about]);
-      %capt=['Float \WMOnum. Salinity profiles from the ',num2ordinal(CYCLE_NUMBER(np)),' cycle using the manufacturer calibration ($CPcor_{SBE} =$ ',num2str(CPcor_SBE*1.0e+8,'%6.2f'),'~$\cdot 10^{-8}~dbar^{-1}$; i.e., raw data; green) and using the operator''s compressibility term and cell-gain ($CPcor_{new} =$ ',num2str(CPcor_new*1.0e+8,'%6.2f'),'~$\cdot~10^{-8}~dbar^{-1}$ ; cell-gain $=$ ',num2str((M_new-1)*1e3,'%6.2f'),'‰; magenta). The ship CTD profile used is from Cruise ',ctd_cruise,', Station ',ctd_station,' (black). Dashed horisontal line shows the minimum pressure the fit is done for.'];
       capt=['Float \WMOnum. Salinity profiles from the ',num2ordinal(CYCLE_NUMBER(np)),' cycle',...
 	    ' using the manufacturer calibration ($CPcor_{SBE} =$ ',num2str(CPcor_SBE*1.0e+8,'%6.2f'),'~$\cdot 10^{-8}~dbar^{-1}$; i.e., raw data; green),',...
 	    ' using the recommended compressibility term ($CPcor_{new} =$ ',num2str(CPcor_rec*1.0e+8,'%6.2f'),'~$\pm1.5~\cdot~10^{-8}~dbar^{-1}$ ; cyan$\pm$dashed),',...
@@ -1301,7 +1428,7 @@ for I=1:length(download_dir)	% Loop floats
       CPcor_new=999; % so the below IF test fails
     end
     %     -20e-08 dbar -1 <= CPcor_new <= - 5e-08 dbar -1
-    % • If CPcor_new falls outside those ranges, the DM operator should consider that the salinity
+    % If CPcor_new falls outside those ranges, the DM operator should consider that the salinity
     % data are not correctable and that further investigations are required to demonstrate that
     % such CPcor_new values are valid.
     if CPcor_new <= -20e-8 | -5e-8 <= CPcor_new
@@ -1392,16 +1519,18 @@ for I=1:length(download_dir)	% Loop floats
     PSAL_ADJUSTED=PSAL_ADJUSTED_Cnew;	% For OWC and PSAL_ADJUSTED if no
 					% further adjustment is done.
     
-  else
+  else % not deep
     PSAL=PSAL_ADJUSTED;			% Save PSAL for the making of operator Cnew
 					% and if no adjustment is being made.
     PSAL_ADJUSTED_Cnew=[];		% Empty for saving and write_D
-  end % deep arvor
+  end % if deep arvor
   fclose(fid);
-  
 
+  % whos PSAL PSAL_ADJUSTED PSAL_ADJUSTED_Cnew
+  
+  
+  % ----- Add SP adjustments to pressure figure: -------------
   if exist('SP') % PRES has been adjusted for surface pressure
-    % Add plot to pressure figure:
     axes(ap(1));
     hSP(1)=line(SP.CN,SP.TPV); set(hSP(1),'marker','*','color','r')
     hSP(2)=line(SP.CN,SP.SP); set(hSP(2),'marker','o','color','r')
@@ -1411,8 +1540,6 @@ for I=1:length(download_dir)	% Loop floats
     'Salinity re-calculated by using PRES_ADJUSTED and recorded in PSAL_ADJUSTED. ';
 		scientific_calib.comment.PSAL(SP.IA,end+[1:size(ans,2)]) = repmat(ans,length(SP.IA),1);
   end
-  
-  % 'PRES_ADJUSTED = PRES - dP'; 
   
   
   
@@ -1455,7 +1582,7 @@ for I=1:length(download_dir)	% Loop floats
   print(gcf,'-dpng',[outfiles{I}(1:end-4),'_HMsal.png']);
   figure(1003); axes(ap(2)); % Go to pressure plot
   % See above for RTQC flag markings on pressure plot.
-  find(PRESqcn=='1');    hPn{1}=line(X(ans),Y(ans)); set(hPn{1},'marker','d','markersize',8,'color','b','linestyle','none','tag','qcflag','userdata','DMQC flag ''1''');
+  find(PRESqcn=='1');    hPn{1}=line(X(ans),Y(ans)); set(hPn{1},'marker','d','markersize',8,'color','r','linestyle','none','tag','qcflag','userdata','DMQC flag ''1''');
   find(PRESqcn=='4');    hPn{4}=line(X(ans),Y(ans)); set(hPn{4},'marker','o','markersize',8,'color','r','linestyle','none','tag','qcflag','userdata','DMQC flag ''4''');
   %
   try % Try, because sometimes there are no flags at all

@@ -13,23 +13,29 @@ Float number \WMOnum\ was deployed on \input{depdate}
 % Some new salinity flags added.  
 % All profiles have been visually inspected, including for temperature in the cycles with bad salinities.
 % Quite a few temperature flags were reversed due to RTQC apparently simultaneously flagging both temperature and salinity.
+% Several new salinity flags are added due to clearly visible spikes.
+% There were 7 missing positions, flagged as interpolated in RTQC.
 % Visual verification of all profiles was done, resulting in only 2 new bad flags in one profile.
 % Visual control of all profiles has been done, and one profile needed larger parts of its salinity flagged.
 % Visual verification of in total 232 RTQC '4' flags in 7 profiles was done (T\&S), of which two had large groups of deviating salinity readings. 
 % The DMQC tests resulted in 2 further bad flags, all minor individual spikes.
 % No RTQC '4' flags where present, nor was any new bad flags necessary in DMQC. 
+% Apart from 7 cycles having multiple profiles or pressure returning to top (with superfluous data pressure-flagged in RTQC, and parameters in subsequent DMQC), only few new salinity and temperature spikes were found by DMQC in other cycles.
 %% Further 4 RTQC flags has been verified now.
 %% There were no further RTQC flags to inspect nor any new flags yielded in this DMQC.
 %% Now there were no further RTQC flags to inspect, but DMQC resulted in 4 new flags.
 % Note that there were many descending profiles from this float, and their salinities were all severely erratic and thus flagged bad.
+% There were extrapolated and missing positions in the last part of the lifetime, beginning with Cycle 36, all flagged as bad.
+% For this APEX float, sea surface pressure adjustments are done until Cycle 35.
 % The sea surface pressure data are not displaying values below 0~dbar and there are no indications of negative pressure drift.
 % The initial comparison between Argo float data and reference data, shows that temperature and salinity data are within normal values, somewhat on the warm and fresh side.
+% The initial comparison between Argo float data and reference data, can due to lack of reference data and the high variability only give an indication that temperature and salinity data are within normal values.
 % The comparison with satellite altimeter data shows the same trends, but the float derived DHA has very little of the variability seen in altimetry data.
 % The comparison with satellite altimeter data suggested no notable discrepancies.
 % The comparison with satellite altimeter data shows strong coherence. (Barotropic dynamics are normally strongest over slopes.)
 % The comparison with satellite altimeter data shows similar but weaker variability in the float derived DHA.
 % The comparison with satellite altimeter data shows large discrepancies, but this is expected in deep waters.
-
+% Satellite altimeter data was not provided for this float at this point.
 % For this float the operator has determined new CPcor (within the range of the recommended) based on a near-deployment ship CTD profile.
 
 % The OWC analysis showed no noteworthy indications of drift or offset. Hence, no correction is done.
@@ -40,14 +46,20 @@ Float number \WMOnum\ was deployed on \input{depdate}
 % The OWC analysis showed a consistent positive salinity offset through all cycles ($\Delta S \approx -0.008$).
 % Reference data is somewhat old and also indicates a trend (Figure~\protect\ref{fig:trendcheck}), but more importantly it may consist of many floats uncorrected for CPcor.
 % Using only CTD-reference data showed very scarce (old) availaility in the region, adn smaller offset was found by OWC, and for half of the period it was none at all (not shown).
+% The OWC analysis could not be completet in these shallow waters. Instead a comparison with near-coinciding reference data was made, yielding no reason to suspect drift.
 % Based on these considerations, it is decided not to correct this float.
 %
-% The OWC analysis showed a negative salinity offset and trend, and float salinity has been corrected with a linear correction from the first cycle. The initial offset is confirmed by ship CTD profile near deployment (Figure~\protect\ref{fig:simple_offset}).
+% The OWC analysis showed a negative salinity offset and trend, and float salinity has been corrected with a linear correction from the first cycle.
+% The initial offset is confirmed by ship CTD profile near deployment (Figure~\protect\ref{fig:simple_offset}).
+% However, ship CTD profile near deployment (Figure~\protect\ref{fig:simple_offset}) shows evidence to the contary (at depths beyond any variability such as eddy influence).
+% (See notes in Section~\ref{sec:appendix-notes} for details.)
+% The OWC analysis showed some positive salinity offset suggesting $\Delta S \approx -0.004$ (Figure~\protect\ref{SalWithErrors}), and the reference data used is contemporary with float (Figure~\protect\ref{fig:trendcheck}).
 % The OWC analysis showed no indications of salinity drift before cycle~47, thereafter a weak drift started which suddenly developed into an extreme, unrealistic saline drift after cycle~54. This calibration was split into parts with cycles \input{calseries}\unskip. No correction is done to the first part, a linear correction is applied to the middle part, while salinity profiles in the last part are considered uncorrectable and marked as bad (qc='4') throughout.
 %\textbf{Hence, this float's salinity should be greylisted.}
 
 
 \input{monitoring} % DO NOT TOUCH!
+% It could be that the float is under sea ice for the time being.
 
 %%% Local Variables: 
 %%% mode: plain-tex

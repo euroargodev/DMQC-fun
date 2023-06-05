@@ -98,8 +98,7 @@ and salinity.
 %   alpha was 0.141 and tau was 6.68 s (Johnson et al., 2006).}
 
 The salinity calibration has been performed using the configuration and objective
-mapping parameters included in Section~\ref{Configuration1}.
-                                %and ~\ref{Configuration2}.
+mapping parameters included in Section~\ref{sec:salcompare}.
 The Argo float data were compared to nearby CTD and Argo profiles from the
 following reference databases: \small{{\verbatiminput{refdir}}}
 %
@@ -197,7 +196,7 @@ shown in Table~\ref{tab:rtqc}.
 \input{comments}
 % 
 Note that the flagging summarised and shown in this section, does not
-include any flags resulting from OWC analysis (Section~\ref{sec:OWC}). See
+include any flags resulting from OWC analysis (Section~\ref{sec:salcompare}). See
 the discussion and conclusions (Section~\ref{sec:discussion}) about any
 extra flagging based on the OWC analysis.
 %
@@ -217,10 +216,14 @@ in Section~3.2 of Wong et al.~(2021).
 %
 Chronology of JULD was tested by a simple automated test and any missing
 or erroneous values replaced by linear interpolation.
-%
+\input{JULDtest}
+
 Position outliers were checked for visually in a map such as in
-Figure~\ref{fig:float-info} but based on original data, and any positions
-replaced by 2D linear interpolation.
+Figure~\ref{fig:float-info} but based on original data, and also in a
+time-series reprsentation using the same manual checking tool as described
+in Section~\ref{sec:visualDMQC}. Any missing positions have been replaced by 2D
+linear interpolation when possible.
+\input{POStest}
 
 
 \newpage
@@ -296,7 +299,7 @@ and can be changed, or new flags can be added, interactively.
 
 
 \newpage
-\subsection{Overall comparison with the reference data}
+\subsection{Overall comparison with the reference data}\label{sec:overall}
 In addition to the visual control of individual profiles
 (Section~\ref{sec:visualDMQC}), the overall state of the dataset can be
 viewed in Figures~\ref{fig:float-info} and \ref{fig:hovmoller}, as well as
@@ -304,8 +307,8 @@ all profiles in relation to reference data in the vicinity of the float in
 Figure~\ref{fig:refcomp}.
 
 Trends in salinity in the same reference data are also compared to float
-data (Figure~\ref{fig:trendcheck}) in order to aid interpretation of the
-calibration results in Section~\ref{results_CTDArgo}.
+data (Figure~\ref{fig:trendcheck}) in order to aid interpretation of any
+calibration results in Section~\ref{sec:salcompare}.
 
 \begin{figure}[H] 
   \input{refcomp}  % This part is automated in PREPARE_FLOATS.
@@ -354,126 +357,38 @@ latter are the new profiles subject to the latest DMQC session.
 
 
 \newpage
-\section{Correction of Salinity Data}\label{sec:OWC}
+\section{Correction of Salinity Data}\label{sec:salcorrect}
 %
 % Deep ARVOR FLOATS PRESSURE DEPENDENT CONDUCTIVITY BIAS 
 \input{prescondbias} % Full subsection or empty file
 
-%\subsection{Comparison between Argo Float and CTD Climatlogy}
-\subsection{Comparison between Argo Float and CTD and Argo Climatology} 
+\subsection{Comparison between Argo Float and CTD and Argo reference data}\label{sec:salcompare}
 %
-The OWC-toolbox uses reference data in order to investigate potential
-salinity drift and calculate calibration offsets. Figure~\ref{trajectory}
-shows the positions of reference data actually used in mapping. In 
-Appendix~B profile plots of reference data from the WMO squares
-(\input{wmosquares}) traversed by the float, can be found.
-
-For floats with previously assigned uncorrectable profiles,
-these profiles are still included in the current OWC analysis
-in order to avoid gaps in the presentation of the mapping and
-calibration (esp.\ Figure~\ref{SalWithErrors}). 
-
-\subsubsection{Configuration}\label{Configuration1}
-% The following is a trascript of the \texttt{ow\_config.txt} file of the
-% OWC toolbox with the parameters set for the final correction, as well as
-% comments added by the operator.
-% \verbatiminput{ow_config.txt} 
-The following are the mapping configuration parameters set in
-\texttt{ow\_config.txt} file of the OWC toolbox with the parameters set
-for the final correction:  \verbatiminput{ow_config}
-%The scaling parameters are typical for use in the Lofoten Basin. % (LBmap, KAMage, KAMphi)
-
-The calseries parameters are set in \texttt{set\_calseries.m} file as
-follows: \verbatiminput{cal_par}
-
-
-\subsubsection{Results}\label{results_CTDArgo}
-Figures \ref{trajectory} through \ref{Salinity_OWlevels} show the results
-of the comparison and correction of the salinity data.
+In Appendix~B profile plots of reference data from the WMO squares
+(\input{wmosquares}) traversed by the float, can be found. These data can
+be used in several ways.
 %
-Notes made about this float during the different rounds of DMQC, can be
-found in Appendix~A.
+Important uses are the guidance provided for visual control of Argo
+profiles (Section~\ref{sec:visualDMQC}) and the overall comparison with
+all reference data in the region covered by the float trajectory
+(Section~\ref{sec:overall}).
+%
+A more advanced use is by the OWC-toolbox, which uses reference data in
+order to investigate potential salinity drift and calculate calibration
+offsets. The OWC method is essential for DMQC of Argo floats, but depends
+on invariable deep waters.
+% 
+Another possibility is to directly compare float profiles with reference
+profiles nearby and near in time, on a one-on-one basis. This can be a
+solution for shallow regions (e.g., the Barents Sea and Baltic Sea).
+%
+The following subsections will reflect which methods have been applied for
+Float \WMOnum.
 
+\input{owc} % From RUN_OW_CALIBRATION or empty made in PREPARE_FLOATS or PAIR_FLOATS_WITH_REFERENCEDATA.
 
-\begin{figure}[ph]
-  \centering    
-  \includegraphics[width=\textwidth,natwidth=450,natheight=330]{\floatplots\WMOnum_1.eps}
-  \caption{Float \WMOnum. Location of the float profiles (red line with
-    black numbers) and the reference data selected for mapping (blue
-    dots).
-    Note that missing cycles are not included into OWC, so profile numbers do
-    not match cycle numbers.}
-  \label{trajectory}
-\end{figure}
-\begin{figure}[ph]
-    \centering    
-    \includegraphics[width=\textwidth,natwidth=1400,natheight=820]{\floatplots\WMOnum_3}
-    \caption{Float \WMOnum. Evolution of the suggested adjustment with
-      time. The top panel plots the potential conductivity multiplicative
-      adjustment. The bottom panel plots the equivalent salinity additive
-      adjustment. The red line denotes one-to-one profile fit that uses the
-      vertically weighted mean of each profile. The red line can be used to
-      check for anomalous profiles relative to the optimal fit.
-      Note that missing cycles are not included into OWC, so profile numbers do
-      not necessarily match cycle numbers.} 
-    \label{SalWithErrors}
-\end{figure}
-\begin{figure}[p]
-    \centering    
-    \includegraphics[width=\textwidth,natwidth=1000,natheight=900]{\floatplots\WMOnum_2}
-    \caption{Float \WMOnum. The original float salinity and the
-      objectively estimated reference salinity at the 10 float theta
-      levels that are used in calibration as errorbars. Lower panel is a
-      zoom to the latter.
-      Note that missing cycles are not included into OWC, so profile
-      numbers in legend do not necessarily match cycle numbers.}
-    \label{uncalibVsSalinity}
-\end{figure}
-\begin{figure}[p]
-    \centering    
-    \includegraphics[width=\textwidth,natwidth=1000,natheight=900]{\floatplots\WMOnum_4}
-    \caption{Float \WMOnum. Plots of calibrated float salinity and the
-      objectively estimated reference salinity at the 10 float theta
-      levels that are used in calibration as errorbars. Lower panel is a
-      zoom to the latter.
-      Note that missing cycles are not included into OWC, so profile
-      numbers in legend do not necessarily match cycle numbers.}
-    \label{CalibVsSalinity}
-\end{figure}
-\begin{figure}[p]
-    \centering     
-    \includegraphics[width=0.8\textwidth,natwidth=500,natheight=700]{\floatplots\WMOnum_5}
-    \caption{Float \WMOnum. Salinity anomaly on theta levels.
-      Note that missing cycles are not included into OWC, so profile numbers do
-      not necessarily match cycle numbers.}
-    \label{SalAnomOnTheta}
-\end{figure}
-\begin{figure}[p]
-    \centering    
-    \includegraphics[width=0.8\textwidth,natwidth=500,natheight=700]{\floatplots\WMOnum_7}
-    \caption{Float \WMOnum.  C alibrated salinity anomaly on theta levels.
-      Note that missing cycles are not included into OWC, so profile numbers do
-      not necessarily match cycle numbers.}
-    \label{CalibSalAnomOnTheta}
-\end{figure}
-\begin{figure}[p]
-    \centering    
-    \includegraphics[width=\textwidth,natwidth=1350,natheight=820]{\floatplots\WMOnum_6}
-    \caption{Float \WMOnum. Plots of the evolution of salinity with time
-      along with selected theta levels with minimum salinity variance.
-      Note that missing cycles are not included into OWC, so profile numbers do
-      not necessarily match cycle numbers.} 
-    \label{SalErrOnTheta}
-\end{figure}
-\begin{figure}[p]
-  \centerline{\includegraphics[width=1.2\textwidth,natwidth=1700,natheight=1000]{\floatplots\WMOnum_8}}
-  \caption{Float \WMOnum. Plots include the theta levels chosen for
-    calibration: Top left: Salinity variance at theta levels. Top right:
-    T/S diagram of all profiles of Argo float. Bottom left: potential
-    temperature plotted against pressure. Bottom right: salinity plotted
-    against pressure.} 
-  \label{Salinity_OWlevels}
-\end{figure}
+\input{coincidence} % From PAIR_FLOATS_WITH_REFERENCEDATA or empty made in PREPARE_FLOATS or RUN_OW_CALIBRATION.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -522,26 +437,22 @@ found in the author's own distribution at
 \item Pawlowicz, R., 2020. "M\_Map: A mapping package for MATLAB", version
   1.4m, [Computer software], available online at
   \url{http://www.eoas.ubc.ca/~rich/map.html}.
-\item Wong,~A., Keeley,~R., Carval,~T., and the Argo Data Management Team
-  (2021).  Argo Quality Control Manual for CTD and Trajectory Data.
+\item Annie Wong, Robert Keeley, Thierry Carval, and the Argo Data Management Team (2023).
+  Argo Quality Control Manual for CTD and Trajectory Data. 
   \href{url}{http://dx.doi.org/10.13155/33951}.
 \end{list}
 
 %%\end{flushleft}
 
-%\end{document}
-% ADD FILENAMES MANUALLY BELOW!!
-
 \newpage
+\FloatBarrier
 \section{Appendix A: File information and notes}\label{sec:appendix-notes}
 %
 \subsection*{Operator's notes}
 The following notes have been made about this float:
 \verbatiminput{notes}
 
-\subsection*{Scientific calibration information}
-%
-\input{scientific_calib_tabular}
+\input{scientific_calib_tabular} % From WRITE_D or empty made in PREPARE_FLOATS.
 
 \FloatBarrier
 \section{Appendix B: Reference data}\label{sec:appendix-refdata}
@@ -549,9 +460,12 @@ Here follows overview plots of the reference data in the WMO-squares
 traversed by Float~\WMOnum.
 \input{appendix}
 
-\input{supplementary} % If anything extra is made, it is done in this
-                      % file. Otherwise file will be empty made in PREPARE_FLOATS.
+\FloatBarrier
+\section{Appendix C: Supplementary information}\label{sec:supplementary}
 
+\input{shipctd} % From OPERATOR_CPCOR_NEW or empty made in PREPARE_FLOATS.
+
+\input{coincidence_appendix} % From PAIR_FLOATS_WITH_REFERENCEDATA or empty made in PREPARE_FLOATS.
 
 \end{document}
  
