@@ -1,7 +1,7 @@
 # DMQC-fun
  v0.9.
  J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
- Last updated: Mon Jun  5 15:08:02 2023 by jan.even.oeie.nilsen@hi.no
+ Last updated: Mon Jun  5 15:27:48 2023 by jan.even.oeie.nilsen@hi.no
 
  DMQC-fun is a comprehensive toolbox for performing DMQC on and
  salinity calibration of core data from Argo floats. The toolbox
@@ -78,7 +78,7 @@
 **run_ow_calibration**	
 		Runs OWC on all selected floats.
 
- pair_floats_with_referencedata
+**pair_floats_with_referencedata**	
 		Compares float profiles to individual reference data
 		profiles in the vicinity of float. Alternative when
 		OWC is not possible, but also useful for any float. 
