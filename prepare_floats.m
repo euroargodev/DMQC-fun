@@ -4,7 +4,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Wed May 24 13:40:44 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Wed Jun  7 00:01:42 2023 by jan.even.oeie.nilsen@hi.no
 %
 % You will likely run this at least twice when new profiles come in.
 % You set which floats to operate on etc. in INIT_DMQC. You also select
@@ -1334,7 +1334,7 @@ for I=1:length(download_dir)	% Loop floats
   plot(LONG,LAT,'marker','.','color','b'); 
   ax2=copyobj(ax,1005);							% Cluster map also on trend plot
   get(al,'position'); set(al,'position',[0.8-ans(3) ans(2:4)]);		% Move legend out of the way
-  get(ax2,'position'); set(ax2,'position',[0.8-ans(3) ans(2:4)]);	% Move cluster map out of the way
+  get(ax2,'position'); set(ax2,'position',[0.6-ans(3) ans(2:4)]);	% Move cluster map out of the way
   round(mima(get(ja,'ylim'))*100)/100; %set(ja,'ylim',ans);
   set(ja,'ytick',ans(1):.01:ans(2),'yminortick','on','yminorgrid','on');
   % Print figures to files:
@@ -1470,9 +1470,7 @@ for I=1:length(download_dir)	% Loop floats
     %
     figure(2001);clf;set(gcf,'OuterPosition',[1027 385 650 700]);	% Look at correction of first profile.  
     dline=minPRESS*[1 1];
-    %oldleg=['Float PSAL (CPcorSBE = ' num2str(CPcor_SBE*1.0e+8,'%6.2f') ' \cdot 10^{-8} dbar^{-1})'];
     leg.par.old=[' (CPcorSBE = ',num2str(CPcor_SBE*1.0e+8,'%6.2f'),' \cdot 10^{-8} dbar^{-1})'];
-    %leg.par.new=[' (CPcor\_new = ' num2str(CPcor_new*1.0e+8,'%6.2f') ' \cdot 10^{-8} dbar^{-1} ; cell-gain=',num2str((M_new-1)*1e3,'%6.2f'),'‰)'];
     leg.par.new=[' (CPcor\_new = ' num2str(CPcor_new*1.0e+8,'%6.2f') ' \cdot 10^{-8} dbar^{-1})'];
     leg.par.rec=[' (CPcor\_new = ' num2str(CPcor_rec*1.0e+8,'%6.2f') '\pm1.5 \cdot 10^{-8} dbar^{-1})'];
     hr=plot(PRES_ADJUSTED(:,np),PSAL_ADJUSTED(:,np),'g-',...

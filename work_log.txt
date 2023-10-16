@@ -6,81 +6,98 @@ J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel,
 See Contents.m for file overview; init_dmqc.m for init-file and setup instructions.
 Copy this file to your working directory for Argo DMQC (my_working_dir).
 
-0) For SETUP and FIRST TIME USE, go carefully through the instructions in INIT_DMQC.
-   INIT_DMQC contains constants, paths and settings for, and will be called by, all scripts in DMQC-fun. 
+0) For SETUP and FIRST TIME USE, go carefully through the instructions in
+   INIT_DMQC.  INIT_DMQC contains constants, paths and settings for, and
+   will be called by, all scripts in DMQC-fun.
 
-1) Download and unpack reference data.
-   In a shell, cd ~/Downloads/DMQC/ (i.e., your download_ref_data_dir) and
-   lftp -u <user,password> ftp.ifremer.fr/coriolis/ to check for new datasets.
-   If there are new data available, follow the instructions in LOAD_REFERENCEDATA to unpack.
-   Run LOAD_REFERENCEDATA to ingest, quick-check, and update OWC's list of reference data.
-   dd.mm.yyyy: 
+1) Download and unpack reference data.  In a shell, cd ~/Downloads/DMQC/
+   (i.e., your download_ref_data_dir) and lftp -u <user,password>
+   ftp.ifremer.fr/coriolis/ to check for new datasets.  If there are new
+   data available, follow the instructions in LOAD_REFERENCEDATA to
+   unpack.  Run LOAD_REFERENCEDATA to ingest, quick-check, and update
+   OWC's list of reference data.
+   dd.mm.yyyy:
 
-2) In INIT_DMQC check the list of float_names and associated parameters. There is a suite of parameters for the analysis
-   of each DMQC float (read the documentation inside), which you will update as you do DMQC and make your decisions.
-   Select the group of floats you want to download and work on.
-   It is by using INIT_DMQC that you will control all of your DMQC, including the OWC calibration.
+2) In INIT_DMQC check the list of float_names and associated parameters.
+   There is a suite of parameters for the analysis of each DMQC float
+   (read the documentation inside), which you will update as you do DMQC
+   and make your decisions.  Select the group of floats you want to
+   download and work on.  It is by using INIT_DMQC that you will control
+   all of your DMQC, including the OWC calibration.
 
 3) Download float data by running DOWNLOAD_FLOATS. No edits needed.
    dd.mm.yyyy:
 
-4) PREPARE_FLOATS builds the mat-file(s) of the selected float(s) for OWC.
-   It also tests for and uses PLOT_PROFILES to show spikes or inversions, which are set to NaN.
-   Select direction in INIT_DMQC, so to inspect ascending profiles first, and then change to descending. 
-   When new RTQC flags are found and inspected, float parameters (checked & clustering) in INIT_DMQC must be updated and PREPARE_FLOATS re-run.
-   The mat and eps files are saved in owc_data_dir (see init_dmqc.m for paths).
-   Previous DMQC is stored in said mat file, and it needs to be deleted for a total reassessment of flags.
-   The preliminary DMQC done here will also be saved for WRITE_D to write to D-files.
-   Figures, text snippets of metadata, as well as whole sections for the report are also made in this process.
+4) PREPARE_FLOATS builds the mat-file(s) of the selected float(s) for
+   OWC.  It also tests for and uses PLOT_PROFILES to show spikes or
+   inversions, which are set to NaN.  Select direction in INIT_DMQC, so to
+   inspect ascending profiles first, and then change to descending.  When
+   new RTQC flags are found and inspected, float parameters (checked &
+   clustering) in INIT_DMQC must be updated and PREPARE_FLOATS re-run.
+   The mat and eps files are saved in owc_data_dir (see init_dmqc.m for
+   paths).  Previous DMQC is also stored in these mat files, and it needs
+   to be deleted for a total reassessment of flags.  The preliminary DMQC
+   done here will also be saved for WRITE_D to write to D-files.  Figures,
+   text snippets of metadata, as well as whole sections for the report are
+   also made in this process.
    dd.mm.yyyy:
 
-4b) First time doing DMQC of a Deep Arvor float, use OPERATOR_CPCOR_NEW to decide on
-    a better CPcor_new to correct for pressure dependent conductivity bias.
-    Also use this if you want to study the simple offset between ship CTD and early cycle(s) of floats.
-    Needs ship CTD data put in a 'CTD' directory of the float's DMQC directory.
-    Results and figures are put in 'CPcor' directory of the float's DMQC directory.
-    Re-run PREPARE FLOATS (esp. finally)!
-    dd.mm.yyyy:
+4b) First time doing DMQC of a Deep Arvor float, use OPERATOR_CPCOR_NEW to
+    decide on a better CPcor_new to correct for pressure dependent
+    conductivity bias.  Also use this if you want to study the simple
+    offset between ship CTD and early cycle(s) of floats.  Needs ship CTD
+    data put in a 'CTD' directory of the float's DMQC directory.  Results
+    and figures are put in 'CPcor' directory of the float's DMQC
+    directory.  Re-run PREPARE FLOATS (esp. finally)!  dd.mm.yyyy:
 
-5) RUN_OW_CALIBRATION runs on all selected floats operating inside each float's working directory (see INIT_DMQC).
-   You will have to set/recheck OW-parameters in ow_config.txt and set_calseries.m in each float directory.
-   Previous calseries_*.mat output from OWC will be deleted automatically.
-   Delete the map_*.mat files manually first if you want to re-do the mapping.
-   Note that mapping takes a while, about 30 min per 100 cycles (on my laptop).
-   Afterwards, look through the output in the command window, and the figures in OWC float_plots directory,
-   and make your notes (in notes.tex) and conclude (in discussion.tex).
-   Set the decision for the float(s) in cal_action in INIT_DMQC, which allows for different actions
-   for the parts of calseries in set_calseries.m.
-   Re-run/iterate as many times you need.
+5) RUN_OW_CALIBRATION runs on all selected floats operating inside each
+   float's working directory (see INIT_DMQC).  You will have to
+   set/recheck OW-parameters in ow_config.txt and set_calseries.m in each
+   float directory.  Previous calseries_*.mat output from OWC will be
+   deleted automatically.  Delete the map_*.mat files manually first if
+   you want to re-do the mapping.  Note that mapping takes a while, about
+   30 min per 100 cycles (on my laptop).  Afterwards, look through the
+   output in the command window, and the figures in OWC float_plots
+   directory, and make your notes (in notes.tex) and conclude (in
+   discussion.tex).  Set the decision for the float(s) in cal_action in
+   INIT_DMQC, which allows for different actions for the parts of
+   calseries in set_calseries.m.  Re-run/iterate as many times as you
+   need.
    dd.mm.yyyy:
 
 5b) PAIR_FLOATS_WITH_REFERENCEDATA can be used when OWC fails, e.g., in
-    shallow seas. It finds referencedata near in time and space to any
+    shallow seas. It finds reference data near in time and space to any
     float positions, visualises and calculates simple salinity offsets
-    that can be used in judging acccuracy of the float salinity in areas
+    that can be used in judging accuracy of the float salinity in areas
     where there are no deep waters and OWC calibration is not possible.
     It makes a section for the report, pointing to figures in the appendix
-    that can aid the judgement. It can be run in any case, even if OWC
+    that can aid the judgement. It can be run in any case, even when OWC
     works, but then it only provides the figures in appendix of the
-    report. The only action is to decide that the float salintiy is bad
-    from some point (see the preamble og the script).
+    report. The only action is to decide that the float salinitiy is bad
+    from some point (see the preamble of the script).
     dd.mm.yyyy:
 
-6) When you have decided, it is time to use WRITE_D which:
-   Copies D and R files from download_dir's 'profiles' directory to D-files in 'Dfiles' directory.
-   Applies OWC adjustments, if decided.  (Make sure you enter your decision(s) in cal_action in INIT_DMQC.)
-   Updates the _ADJUSTED, _QC, _ERROR, SCIENTIFIC_CALIB_, attributes etc. in the Dfiles.
-   WRITE_D also makes content for the report (7) about its actions to the D-files.
-   At this point, WRITE_D and PREPARE_FLOATS can be run independently and without RUN_OW_CALIBRATION in between.
+6) When you have decided, it is time to use WRITE_D which: Copies D and R
+   files from download_dir's 'profiles' directory to D-files in 'Dfiles'
+   directory.  Applies OWC adjustments, if decided.  (Make sure you enter
+   your decision(s) in cal_action in INIT_DMQC.)  Updates the _ADJUSTED,
+   _QC, _ERROR, SCIENTIFIC_CALIB_, attributes etc. in the Dfiles.  WRITE_D
+   also makes content for the report (7) about its actions to the D-files.
+   At this point, WRITE_D and PREPARE_FLOATS can be run independently and
+   without RUN_OW_CALIBRATION in between.
    dd.mm.yyyy:
 
-7) The report can be made automagically with LaTeX on the master file DMQCreport_float.tex
-   in each float-directory. The contents made in (4-6) will be linked into the report.
-   You only need to edit discussion.tex and notes.tex, and some times supplementary.tex.
-   Use the report to check your conclusions. Run (4), (5), and/or (6) again as necessary, i.e., iterate (4-7).
+7) The report can be made automagically with LaTeX on the master file
+   DMQCreport_float.tex in each float-directory. The contents made in
+   (4-6) will be linked into the report.  You only need to edit
+   discussion.tex and notes.tex, and sometimes supplementary.tex.  Use the
+   report to check your conclusions. Run (4), (5), and/or (6) again as
+   necessary, i.e., iterate (4-7).
    dd.mm.yyyy:
 
-8) Deliver D-files by putting in cloud or ftp and notify Christine.Coatanoan@ifremer.fr.
+8) Deliver D-files by putting in cloud or ftp and notify
+   Christine.Coatanoan@ifremer.fr.
    dd.mm.yyyy:
 
 % ------ Below you could also write notes about more general issues: ------
+

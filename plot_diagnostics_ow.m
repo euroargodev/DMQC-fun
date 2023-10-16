@@ -4,7 +4,8 @@ function plot_diagnostics_ow( pn_float_dir, pn_float_name, po_system_configurati
 %
 % Annie Wong, 14 June 2011
 % Breck Owens, October 2006
-% Jan Even Oeie Nilsen, 2021
+% This copy has some changes by Jan Even Oeie Nilsen, 2021 for the
+% toolbox DMQC-fun
 %--------------------------------------------------------------------------
 
 %pn_float_dir='uw/';
@@ -81,7 +82,6 @@ figure
 set(gcf,'defaultaxeslinewidth',2)
 set(gcf,'defaultlinelinewidth',2)
 set(gcf,'defaultaxesfontsize',16)
-%set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
 
 colormap(jet(n));
 c=colormap;
@@ -123,20 +123,19 @@ plot(coastdata_x,coastdata_y,'k.-');
 
 for i=1:n
   h=plot(LONG(i),LAT(i),'+');
-  set(h,'color',c(i,:));
-  if any(intersect(i,10:10:1000))
+  set(h,'color',c(i,:)); % Even's loop
+  if any(intersect(i,10:10:1000)) % Even's loop
     j=text(LONG(i),LAT(i),int2str(PROFILE_NO(i)));
     %set(j,'color',c(i,:),'fontsize',12,'hor','cen');
-    set(j,'color','k','fontsize',12,'hor','cen');
+    set(j,'color','k','fontsize',12,'hor','cen'); % Even's black
   end
 end
 axis([min(LONG)-30, max(LONG)+30, min(LAT)-20, max(LAT)+20])
-axis([min(LONG)-10, max(LONG)+10, min(LAT)-5, max(LAT)+5])
+axis([min(LONG)-10, max(LONG)+10, min(LAT)-5, max(LAT)+5]) % Even's zoom
 set(gca,'FontSize',12)
 xlabel('Longitude');
 ylabel('Latitude');
-title( strcat(title_floatname, ' profile locations with historical data' ) ,'fontsize',10);
-
+title( strcat(title_floatname, ' profile locations with historical data' ) ,'fontsize',10); % Even added fontsize
 h=gca;
 xticks=get(h,'XTick');
 xticklabels=get(h,'XTickLabel');
@@ -160,8 +159,8 @@ legend([hfl,hhi(1)],'float','historical points','Location','Best');  % Even's ad
 % after it is made and even when you have specified object
 % handles. (Yes, it's stupid.) Hence legend has to be made after all plotting.
 
-%drawnow
-%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+%drawnow % Even's removal
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]); % Even's removal
 print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_1.eps'));
 
 
@@ -173,9 +172,7 @@ figure;
 set(gcf,'defaultaxeslinewidth',2)
 set(gcf,'defaultlinelinewidth',2)
 set(gcf,'defaultaxesfontsize',14)
-%set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
 set(gcf,'OuterPosition',get(0,'ScreenSize').*[1 1 .7 1]); % Even's addition
-%set(gcf,'OuterPosition',get(0,'ScreenSize').*[1 1 .7 1],'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl'); % Even's addition
 
 jj=[1:ceil(n/30):n]; % the legend can only fit 30 profiles
 ok = [];
@@ -203,17 +200,15 @@ end
 
 [tlevels, plevels, index, var_s_Thetalevels, Thetalevels] = find_10thetas( SAL, PTMP, PRES, la_ptmp, use_theta_gt, use_theta_lt, use_pres_gt, use_pres_lt, use_percent_gt);
 
-[inSmax,inSmin,inTmax,inTmin]=deal(NaN);
+[inSmax,inSmin,inTmax,inTmin]=deal(NaN);	 % Even's addition
 for i=1:n
   b = find( isnan(index(:,i))==0 );
   a = index(b,i);
   if ~isempty(a)
     %h = errorbar( la_ptmp(a,i), mapped_sal(a,i), mapsalerrors(a,i), 'o', 'color', c(i,:) );
-    %h = errorbar( la_ptmp(a,i), mapped_sal(a,i), mapsalerrors(a,i), 'horizontal', 'o', 'color', c(i,:) );
     h(i) = errorbar( mapped_sal(a,i),  la_ptmp(a,i), mapsalerrors(a,i), 'horizontal','.', 'color', c(i,:) );	 % Even's addition
-    inSmax=max(inSmax,max(mapped_sal(a,i)+mapsalerrors(a,i),[],'all')); inTmax=max(inTmax,max(la_ptmp(a,i),[],'all'));
-    inSmin=min(inSmin,min(mapped_sal(a,i)-mapsalerrors(a,i),[],'all')); inTmin=min(inTmin,min(la_ptmp(a,i),[],'all'));
-    %sbarlim(i)=[min(mapsalerrors()) max()],	 % Even's addition
+    inSmax=max(inSmax,max(mapped_sal(a,i)+mapsalerrors(a,i),[],'all')); inTmax=max(inTmax,max(la_ptmp(a,i),[],'all'));	 % Even's addition
+    inSmin=min(inSmin,min(mapped_sal(a,i)-mapsalerrors(a,i),[],'all')); inTmin=min(inTmin,min(la_ptmp(a,i),[],'all'));	 % Even's addition
   end
 end
 
@@ -237,7 +232,7 @@ legend([qq1;h(end)],[cellstr(int2str([PROFILE_NO(jj)]'));{'Mapped salinities'}],
 % after it is made and even when you have specified object
 % handles. (Yes, it's stupid.) Hence legend has to be made after all plotting.
 
-% Inlay zoomed in on the used temperature surfaces and objective errors (Even's addition):
+% ----- Inlay zoomed in on the used temperature surfaces and objective errors (Even's addition):-----
 pos=get(gca,'position');
 %set(gca,'position',pos+[0 0 -.05 0]);
 %set(gca,'position',pos+[0 0 0 -.3]);
@@ -249,10 +244,10 @@ set(inlay,'position',[pos(1) pos(2) pos(3) .3],...
 	  'ylim',[inTmin-.05 inTmax+.05],... % [-.8 -.3],...
 	  'xgrid','on');
 delete(get(inlay,'title'));
-
-%drawnow
+% ----------------------------------------
+%drawnow	 % Even's remove
 title( strcat( title_floatname, ' uncalibrated float data (-) and mapped salinity (o) with objective errors' ),'fontsize',10);  % Even's addition
-%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);	 % Even's remove
 print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_2.eps'));
 
 
@@ -295,13 +290,13 @@ set(gcf,'defaultlinelinewidth',2)
 set(gcf,'defaultaxesfontsize',16)
 set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
 subplot(2,1,1)
-h2c=plot(PROFILE_NO, pcond_factor, 'b-');
+h2c=plot(PROFILE_NO, pcond_factor, 'b-');	 % Even's addition
 hold on
-h1c=plot(PROFILE_NO, pcond_factor, 'g-');
+h1c=plot(PROFILE_NO, pcond_factor, 'g-');	 % Even's addition
 % plot station by station fit
 ok = find(isfinite(sta_mean));
-h1p=plot(PROFILE_NO(ok), sta_mean(ok), 'r-');
-% legend was here.
+h1p=plot(PROFILE_NO(ok), sta_mean(ok), 'r-');	 % Even's addition
+% legend was here.	 % Even's move to below
 errorbar(PROFILE_NO, pcond_factor, 2*pcond_factor_err,'b')
 errorbar(PROFILE_NO, pcond_factor, pcond_factor_err,'g*-')
 plot(PROFILE_NO(ok), sta_mean(ok), 'r-');
@@ -310,7 +305,7 @@ plot( [0, max(PROFILE_NO)+1], [1,1], 'k-')
 axis([ 0, max(PROFILE_NO)+1, min([pcond_factor-pcond_factor_err,1])-.0004, max([pcond_factor+pcond_factor_err,1])+.0004 ])
 set(gca,'FontSize',12)
 ylabel('r') % multiplicative term has no units
-title( strcat(title_floatname, ' potential conductivity (mmho/cm) multiplicative correction r with errors') ,'fontsize',10);
+title( strcat(title_floatname, ' potential conductivity (mmho/cm) multiplicative correction r with errors') ,'fontsize',10);	 % Even's addition
 
 legend([h2c,h1c,h1p],'2 x cal error','1 x cal error','1-1 profile fit', 'Location', 'Best');  % Even's addition
 % For Matlab R2018b legend includes objects added to the axes, even
@@ -319,12 +314,12 @@ legend([h2c,h1c,h1p],'2 x cal error','1 x cal error','1-1 profile fit', 'Locatio
 
 
 subplot(2,1,2)
-h2c=plot(PROFILE_NO, avg_Soffset, 'b-');
+h2c=plot(PROFILE_NO, avg_Soffset, 'b-');	 % Even's addition
 hold on
-h1c=plot(PROFILE_NO, avg_Soffset, 'g-');
+h1c=plot(PROFILE_NO, avg_Soffset, 'g-');	 % Even's addition
 % Plot station by station fit
 ok = find(isfinite(avg_Staoffset));
-h1p=plot(PROFILE_NO(ok), avg_Staoffset(ok), 'r-');
+h1p=plot(PROFILE_NO(ok), avg_Staoffset(ok), 'r-');	 % Even's addition
 errorbar(PROFILE_NO, avg_Soffset, 2*avg_Soffset_err,'b')
 errorbar(PROFILE_NO, avg_Soffset, avg_Soffset_err,'go-')
 plot(PROFILE_NO(ok), avg_Staoffset(ok), 'r-');
@@ -334,7 +329,7 @@ plot( [0, max(PROFILE_NO)+1], [0,0], 'k-')
 set(gca,'FontSize',12)
 xlabel('float profile number');
 ylabel('\Delta S')
-title( strcat(title_floatname, ' vertically-averaged salinity (PSS-78) additive correction \Delta S with errors') ,'fontsize',10);
+title( strcat(title_floatname, ' vertically-averaged salinity (PSS-78) additive correction \Delta S with errors') ,'fontsize',10);	 % Even's addition
 
 legend('2 x cal error','1 x cal error','1-1 profile fit', 'Location', 'Best');  % Even's addition
 % For Matlab R2018b legend includes objects added to the axes, even
@@ -342,8 +337,8 @@ legend('2 x cal error','1 x cal error','1-1 profile fit', 'Location', 'Best');  
 % handles. (Yes, it's stupid.) Hence legend has to be made after all plotting.
 
 
-%drawnow
-%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+%drawnow	 % Even's remove
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);	 % Even's remove
 print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_3.eps'));
 
 
@@ -353,9 +348,7 @@ figure;
 set(gcf,'defaultaxeslinewidth',2)
 set(gcf,'defaultlinelinewidth',2)
 set(gcf,'defaultaxesfontsize',14)
-%set(gcf,'OuterPosition',get(0,'ScreenSize')); % Even's addition
 set(gcf,'OuterPosition',get(0,'ScreenSize').*[1 1 .7 1]); % Even's addition
-%set(gcf,'OuterPosition',get(0,'ScreenSize').*[1 1 .7 1],'PaperPositionMode','manual','RendererMode','manual','Renderer','opengl'); % Even's addition
 
 jj=[1:ceil(n/30):n]; % the legend can only fit 30 profiles
 ok = [];% check to make sure we have choosen profiles with good data
@@ -374,6 +367,7 @@ for i=1:length(jj)
  set(qq1(i),'color',c(jj(i),:)) ;		% Even's addition
 end
 hold on;
+% legend was here % Even's move
 
 for i=1:n % plot all remaining profiles
   %plot( PTMP(:,i), cal_SAL(:,i) );
@@ -405,6 +399,7 @@ xlabel('Salinity (PSS-78)');		% Even's change
 %   axis([min_t,max_t,min_s,max_s]);
 % end
 axis([min_s,max_s,min_t,max_t]);		% Even's addition
+% Using the ranges from figure 2 som that they become comparable % Even
 
 %legend([qq1],int2str([PROFILE_NO(jj)]'), 'Location', 'NorthEastOutside');  % Even's addition
 legend([qq1;h(end)],[cellstr(int2str([PROFILE_NO(jj)]'));{'Mapped salinities'}],'Location','NorthEastOutside');  % Even's addition
@@ -412,7 +407,7 @@ legend([qq1;h(end)],[cellstr(int2str([PROFILE_NO(jj)]'));{'Mapped salinities'}],
 % after it is made and even when you have specified object
 % handles. (Yes, it's stupid.) Hence legend has to be made after all plotting.
 
-% Inlay zoomed in on the used temperature surfaces and objective errors (Even's addition):
+% --- Inlay zoomed in on the used temperature surfaces and objective errors (Even's addition):----
 pos=get(gca,'position');
 %set(gca,'position',pos+[0 0 -.05 0]);
 %set(gca,'position',pos+[0 0 0 -.3]);
@@ -424,10 +419,11 @@ set(inlay,'position',[pos(1) pos(2) pos(3) .3],...
 	  'ylim',[inTmin-.05 inTmax+.05],... % [-.8 -.3],...
 	  'xgrid','on');
 delete(get(inlay,'title'));
+% ----------------------------------------
 
 %drawnow
-title( strcat(title_floatname, ' calibrated float data (-) and mapped salinity (o) with objective errors' ) ,'fontsize',10);
-%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+title( strcat(title_floatname, ' calibrated float data (-) and mapped salinity (o) with objective errors' ) ,'fontsize',10);		% Even's addition
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);		% Even's removal
 print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_4.eps'));
 
 
@@ -453,10 +449,10 @@ d.LATITUDE = LAT;
 d.PROFILE_NO = PROFILE_NO;
 fl = anom(d,fl); % Brian King's routine
 subplot('position',[.1 .45 .8 .35])
-title(['       Salinity anom on theta.    ' title_floatname],'fontsize',10)
+title(['       Salinity anom on theta.    ' title_floatname],'fontsize',10)		% Even's addition
 
-%drawnow
-%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.5,8,10]);
+%drawnow		% Even's removal
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.5,8,10]);		% Even's removal
 print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_5.eps'));
 
 
@@ -652,15 +648,15 @@ if(isempty(Sint)==0)
     axis([0, max(PROFILE_NO)+1, SMIN-.05, SMAX+.05 ])
   end
   set(gca,'FontSize',12)
-  title( strcat(title_floatname, ' salinities with error on \theta= ', num2str(tlevels(j)), '^{\circ}C' ) ,'fontsize',10);
+  title( strcat(title_floatname, ' salinities with error on \theta= ', num2str(tlevels(j)), '^{\circ}C' ) ,'fontsize',10);		% Even's addition
   ylabel('PSS-78')
 end
 end
 legend('uncal float','mapped salinity','cal float w/1xerr.', 'Location', 'Best');
 xlabel('float profile number');
 
-%drawnow
-%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);
+%drawnow		% Even's removal
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.75,8,9.5]);		% Even's removal
 print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_6.eps'));
 
 
@@ -686,10 +682,10 @@ d.LATITUDE = LAT;
 d.PROFILE_NO = PROFILE_NO;
 fl = anom(d,fl); % Brian King's routine
 subplot('position',[.1 .45 .8 .35])
-title(['Calibrated salinity anom on theta. ' title_floatname],'fontsize',10)
+title(['Calibrated salinity anom on theta. ' title_floatname],'fontsize',10)		% Even's addition
 
-%drawnow
-%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.5,8,10]);
+%drawnow		% Even's removal
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.25,.5,8,10]);		% Even's removal
 print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_7.eps'));
 
 
@@ -707,7 +703,7 @@ plot(SAL,PTMP,'b-');
 x = get(gca,'xlim');
 y = get(gca,'ylim');
 xlabel('PSS-78')
-title(['OW chosen levels - ', pn_float_name],'fontsize',10);
+title(['OW chosen levels - ', pn_float_name],'fontsize',10);		% Even's addition
 for i=1:10
   hold on
   plot(x,[tlevels(i) tlevels(i)] ,'g-');
@@ -721,7 +717,7 @@ for i=1:10
   hold on
   plot(x,[tlevels(i) tlevels(i)] ,'g-');
 end
-title('Salinity Variance on Theta','fontsize',10)
+title('Salinity Variance on Theta','fontsize',10)		% Even's addition
 ylabel('Potential temp (^{\circ}C)')
 xlabel('salinity variance')
 %set(gca,'ylim',y)
@@ -732,7 +728,7 @@ plot(PTMP,-PRES,'b-');
 x = get(gca,'xlim');
 xlabel('^{\circ}C')
 ylabel('Pressure (dbar)')
-title(['OW chosen levels - ', pn_float_name],'fontsize',10);
+title(['OW chosen levels - ', pn_float_name],'fontsize',10);		% Even's addition
 for i=1:10
   hold on
   plot(x,[-plevels(i) -plevels(i)] ,'g-');
@@ -743,15 +739,15 @@ subplot(224)
 plot(SAL,-PRES,'b-');
 x = get(gca,'xlim');
 xlabel('PSS-78')
-title(['OW chosen levels - ', pn_float_name],'fontsize',10);
+title(['OW chosen levels - ', pn_float_name],'fontsize',10);		% Even's addition
 for i=1:10
   hold on
   plot(x,[-plevels(i) -plevels(i)] ,'g-');
 end
 
 
-%drawnow
-%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.5,.25,8,10.25]);
+%drawnow		% Even's removal
+%set(gcf,'papertype','usletter','paperunits','inches','paperorientation','portrait','paperposition',[.5,.25,8,10.25]);		% Even's removal
 print('-depsc', strcat(po_system_configuration.FLOAT_PLOTS_DIRECTORY, pn_float_dir, pn_float_name, '_8.eps'));
 
 

@@ -3,7 +3,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Wed May 24 13:40:44 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Thu Oct 12 16:18:47 2023 by jan.even.oeie.nilsen@hi.no
 
 % - Ingests downloaded reference data into MATLAB_OWC's climatology/ directory.
 % - Creates three versions of the matrix of available metadata

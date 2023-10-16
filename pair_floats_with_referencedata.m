@@ -3,7 +3,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Wed May 24 15:27:57 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Fri Oct 13 14:11:53 2023 by jan.even.oeie.nilsen@hi.no
 
 % PAIR_FLOATS_WITH_REFERENCEDATA is mainly for DMQC in shallow seas. It
 % finds referencedata near in time and space to any float positions,
@@ -30,7 +30,7 @@
 % comparisons become valid, but will also work with unfinished visual
 % checking.
 %
-% Set your mdx and mdt in the init section below!
+% Set the max distance and time spearation allowed init section below!
 % 
 % ----------------------------------------------------------------------
 
@@ -77,6 +77,7 @@ for K=1:o		% Loop floats
   
   if M==0 % No pairings found
     fid=fopen('coincidence.tex','w'); % Empty the file, i.e., no section in report
+    fclose(fid); 
     fida=fopen('coincidence_appendix.tex','w'); % Empty the file, i.e., no appendix in report
   else
     % Make new section file for the report (if no OWC done):
@@ -100,6 +101,7 @@ for K=1:o		% Loop floats
 			  ' shared potential-temperature levels in those', ...
 			  ' layers, calculation or judgement of offset in those layers', ...
 			  ' may be relevant.']);
+      fclose(fid); 
     end % section for report    
     
     % Make new appendix file for the report (also when OWC is done, if any pair):
@@ -153,7 +155,6 @@ for K=1:o		% Loop floats
     
     end   % Loop float profiles with coincidence
   end   % If any float profiles with coincidence
-  fclose(fid); 
   fclose(fida); 
 end % loop floats
 
