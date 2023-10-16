@@ -1,7 +1,7 @@
 # DMQC-fun
  v0.9.
  J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
- Last updated: Mon Jun  5 15:27:48 2023 by jan.even.oeie.nilsen@hi.no
+ Last updated: Mon Oct 16 17:32:21 2023 by jan.even.oeie.nilsen@hi.no
 
  DMQC-fun is a comprehensive toolbox for performing DMQC on and
  salinity calibration of core data from Argo floats. The toolbox
@@ -24,7 +24,7 @@
  will need a working version of LaTeX, and for instance dviPDFm to make
  PDF reports. However, this is not necessary for DMQC-fun to be
  useful. (You might even be able to link the produced figures and text
- parts into some other word processor of choice.)
+ parts into some other word processor of choice.) 
  
  The files and directories in this toolbox are as follows:
 
