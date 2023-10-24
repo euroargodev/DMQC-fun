@@ -4,7 +4,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Wed Jun  7 00:01:42 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Thu Oct 19 13:11:52 2023 by jan.even.oeie.nilsen@hi.no
 %
 % You will likely run this at least twice when new profiles come in.
 % You set which floats to operate on etc. in INIT_DMQC. You also select
@@ -201,9 +201,15 @@ for I=1:length(download_dir)	% Loop floats
   PRES=ncread(infiles{I},'PRES');
   m=size(PRES,1)+1; % Add one to make sure every profile ends with a NaN.
   % Find the profile-files to check here:
-  Rfiles=edir(rootdirin{I});  % Will contain both D and R files, just
+  %% Rfiles=edir(rootdirin{I});  % Will contain both D and R files, just
+  %% EDIR only works on UNIX/Linux since it applies find and grep,
+  % using dir here:
+  Rfiles=dir(rootdirin{I});  % Will contain both D and R files, just
                               % like on the Coriolis server.
 			      % [] And A files?
+  Rfiles=strcat(rootdirin{I},{Rfiles.name}');				% Add the path
+  Rfiles=Rfiles(~contains(Rfiles,{'\.','/.'}));	% Remove the relative directory references
+ 
   % Select file names for chosen direction:
   switch direction
    case 'A', Rfiles=Rfiles(~contains(Rfiles,'D.nc'));
@@ -211,7 +217,8 @@ for I=1:length(download_dir)	% Loop floats
   end
   n=length(Rfiles);
   % Sort the file names by cycle number in file name:
-  if n>1, split(Rfiles,'_'); [~,AI]=sort(ans(:,2)); Rfiles=Rfiles(AI); end
+  if n>1, split(Rfiles,'_'); 
+    [~,AI]=sort(ans(:,2)); Rfiles=Rfiles(AI); end
   
   if direction=='D'
     if n<1

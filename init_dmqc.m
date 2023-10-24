@@ -6,9 +6,9 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Wed May 24 13:40:45 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Tue Oct 24 12:16:27 2023 by jan.even.oeie.nilsen@hi.no
 
-% ------------ FLOAT SETTTINGS: ----------------------------------------
+% ------------ FLOAT SETTINGS: ----------------------------------------
 TCL=complex(0,1); % Do not touch!
 % List all your floats here:
 	     
@@ -30,7 +30,7 @@ cal_action ={ [0]     , [0]     , [1]     , [0]     , [0]     , [0]     , [0]   
 checked    ={ 230       147       124       52        113       152       70        100       124       127     ,... % 0 
 	      0         0         136       132       0         412       369       0         176       89      ,... % 10
 	      164       185       104       90        90        186       139       141       143       154     ,... % 20 
-	      67        201           5         0         0         0         0         0         162       0       ,... % 30
+	      67        201       5         0         0         0         0         0         162       0       ,... % 30
 	      47        43        40        47        22        23        23        45        54        23      ,... % 40
               23        21        64										};   % 50
 %             1         2         3         4         5         6         7         8         9         10      
@@ -67,6 +67,7 @@ Nclu       ={ 2         2         2         1         1         3         1     
 % setdiff(ans,[34])	% Exclude lost in the Arctic?
 % [8 9 13 14];		% PSAL greylisted
 
+ans(1) % To just look at the first of the selected group
 
 % DO NOT CHANGE:
 float_names=float_names(ans); Nclu=Nclu(ans); cal_action=cal_action(ans); checked=checked(ans);  Dchecked=Dchecked(ans); 
@@ -134,7 +135,7 @@ itardir=[1 2 3]; % All reference data (DEFAULT)
 %   change during DMQC (above for convenience). 
 % - Float selection part for which floats to DMQC (above).
 % - Direction selection for working on ascending or descending
-%   profiles.  
+%   profiles (above).  
 % - This overview of this file.
 % - First-time preparations, i.e., the install instructions.
 % - Operator name etc. for the report and D-files.
@@ -157,12 +158,13 @@ itardir=[1 2 3]; % All reference data (DEFAULT)
 % ------------- FIRST-TIME SETUP AND PREPARATIONS: -------------------
 
 % 1) Install the following toolboxes in a designated directory for your
-% Argo related toolboxes (e.g., /Users/a21627/matlab/toolbox/Argo/):
+% Argo related toolboxes (e.g. /Users/a21627/matlab/toolbox/Argo/):
 % 
-%	DMQC-fun - https://github.com/imab4bsh/DMQC-fun.git
+%	DMQC-fun - https://github.com/euroargodev/DMQC-fun.git
 %	matlab_owc -  https://github.com/ArgoDMQC/matlabow.git
 % 
-% Also install 
+% Also install in your general toolbox directory
+% (e.g. /Users/a21627/matlab/toolbox/):
 %
 %	evenmat - https://github.com/evenrev1/evenmat.git
 %	m_map - https://www.eoas.ubc.ca/~rich/map.html
@@ -172,32 +174,39 @@ itardir=[1 2 3]; % All reference data (DEFAULT)
 % herein. Unzip and add their paths if you don't have them installed
 % already.
 %
-% When adding the paths to the toolboxes, good practice is to make
-% sure DMQC-fun comes above these other toolboxes in the path list
-% (i.e., addpath it last), so that our altered versions of some files
-% (e.g., plot_diagnostics_ow) are used instead of the matlab_owc
-% version. However, there is a fail-safe mechanism buildt into INIT_DMQC
-% that adds and orders these paths upon first time use.
+% As indicated, best practice of installing matlab toolboxes is to make
+% a directory in your home folder called ~/matlab/toolbox/ and put all
+% the toolbox folders there. Also, using DMQC-fun you should gather all
+% your Argo toolboxes under a common directory ~/matlab/toolbox/Argo/.
+%
+% Then add paths to all the new toolboxes. Do not include subfolders at
+% first, only do that later when error messages dictates which specific
+% subfolders are needed.  Also, make sure paths to DMQC-fun comes above
+% paths to the other toolboxes in the path list (i.e. addpath it last),
+% so that our altered versions of some files (e.g. plot_diagnostics_ow)
+% are used instead of the matlab_owc version. However, there is a
+% fail-safe mechanism buildt into INIT_DMQC that adds and orders these
+% paths upon first time use.
 % 
 % LaTeX: DMQC-fun includes a LaTeX report template and the Matlab
 % scripts produce snippets of content linked into that template. You
 % will need a working version of LaTeX, and for instance dvipdfm to make
-% PDFs. However, this is not necessary for DMQC-fun to be useful. (You
-% may even be able to link the produced figures and text parts into some
-% other word processor of choice.)
+% PDFs. However, this is not necessary for DMQC-fun to be working or
+% even useful. (You may even be able to link the produced figures and
+% text parts into some other word processor of choice.)
 
 % 2) You need to copy some files from the toolboxes manually, as you do
 % not want updating of toolboxes to erase your own settings. From
 % DMQC-fun toolbox copy the following files to your working directory
-% for Argo DMQC (my_working_dir):
+% for Argo DMQC (e.g. ~/mywork/Argo/) (i.e. my_working_dir):
 %
 %	init_dmqc.m (this file) 
 %	work_log.txt
 %
-% A path to your working directory will be added to make sure this
-% local INIT_DMQC is the one that will be used. 
+% A path to your working directory will be added by INIT_DMQC itself to
+% make sure this local INIT_DMQC is the one that will be used.
 %
-% In the working directory, make a subdirectory bak/matlab_owc/ and move
+% In the working directory, make a subdirectory bak/matlab_owc/ and copy
 % the following files from the matlab_owc installation to there:
 %
 %	ow_config.txt
@@ -208,8 +217,8 @@ itardir=[1 2 3]; % All reference data (DEFAULT)
 % directories for each float (6) for more tailored settings as you
 % analyse the float.
 
-% 3) In your init_dmqc.m (copy of this file), edit your float list on
-% top, as well as the information and paths below. Do not change the
+% 3) In your init_dmqc.m (your copy of this file), edit your float list
+% on top, as well as the information and paths below. Do not change the
 % names of the variables, as these are tailored to be used by both
 % DMQC-fun and OWC functions. The directory structure is built to keep
 % the following types of files separated:
@@ -221,22 +230,40 @@ itardir=[1 2 3]; % All reference data (DEFAULT)
 %	e) Your workspace with your own configurations and DMQC
 %	   report material
 %
-% The philosphy behind this separation is to be able to update toolboxes
-% without losing settings or data (a), to store direct results but
-% preferably be able to exclude them from any cloud sync or backup
-% process which is both unneccessary and might also slow down your
-% computer while processing (b), have the easily re-downloadable and
-% reproduceable data in a temporary folder (c-d), but keeping your time
-% consuming work and results where it is regularly backed up (e).  Ideas
-% for this kind of placement can be found below on the lines marked
-% 'EDIT THIS', where you will edit the paths according to your own
-% directory structure.
+% Example structures, with your home folder as base:
+% a) 
+% ~/matlab/toolbox/			(all other toolboxes)
+% ~/matlab/toolbox/Argo/		(my_argo_toolbox_dir; all Argo toolboxes)
+% ~/matlab/toolbox/Argo/DMQC-fun/
+% ~/matlab/toolbox/Argo/matlab_owc/
+% b)
+% ~/Arkiv/data/matlab_owc/		(owc_data_dir)
+% c)
+% ~/Downloads/DMQC/			(download_ref_data_dir)
+% d) 
+% ~/Downloads/ARGO/			(download_parent_dir)
+% e)
+% ~/mywork/Argo/			(my_working_dir)
+% ~/mywork/Argo/DMQC/			(the individual float folders)
+% ~/mywork/Argo/bak/			(any files you want to safekeep for reference)
+% ~/mywork/Argo/bak/matlab_owc/		(your generic OWC-setup files; see (2))
+% 
+% The philosophy behind this separation is to be able to update
+% toolboxes without losing settings or data (a), to store direct results
+% but preferably be able to exclude them from any cloud sync or backup
+% process or virus scanning which is unneccessary and might also
+% slow down your computer while processing (b), have the easily
+% re-downloadable and reproduceable data in a temporary folder (c-d),
+% but keeping your time consuming work and results where it is regularly
+% backed up (e).  Ideas for this kind of placement can be found below on
+% the lines marked 'EDIT THIS', where you will edit the paths according
+% to your own directory structure.
 
-% 4) Edit the paths in your generic ow_config.txt (see point 2
+% 4) Edit the paths in your own copy of ow_config.txt (see point 2
 % above). HISTORICAL_DIRECTORY, FLOAT_SOURCE_DIRECTORY,
 % FLOAT_MAPPED_DIRECTORY, FLOAT_CALIB_DIRECTORY, FLOAT_PLOTS_DIRECTORY,
-% CONFIG_DIRECTORY must be matched to owc_data_dir as set below in your
-% init_dmqc.m.
+% CONFIG_DIRECTORY must be matched to owc_data_dir as set below here in
+% your init_dmqc.m.
 
 % 5) Edit the mapping and calibration parameters in your generic
 % ow_config.txt and set_calseries.m. As far as possible and based on
@@ -247,40 +274,41 @@ itardir=[1 2 3]; % All reference data (DEFAULT)
 % you put here, the easier it will be to fine-tune to the individual
 % floats later.
 
-% 6) Have INIT_DMQC build work environment for you by setting float
-% selection to include all floats and turning on the final part of this
-% script and run the script. This will build a subfolder structure for
-% all your floats and distribute copies of your generic config files
-% from (5), as well as the LaTeX report files from the DMQC-fun toolbox,
-% into each subfolder. You will now be able to configure mapping and
+% 6) Have INIT_DMQC build your work environment for you by setting float
+% selection to include all floats and turning on the THE FIRST BUILD OF
+% YOUR WORKING DIRECTORIES part at the end of this script, and run the
+% script. This will build a subfolder structure for all your floats and
+% distribute copies of your generic config files from (5), as well as
+% the LaTeX report files from the DMQC-fun toolbox, into each subfolder,
+% one for each float. You will now be able to configure mapping and
 % calibration, make comments and write your summary/discussion,
 % individually for each float. The other necessary pieces of information
 % will be distrbuted by DMQC-functions as you use them. When adding new
-% floats to your DMQC responsibility, you can run this again only
-% selecting the new floats in the float selection part above. There is a
-% safety mechanism to avoid overwriting existing float directories, but
-% it is recommended that you turn off the building part once you have
-% your float directories in place.
+% floats to your DMQC responsibility, you can create new folders for
+% them by _carefully_ selecting _only_ these new floats in the float
+% selection part above, turn on the building part, and run this
+% script. There is a safety mechanism to avoid overwriting existing
+% float directories, but it is recommended that you turn off the
+% building part once you have your float directories in place.
 
 % 7) You are now ready to start doing core DMQC and salinity calibration
 % on your floats. Head over to your copy of WORK_LOG for a description
 % of the work flow.
 
-% Finally some words about dependencies and files. The files you moved
-% from the toolboxes could have been copied if you made absolutely sure
-% which one is first in the path list. You may desire to keep the
-% orignals in their place for backup/reference, but may run the risk of
-% them being used instead of your copies. Instead, careful use of
-% commenting instead of deleting is recommended. For the same reason
-% plot_diagnostics_ow could be deleted from the matlab_owc toolbox, but
-% it should be all right as long as the DMQC-fun toolbox has priority in
-% your path list.  There are copies of ow_config.txt and set_calseries.m
-% in the 'bak' folder of the DMQC-fun toolbox, but these are just
-% examples of how to alter them. It is recommended to copy these files
-% from the version of matlab_owc you have downloaded instead of here, to
-% ensure compatibility.
+% Finally some words about dependencies and files. We copy files out of
+% the toolboxes and into our own system, instead of moving, in order to
+% keep the orignals in their place for backup/reference. However, then
+% you must make absolutely sure which one is first in the path list. If
+% the original toolboxes are listed above the DMQC-toolbox and your
+% local system in the path list, the originals will be used
+% instead. This must be avoided by careful attention to the path list.
+% There are copies of ow_config.txt and set_calseries.m in the 'bak'
+% folder of the DMQC-fun toolbox, but these are just examples of how to
+% alter them. It is recommended to copy these files from the version of
+% matlab_owc you have downloaded instead of from here, to ensure
+% compatibility.
 
-% Now go carefully through the next sections and tailor to yourself.
+% Now go carefully through the next sections and tailor it to yourself.
 
 
 % ------------- OPERATOR DATA ETC. (for report and D-files) ------------					EDIT THIS!
@@ -316,10 +344,10 @@ float_profile_download_site='ftp.ifremer.fr/ifremer/coriolis/argo/dac/coriolis/'
 % -------------- PATHS (USE FULL PATHS AND DO NOT CHANGE THE NAME OF ANY OBJECTS): ---------------------------------------
 % Many of these paths are used by both DMQC-fun and OWC-functions.
 % MATLABOW directories:
-owc_data_dir='/Users/a21627/Arkiv/data/matlab_owc/'; % Where you want OWC to put output.			EDIT THIS!
+owc_data_dir='/Users/a21627/Arkiv/data/matlab_owc/';		% Where you have set OWC to put output.		EDIT THIS!
 % In your copy of ow_config.txt,  HISTORICAL_DIRECTORY, FLOAT_SOURCE_DIRECTORY, FLOAT_MAPPED_DIRECTORY,
 % FLOAT_CALIB_DIRECTORY, FLOAT_PLOTS_DIRECTORY, CONFIG_DIRECTORY must be edited according to your chosen owc_data_dir.
-project_name='project_NorARGO/'; % Subdirectory to put in OWC's output directories.				EDIT THIS!
+project_name='project_NorARGO/'; % Subdirectory you have put in OWC's output directories (empty if not used).	EDIT THIS!
 source_dir=[owc_data_dir,'float_source/'];			% Automatic. 
 float_dirs=repmat({project_name},1,length(float_names));	% Automatic; necessary for ow_calibration.m.
 
@@ -397,7 +425,6 @@ if false      % (true = on, false = off)
       copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/DMQCreport_float.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
       copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/notes.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
       copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/discussion.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
-      copyfile([my_argo_toolbox_dir,'DMQC-fun/tex/supplementary.tex'],[my_working_dir,'DMQC',filesep,float_names{I},filesep]);
     end
   end
 end

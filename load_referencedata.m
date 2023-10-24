@@ -3,7 +3,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Thu Oct 12 16:18:47 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Wed Oct 18 10:21:47 2023 by jan.even.oeie.nilsen@hi.no
 
 % - Ingests downloaded reference data into MATLAB_OWC's climatology/ directory.
 % - Creates three versions of the matrix of available metadata
@@ -57,12 +57,15 @@ for j=1:length(refdir) % Loop reference-data directories
   if any(findstr('CTD',refdir{j}))
     for i=1:length(my_WMOs)
       %['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(my_WMOs(i)),'.mat ',tardir{1},filesep]
-      msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(my_WMOs(i)),'.mat ',tardir{1},filesep]);
+      %msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(my_WMOs(i)),'.mat ',tardir{1},filesep]);
+      %[SUCCESS,MESSAGE,MESSAGEID] = COPYFILE(SOURCE,DESTINATION,MODE)
+      msg = copyfile([download_ref_data_dir,filesep,refdir{j},filesep,'ctd_',int2str(my_WMOs(i)),'.mat'],tardir{1});
     end
   elseif any(findstr('ARGO',refdir{j}))
     for i=1:length(my_WMOs)
       %['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(my_WMOs(i)),'.mat ',tardir{3},filesep]
-      msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(my_WMOs(i)),'.mat ',tardir{3},filesep]);
+      %msg=system(['cp ',download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(my_WMOs(i)),'.mat ',tardir{3},filesep]);
+      msg = copyfile([download_ref_data_dir,filesep,refdir{j},filesep,'argo_',int2str(my_WMOs(i)),'.mat'],tardir{3});
     end
   end
 end
@@ -108,7 +111,7 @@ la_wmo_boxes=la_wmo_boxes_argo;	save([owc_data_dir,filesep,'constants',filesep,'
 % Then you can change the filenames to select, instead of fiddling inside matlab matrices
 
 % ----- Check the reference data (i.e., make a lot of figures): -----
-if true 
+if false 
   for j=1:length(tartyp)	% Loop the three data types
     d=edir(tardir{j},'mat',0,0); %filer=cellstr(char(d.name));	% List of files
     hf=check_referencedata(d,true);
