@@ -7,7 +7,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Wed May 24 13:40:44 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Tue Oct 24 22:47:55 2023 by jan.even.oeie.nilsen@hi.no
 
 
 %LONG(LONG>180)=LONG(LONG>180)-360;
@@ -50,6 +50,14 @@ if exist('jnb'), hpnb=m_line(lon(jnb),LAT(jnb)); set(hpnb,'marker','o','color','
 hcb=colorbar('southoutside');colormap(jet(n));caxis(mima(CYCLE_NUMBER)+[-.01 .01]);%caxis([0 n]);
 %xlabel(hcb,['Cycle number (',datestr(datenum(DATES(1),0,0),12),'-',datestr(datenum(DATES(end),0,0),12),')']);
 xlabel(hcb,['Cycle number (',datestr(time(1),12),'-',datestr(time(end),12),')']);
+% Sea ice concentration if lost position:
+intpos=POSqco=='8'; 
+if any(intpos)
+  groups(intpos); ans(~intpos)=0; [~,IA]=unique(ans,'stable');
+  for is=2:length(IA) % loop periods of missing positions
+    esic(lon(IA(is)-1),LAT(IA(is)-1),time(IA(is)),2);
+  end % Plot SIC on map near last valid position at day of disappearance
+end
 
 % TS-diagram:
 a_TS=subplot(2,3,2);

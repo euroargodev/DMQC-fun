@@ -4,7 +4,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Thu Oct 19 13:11:52 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Thu Oct 26 15:14:12 2023 by jan.even.oeie.nilsen@hi.no
 %
 % You will likely run this at least twice when new profiles come in.
 % You set which floats to operate on etc. in INIT_DMQC. You also select
@@ -201,15 +201,16 @@ for I=1:length(download_dir)	% Loop floats
   PRES=ncread(infiles{I},'PRES');
   m=size(PRES,1)+1; % Add one to make sure every profile ends with a NaN.
   % Find the profile-files to check here:
-  %% Rfiles=edir(rootdirin{I});  % Will contain both D and R files, just
+  Rfiles=edir(rootdirin{I});  % Will contain both D and R files, just
   %% EDIR only works on UNIX/Linux since it applies find and grep,
   % using dir here:
-  Rfiles=dir(rootdirin{I});  % Will contain both D and R files, just
+  %Rfiles=dir(rootdirin{I});  % Will contain both D and R files, just
                               % like on the Coriolis server.
 			      % [] And A files?
-  Rfiles=strcat(rootdirin{I},{Rfiles.name}');				% Add the path
-  Rfiles=Rfiles(~contains(Rfiles,{'\.','/.'}));	% Remove the relative directory references
- 
+  %Rfiles=strcat(rootdirin{I},{Rfiles.name}');				% Add the path
+  %Rfiles=Rfiles(~contains(Rfiles,{'\.','/.'}));	% Remove the relative directory references
+  % Now edir works also without unix/Linux.
+
   % Select file names for chosen direction:
   switch direction
    case 'A', Rfiles=Rfiles(~contains(Rfiles,'D.nc'));
@@ -550,10 +551,9 @@ for I=1:length(download_dir)	% Loop floats
   zerow=zeros(1,n);						% Row of zeros
   plot_profiles;						% Plots based on ADJUSTED parameters
   print(gcf,'-depsc',[outfiles{I}(1:end-4),'_raw.eps']);	% Print to file
-
+  
   % whos DENS
 
-  
   % W21 3.3. Delayed-mode procedures for pressure
   %
   % Bad data points identified by visual inspection from delayed-mode
@@ -1125,7 +1125,7 @@ for I=1:length(download_dir)	% Loop floats
   % Revisit these and print them in the end.
   
   % PLOT and PRINT the profile first-pressure series:
-  figure(1003); set(gcf,'OuterPosition',[1 385 1026 900]);
+  figure(1003); set(gcf,'OuterPosition',[1 185 1026 900]);%[1 385 1026 900]);
   ap(1)=subplot(2,1,1); set(ap(1),'position',get(ap(1),'position')+[0 .15 0 -.15]);
   hP1=plot(CYCLE_NUMBER,PRES_ADJUSTED(1,:),'b.'); grid; axis ij % ylabel('Surface pressure (PRES_0)  [dbar]');
   PRESqco(1,:)=='2'; h=line(CYCLE_NUMBER(ans),PRES_ADJUSTED(1,ans));set(h,'color','c','marker','s','linestyle','none');
@@ -1306,7 +1306,8 @@ for I=1:length(download_dir)	% Loop floats
     [years,~]=datevec(rdtime(dates)); years=years(:)';
     g_y=yrnow-30:yrnow+1; % center around newyear/winter 
     % Flexible depth grid:
-    g_d=200:400:2000; 
+    %%g_d=200:400:2000; 
+    g_d=MAP_P_EXCLUDE+200:400:2000; 
     find(min(PRES_ADJUSTED,[],'all') < g_d & g_d < max(PRES_ADJUSTED,[],'all'));
     if length(ans)==1, ans(1)+[0 1]; elseif isempty(ans), ans=1:2; end
     g_d=g_d(ans);

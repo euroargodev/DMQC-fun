@@ -4,7 +4,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Wed Jun  7 00:06:30 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Wed Oct 25 10:01:39 2023 by jan.even.oeie.nilsen@hi.no
 
 % This script does the following:
 % - Uses a list you maintain here, coupling your float to its

@@ -3,7 +3,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Wed Oct 18 10:21:47 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Thu Oct 26 15:38:45 2023 by jan.even.oeie.nilsen@hi.no
 
 % - Ingests downloaded reference data into MATLAB_OWC's climatology/ directory.
 % - Creates three versions of the matrix of available metadata
@@ -111,7 +111,7 @@ la_wmo_boxes=la_wmo_boxes_argo;	save([owc_data_dir,filesep,'constants',filesep,'
 % Then you can change the filenames to select, instead of fiddling inside matlab matrices
 
 % ----- Check the reference data (i.e., make a lot of figures): -----
-if false 
+if true 
   for j=1:length(tartyp)	% Loop the three data types
     d=edir(tardir{j},'mat',0,0); %filer=cellstr(char(d.name));	% List of files
     hf=check_referencedata(d,true);

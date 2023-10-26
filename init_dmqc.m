@@ -6,7 +6,7 @@
 %
 % DMQC-fun v0.9.
 % J. Even Ø. Nilsen, Ingrid M. Angel-Benavides, Birgit Klein, Malgorzata Merchel, and Kjell Arne Mork.
-% Last updated: Tue Oct 24 12:16:27 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Thu Oct 26 17:23:22 2023 by jan.even.oeie.nilsen@hi.no
 
 % ------------ FLOAT SETTINGS: ----------------------------------------
 TCL=complex(0,1); % Do not touch!
@@ -331,9 +331,10 @@ history_update			= 'DMQC performed on CORE variables';
 % None at the moment.
 
 % -------------- FTP SITES ----------------------------------------------					EDIT THIS FOR YOUR DAC!
-float_main_download_site='ftp.ifremer.fr/ifremer/argo/dac/coriolis/'; % Where we normally download from, and where our D-files go when submitted.
-%float_profile_download_site='ftp.ifremer.fr/ifremer/argo/dac/coriolis/'; % Location of 'profiles' directory (normally same place).
-float_profile_download_site='ftp.ifremer.fr/ifremer/coriolis/argo/dac/coriolis/'; % EDAC
+float_main_download_site='ftp.ifremer.fr';		    % The site we download from
+float_main_download_site_dir='/ifremer/argo/dac/coriolis/'; % Where we normally download from, and where our D-files go when submitted.
+%float_profile_download_site_dir='/ifremer/argo/dac/coriolis/'; % Location of 'profiles' directory (normally same place).
+float_profile_download_site_dir='/ifremer/coriolis/argo/dac/coriolis/'; % EDAC
 % EDAC is a special place if you need to access R files. These files are
 % R-files that have format updated, but does not seem to have RTQC
 % applied to them. Quoting Christine C.: "directly from our EDAC which

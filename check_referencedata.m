@@ -19,7 +19,7 @@ function hf = check_referencedata(file,wrte)
 %
 % See also EDIR FINDWMO WMOSQUARE
 
-% Last updated: Mon Apr 17 10:28:20 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Thu Oct 26 15:27:54 2023 by jan.even.oeie.nilsen@hi.no
 
 error(nargchk(1,2,nargin));
 if nargin<2 | isempty(wrte),   wrte=false;   end
@@ -36,8 +36,9 @@ set(hf,'units','points','innerposition',shape,'paperunits','points','paperpositi
 for i=1:length(file)		% Loop all mat-files
   
   if endsWith(file{i},'.mat'), file{i}=replace(file{i},'.mat',''); end
-  split(file{i},{'_'});
-  tartyp=ans{1};
+  %split(file{i},{'_'});
+  split(file{i},{filesep,'_'});  
+  tartyp=ans{end-1};
   wmosq=str2num(ans{end});
   load(file{i});
   D=size(pres);
